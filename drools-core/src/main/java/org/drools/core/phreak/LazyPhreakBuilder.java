@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.drools.base.definitions.rule.impl.RuleImpl;
 import org.drools.base.reteoo.NodeTypeEnums;
+import org.drools.core.common.BaseNode;
 import org.drools.core.common.DefaultEventHandle;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalFactHandle;
@@ -51,6 +52,7 @@ import org.drools.core.reteoo.AsyncReceiveNode;
 import org.drools.core.reteoo.AsyncSendNode;
 import org.drools.core.reteoo.BetaMemory;
 import org.drools.core.reteoo.BetaNode;
+import org.drools.core.reteoo.RightInputAdapterNode;
 import org.drools.core.reteoo.ConditionalBranchNode;
 import org.drools.core.reteoo.EvalConditionNode;
 import org.drools.core.reteoo.FromNode;
@@ -62,13 +64,12 @@ import org.drools.core.reteoo.LeftTupleSink;
 import org.drools.core.reteoo.LeftTupleSinkNode;
 import org.drools.core.reteoo.LeftTupleSource;
 import org.drools.core.reteoo.ObjectSink;
-import org.drools.core.reteoo.ObjectSource;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.PathEndNode;
 import org.drools.core.reteoo.PathMemory;
 import org.drools.core.reteoo.QueryElementNode;
-import org.drools.core.reteoo.RightInputAdapterNode;
-import org.drools.core.reteoo.RightInputAdapterNode.RiaPathMemory;
+import org.drools.core.reteoo.TupleToObjectNode;
+import org.drools.core.reteoo.TupleToObjectNode.SubnetworkPathMemory;
 import org.drools.core.reteoo.RightTuple;
 import org.drools.core.reteoo.RuleTerminalNodeLeftTuple;
 import org.drools.core.reteoo.RuntimeComponentFactory;
@@ -97,7 +98,7 @@ import static org.drools.core.phreak.BuildtimeSegmentUtilities.nextNodePosMask;
 import static org.drools.core.phreak.BuildtimeSegmentUtilities.updateNodeTypesMask;
 import static org.drools.core.phreak.EagerPhreakBuilder.Add.attachAdapterAndPropagate;
 import static org.drools.core.phreak.EagerPhreakBuilder.deleteLeftTuple;
-import static org.drools.core.phreak.RuntimeSegmentUtilities.createRiaSegmentMemory;
+import static org.drools.core.phreak.RuntimeSegmentUtilities.createSubnetworkSegmentMemory;
 import static org.drools.core.phreak.RuntimeSegmentUtilities.getOrCreateSegmentMemory;
 import static org.drools.core.phreak.RuntimeSegmentUtilities.getQuerySegmentMemory;
 import static org.drools.core.phreak.TupleEvaluationUtil.forceFlushLeftTuple;
@@ -728,7 +729,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
                     }
                     BetaNode bn = (BetaNode) node;
 
-                    if (!bn.isRightInputIsRiaNode()) {
+                    if (!bn.getRightInput().inputIsTupleToObjectNode()) {
                         for ( InternalWorkingMemory wm : wms ) {
                             attachAdapterAndPropagate(wm, bn);
                         }
@@ -771,7 +772,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
     }
 
     private static void deleteFactsFromRightInput(BetaNode bn, InternalWorkingMemory wm) {
-        ObjectSource source = bn.getRightInput();
+        BaseNode source = bn.getRightInput().getParent();
         if (source.getType() == NodeTypeEnums.WindowNode) {
             WindowNode.WindowMemory memory = wm.getNodeMemory(((WindowNode) source));
             for (DefaultEventHandle factHandle : memory.getFactHandles()) {
@@ -831,7 +832,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
                         AccumulateContext accctx = (AccumulateContext) lt.getContextObject();
                         visitChild( (TupleImpl) accctx.getResultLeftTuple(), insert, wm, rule);
                     }
-                } else if (NodeTypeEnums.ExistsNode == node.getType() && !node.isRightInputIsRiaNode()) { // do not process exists with subnetworks
+                } else if (NodeTypeEnums.ExistsNode == node.getType() && !node.inputIsTupleToObjectNode()) { // do not process exists with subnetworks
                     // If there is a subnetwork, then there is no populated RTM, but the LTM is populated,
                     // so this would be processed in the "else".
 
@@ -871,9 +872,9 @@ class LazyPhreakBuilder implements PhreakBuilder {
     }
 
     private static void processLeftTuplesOnLian( InternalWorkingMemory wm, boolean insert, Rule rule, LeftInputAdapterNode lian ) {
-        ObjectSource os = lian.getObjectSource();
+        BaseNode os = lian.getObjectSource();
         while (os.getType() != NodeTypeEnums.ObjectTypeNode) {
-            os = os.getParentObjectSource();
+            os = os.getParent();
         }
 
         ObjectTypeNode otn  = (ObjectTypeNode) os;
@@ -919,7 +920,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
                             for ( TupleImpl child = lt.getFirstChild(); child != null; child =  child.getHandleNext() ) {
                                 visitChild(child, insert, wm, rule);
                             }
-                        } else if (lt.getSink().getType() == NodeTypeEnums.RightInputAdapterNode) {
+                        } else if (lt.getSink().getType() == NodeTypeEnums.TupleToObjectNode) {
                             insertPeerRightTuple(lt, wm, rule, insert);
                         }
                     } else if (!insert) {
@@ -949,10 +950,10 @@ class LazyPhreakBuilder implements PhreakBuilder {
 
     private static void insertPeerRightTuple( TupleImpl lt, InternalWorkingMemory wm, Rule rule, boolean insert ) {
         // There's a shared RightInputAdaterNode, so check if one of its sinks is associated only to the new rule
-        TupleImpl prevLt = null;
-        RightInputAdapterNode rian = (RightInputAdapterNode) lt.getSink();
+        TupleImpl         prevLt = null;
+        TupleToObjectNode tton   = (TupleToObjectNode) lt.getSink();
 
-        for (ObjectSink sink : rian.getObjectSinkPropagator().getSinks()) {
+        for (ObjectSink sink : tton.getObjectSinkPropagator().getSinks()) {
             if (lt != null) {
                 if (prevLt != null && !insert && sink.isAssociatedWith(rule) && sink.getAssociatedTerminalsSize() == 1) {
                     prevLt.setPeer( null );
@@ -960,9 +961,10 @@ class LazyPhreakBuilder implements PhreakBuilder {
                 prevLt = lt;
                 lt = lt.getPeer();
             } else if (insert) {
-                BetaMemory bm = (BetaMemory) wm.getNodeMemory((BetaNode) sink);
-                prevLt = TupleFactory.createPeer(rian, prevLt);
-                bm.linkNode( (BetaNode) sink, wm );
+                BetaNode bn = ((RightInputAdapterNode) sink).getBetaNode();
+                BetaMemory bm = (BetaMemory) wm.getNodeMemory(bn);
+                prevLt = TupleFactory.createPeer(tton, prevLt);
+                bm.linkNode( bn, wm );
                 bm.getStagedRightTuples().addInsert(prevLt);
             }
         }
@@ -1207,10 +1209,10 @@ class LazyPhreakBuilder implements PhreakBuilder {
         PathEndNodeMemories tnMems = new PathEndNodeMemories();
 
         for (LeftTupleNode node : pathEndNodes.otherEndNodes) {
-            if (node.getType() == NodeTypeEnums.RightInputAdapterNode) {
-                RiaPathMemory riaMem = (RiaPathMemory) wm.getNodeMemories().peekNodeMemory(node);
-                if (riaMem != null) {
-                    tnMems.otherPmems.add(riaMem);
+            if (node.getType() == NodeTypeEnums.TupleToObjectNode) {
+                SubnetworkPathMemory subnMem = (SubnetworkPathMemory) wm.getNodeMemories().peekNodeMemory(node);
+                if (subnMem != null) {
+                    tnMems.otherPmems.add(subnMem);
                 }
             } else {
                 PathMemory pmem = (PathMemory) wm.getNodeMemories().peekNodeMemory(node);
@@ -1227,13 +1229,13 @@ class LazyPhreakBuilder implements PhreakBuilder {
         }
 
         for (LeftTupleNode node : pathEndNodes.subjectEndNodes) {
-            if (node.getType() == NodeTypeEnums.RightInputAdapterNode) {
-                RiaPathMemory riaMem = (RiaPathMemory) wm.getNodeMemories().peekNodeMemory(node);
-                if (riaMem == null && !tnMems.otherPmems.isEmpty()) {
-                    riaMem = (RiaPathMemory) wm.getNodeMemory((MemoryFactory<Memory>) node);
+            if (node.getType() == NodeTypeEnums.TupleToObjectNode) {
+                SubnetworkPathMemory subnMem = (SubnetworkPathMemory) wm.getNodeMemories().peekNodeMemory(node);
+                if (subnMem == null && !tnMems.otherPmems.isEmpty()) {
+                    subnMem = (SubnetworkPathMemory) wm.getNodeMemory((MemoryFactory<Memory>) node);
                 }
-                if (riaMem != null) {
-                    tnMems.subjectPmems.add(riaMem);
+                if (subnMem != null) {
+                    tnMems.subjectPmems.add(subnMem);
                 }
             } else {
                 PathMemory pmem = (PathMemory) wm.getNodeMemories().peekNodeMemory(node);
@@ -1311,7 +1313,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
                 collectPathEndNodes(kBase, sink, endNodes, tn, processedRule, hasProtos, hasWms, isBelowNewSplit);
             } else if (NodeTypeEnums.isTerminalNode(sink)) {
                 endNodes.otherEndNodes.add((PathEndNode) sink);
-            } else if (NodeTypeEnums.RightInputAdapterNode == sink.getType()) {
+            } else if (NodeTypeEnums.TupleToObjectNode == sink.getType()) {
                 if (sink.isAssociatedWith( processedRule )) {
                     endNodes.subjectEndNodes.add( (PathEndNode) sink );
                 }
@@ -1343,7 +1345,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
         Memory memory = reteEvaluator.getNodeMemory((MemoryFactory) node);
         if (memory.getSegmentMemory() == null) {
             if (NodeTypeEnums.isEndNode(node)) {
-                // RTNS and RiaNode's have their own segment, if they are the child of a split.
+                // RTNS and TupleToObjectNode's have their own segment, if they are the child of a split.
                 createChildSegmentForTerminalNode( node, memory );
             } else {
                 createSegmentMemory((LeftTupleSource) node, reteEvaluator);
@@ -1361,7 +1363,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
     }
 
     private static SegmentMemory createChildSegmentForTerminalNode( LeftTupleNode node, Memory memory ) {
-        SegmentMemory childSmem = new SegmentMemory( node ); // rtns or riatns don't need a queue
+        SegmentMemory childSmem = new SegmentMemory( node ); // rtns or TupleToObjectNodes don't need a queue
         PathMemory pmem = (PathMemory) memory;
 
         childSmem.setPos( pmem.getSegmentMemories().length - 1 );
@@ -1429,16 +1431,16 @@ class LazyPhreakBuilder implements PhreakBuilder {
                 if (NodeTypeEnums.isLeftTupleSource(sink)) {
                     tupleSource = (LeftTupleSource) sink;
                 } else {
-                    // rtn or rian
-                    // While not technically in a segment, we want to be able to iterate easily from the last node memory to the ria/rtn memory
-                    // we don't use createNodeMemory, as these may already have been created by, but not added, by the method updateRiaAndTerminalMemory
+                    // rtn or TupleToObjectNode
+                    // While not technically in a segment, we want to be able to iterate easily from the last node memory to the TupleToObjectNode/rtn memory
+                    // we don't use createNodeMemory, as these may already have been created by, but not added, by the method updateTupleToObjectAndTerminalMemory
                     Memory memory = reteEvaluator.getNodeMemory((MemoryFactory) sink);
-                    if (sink.getType() == NodeTypeEnums.RightInputAdapterNode) {
-                        PathMemory riaPmem = (RightInputAdapterNode.RiaPathMemory)memory;
-                        memories.add( riaPmem );
+                    if (sink.getType() == NodeTypeEnums.TupleToObjectNode) {
+                        PathMemory subnMem = (SubnetworkPathMemory)memory;
+                        memories.add( subnMem );
 
-                        RightInputAdapterNode rian = ( RightInputAdapterNode ) sink;
-                        ObjectSink[] nodes = rian.getObjectSinkPropagator().getSinks();
+                        TupleToObjectNode tton  = (TupleToObjectNode) sink;
+                        ObjectSink[]      nodes = tton.getObjectSinkPropagator().getSinks();
                         for ( ObjectSink node : nodes ) {
                             if ( NodeTypeEnums.isLeftTupleSource(node) )  {
                                 getOrCreateSegmentMemory( (LeftTupleSource) node, reteEvaluator );
@@ -1486,7 +1488,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
         smem.setSegmentPosMaskBit(ruleSegmentPosMask);
         smem.setPos(counter);
 
-        updateRiaAndTerminalMemory(tupleSource, tupleSource, smem, reteEvaluator, false, nodeTypesInSegment);
+        updateSubnetworkAndTerminalMemory(tupleSource, tupleSource, smem, reteEvaluator, false, nodeTypesInSegment);
 
         reteEvaluator.getKnowledgeBase().registerSegmentPrototype(segmentRoot, smem.getSegmentPrototype().initFromSegmentMemory(smem));
 
@@ -1579,13 +1581,13 @@ class LazyPhreakBuilder implements PhreakBuilder {
         // and bm.getSegmentMemory == null check can be used to avoid recursion.
         bm.setSegmentMemory(smem);
 
-        if (betaNode.isRightInputIsRiaNode()) {
-            RightInputAdapterNode riaNode = createRiaSegmentMemory( betaNode, reteEvaluator );
+        if (betaNode.getRightInput().inputIsTupleToObjectNode()) {
+            TupleToObjectNode tton = createSubnetworkSegmentMemory(betaNode, reteEvaluator);
 
-            PathMemory riaMem = reteEvaluator.getNodeMemory(riaNode);
-            bm.setRiaRuleMemory((RiaPathMemory) riaMem);
-            if (updateNodeBit && canBeDisabled(betaNode) && riaMem.getAllLinkedMaskTest() > 0) {
-                // only ria's with reactive subnetworks can be disabled and thus need checking
+            PathMemory subnetworkPathMemory = reteEvaluator.getNodeMemory(tton);
+            bm.setSubnetworkPathMemory((SubnetworkPathMemory) subnetworkPathMemory);
+            if (updateNodeBit && canBeDisabled(betaNode) && subnetworkPathMemory.getAllLinkedMaskTest() > 0) {
+                // only TupleToObjectNode's with reactive subnetworks can be disabled and thus need checking
                 allLinkedTestMask = allLinkedTestMask | nodePosMask;
             }
         } else if (updateNodeBit && canBeDisabled(betaNode)) {
@@ -1601,35 +1603,35 @@ class LazyPhreakBuilder implements PhreakBuilder {
     }
 
     /**
-     * This adds the segment memory to the terminal node or ria node's list of memories.
+     * This adds the segment memory to the terminal node or TupleToObjectNode node's list of memories.
      * In the case of the terminal node this allows it to know that all segments from
      * the tip to root are linked.
      * In the case of the ria node its all the segments up to the start of the subnetwork.
-     * This is because the rianode only cares if all of it's segments are linked, then
+     * This is because the TupleToObjectNode only cares if all of it's segments are linked, then
      * it sets the bit of node it is the right input for.
      */
-    private static int updateRiaAndTerminalMemory( LeftTupleSource lt,
-                                                   LeftTupleSource originalLt,
-                                                   SegmentMemory smem,
-                                                   ReteEvaluator reteEvaluator,
-                                                   boolean fromPrototype,
-                                                   int nodeTypesInSegment ) {
+    private static int updateSubnetworkAndTerminalMemory(LeftTupleSource lt,
+                                                         LeftTupleSource originalLt,
+                                                         SegmentMemory smem,
+                                                         ReteEvaluator reteEvaluator,
+                                                         boolean fromPrototype,
+                                                         int nodeTypesInSegment) {
 
         nodeTypesInSegment = checkSegmentBoundary(lt, reteEvaluator, nodeTypesInSegment);
 
         PathMemory pmem = null;
         for (LeftTupleSink sink : lt.getSinkPropagator().getSinks()) {
             if (NodeTypeEnums.isLeftTupleSource(sink)) {
-                nodeTypesInSegment = updateRiaAndTerminalMemory((LeftTupleSource) sink, originalLt, smem, reteEvaluator, fromPrototype, nodeTypesInSegment);
-            } else if (sink.getType() == NodeTypeEnums.RightInputAdapterNode) {
+                nodeTypesInSegment = updateSubnetworkAndTerminalMemory((LeftTupleSource) sink, originalLt, smem, reteEvaluator, fromPrototype, nodeTypesInSegment);
+            } else if (sink.getType() == NodeTypeEnums.TupleToObjectNode) {
                 // Even though we don't add the pmem and smem together, all pmem's for all pathend nodes must be initialized
-                RightInputAdapterNode.RiaPathMemory riaMem = (RightInputAdapterNode.RiaPathMemory) reteEvaluator.getNodeMemory((MemoryFactory) sink);
-                // Only add the RIANode, if the LeftTupleSource is part of the RIANode subnetwork
-                if (inSubNetwork((RightInputAdapterNode) sink, originalLt)) {
-                    pmem = riaMem;
+                SubnetworkPathMemory subnMem = (SubnetworkPathMemory) reteEvaluator.getNodeMemory((MemoryFactory) sink);
+                // Only add the TupleToObjectNode, if the LeftTupleSource is part of the TupleToObjectNode subnetwork
+                if (inSubNetwork((TupleToObjectNode) sink, originalLt)) {
+                    pmem = subnMem;
 
                     if (fromPrototype) {
-                        ObjectSink[] nodes = ((RightInputAdapterNode) sink).getObjectSinkPropagator().getSinks();
+                        ObjectSink[] nodes = ((TupleToObjectNode) sink).getObjectSinkPropagator().getSinks();
                         for ( ObjectSink node : nodes ) {
                             // check if the SegmentMemory has been already created by the BetaNode and if so avoid to build it twice
                             if ( NodeTypeEnums.isLeftTupleSource(node) && reteEvaluator.getNodeMemory((MemoryFactory) node).getSegmentMemory() == null )  {
@@ -1638,7 +1640,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
                         }
                     } else if ( ( pmem.getAllLinkedMaskTest() & ( 1L << pmem.getSegmentMemories().length ) ) == 0 ) {
                         // must eagerly initialize child segment memories
-                        ObjectSink[] nodes = ((RightInputAdapterNode) sink).getObjectSinkPropagator().getSinks();
+                        ObjectSink[] nodes = ((TupleToObjectNode) sink).getObjectSinkPropagator().getSinks();
                         for ( ObjectSink node : nodes ) {
                             if ( NodeTypeEnums.isLeftTupleSource(node) )  {
                                 getOrCreateSegmentMemory( (LeftTupleSource) node, reteEvaluator );
@@ -1667,7 +1669,7 @@ class LazyPhreakBuilder implements PhreakBuilder {
     private static void restoreSegmentFromPrototype(ReteEvaluator reteEvaluator, LeftTupleSource segmentRoot, int nodeTypesInSegment) {
         SegmentMemory smem = reteEvaluator.getKnowledgeBase().createSegmentFromPrototype(reteEvaluator, segmentRoot);
         if ( smem != null ) {
-            updateRiaAndTerminalMemory(segmentRoot, segmentRoot, smem, reteEvaluator, true, nodeTypesInSegment);
+            updateSubnetworkAndTerminalMemory(segmentRoot, segmentRoot, smem, reteEvaluator, true, nodeTypesInSegment);
         }
     }
 
@@ -1684,11 +1686,11 @@ class LazyPhreakBuilder implements PhreakBuilder {
     /**
      * Is the LeftTupleSource a node in the sub network for the RightInputAdapterNode
      * To be in the same network, it must be a node is after the two output of the parent
-     * and before the rianode.
+     * and before the TupleToObjectNode.
      */
-    private static boolean inSubNetwork(RightInputAdapterNode riaNode, LeftTupleSource leftTupleSource) {
-        LeftTupleSource startTupleSource = riaNode.getStartTupleSource().getLeftTupleSource();
-        LeftTupleSource current = riaNode.getLeftTupleSource();
+    private static boolean inSubNetwork(TupleToObjectNode tton, LeftTupleSource leftTupleSource) {
+        LeftTupleSource startTupleSource = tton.getStartTupleSource().getLeftTupleSource();
+        LeftTupleSource current = tton.getLeftTupleSource();
 
         while (current != startTupleSource) {
             if (current == leftTupleSource) {

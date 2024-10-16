@@ -30,7 +30,7 @@ import org.drools.core.reteoo.LeftTupleSink;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.Rete;
 import org.drools.core.reteoo.ReteDumper;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
 import org.drools.testcoverage.common.util.KieBaseUtil;
@@ -104,12 +104,12 @@ public class NodePositionInPathTest {
 
         BetaNode join3 = (BetaNode) join1.getSinkPropagator().getSinks()[0];
         assertThat(join3.getPathIndex()).isEqualTo(2);
-        RightInputAdapterNode ria1 = (RightInputAdapterNode) join3.getSinkPropagator().getSinks()[0];
+        TupleToObjectNode ria1 = (TupleToObjectNode) join3.getSinkPropagator().getSinks()[0];
         assertThat(ria1.getPathIndex()).isEqualTo(3);
 
         BetaNode join4 = (BetaNode) join1.getSinkPropagator().getSinks()[1];
         assertThat(join4.getPathIndex()).isEqualTo(2);
-        RightInputAdapterNode ria2 = (RightInputAdapterNode) join4.getSinkPropagator().getSinks()[0];
+        TupleToObjectNode ria2 = (TupleToObjectNode) join4.getSinkPropagator().getSinks()[0];
         assertThat(ria2.getPathIndex()).isEqualTo(3);
 
         LeftTupleNode[] rtn1PathNodes = rtn1.getPathNodes();

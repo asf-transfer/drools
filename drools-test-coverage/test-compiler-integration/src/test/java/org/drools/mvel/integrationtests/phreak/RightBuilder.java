@@ -28,15 +28,15 @@ import org.drools.core.reteoo.SegmentMemory;
 import org.drools.core.reteoo.TupleImpl;
 
 public class RightBuilder {
-    private InternalWorkingMemory      wm;
-    private RightTupleSink             sink;
-    private TupleSets      rightTuples;
-    private Scenario                   scenario;
+    private InternalWorkingMemory wm;
+    private RightTupleSink        sink;
+    private TupleSets             rightTuples;
+    private Scenario              scenario;
 
     public RightBuilder(Scenario scenario) {
         this.wm = scenario.getWorkingMemory();
         this.scenario = scenario;
-        this.sink = scenario.getBetaNode();
+        this.sink = scenario.getBetaNode().getRightInput();
         this.rightTuples = scenario.getRightTuples();
     }
 

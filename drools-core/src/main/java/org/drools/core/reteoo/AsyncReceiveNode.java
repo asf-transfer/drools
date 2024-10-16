@@ -81,7 +81,7 @@ public class AsyncReceiveNode extends LeftTupleSource
         this.betaConstraints = (binder == null) ? EmptyBetaConstraints.getInstance() : binder;
         this.betaConstraints.init(context, getType());
 
-        initMasks( context, tupleSource );
+        initMasks( context );
 
         hashcode = calculateHashCode();
     }

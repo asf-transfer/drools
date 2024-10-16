@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.drools.core.common.BaseNode;
 import org.drools.core.impl.InternalRuleBase;
+import org.drools.core.reteoo.RightInputAdapterNode;
 import org.drools.core.reteoo.LeftTupleSink;
 import org.drools.core.reteoo.LeftTupleSource;
 import org.drools.core.reteoo.ObjectSink;
@@ -61,6 +62,10 @@ public class RuleBaseNodes {
                                  leftTupleSink,
                                  nodes);
             }
+        } else if ( sink instanceof RightInputAdapterNode) {
+            RightInputAdapterNode node = (RightInputAdapterNode) sink;
+            nodes.put( sink.getId(), ((BaseNode)sink) );
+            addLeftTupleSink(kBase, node.getBetaNode(), nodes);
         } else if ( sink instanceof WindowNode ) {
             WindowNode node = (WindowNode) sink;
             nodes.put( sink.getId(), ((BaseNode)sink) );

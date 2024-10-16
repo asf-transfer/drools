@@ -1,260 +1,374 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 package org.drools.core.reteoo;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.drools.base.base.ObjectType;
-import org.drools.base.common.NetworkNode;
-import org.drools.base.definitions.rule.impl.RuleImpl;
+import org.drools.base.common.RuleBasePartitionId;
 import org.drools.base.reteoo.NodeTypeEnums;
 import org.drools.base.rule.Pattern;
-import org.drools.core.RuleBaseConfiguration;
-import org.drools.core.common.ActivationsManager;
+import org.drools.core.common.BaseNode;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
-import org.drools.core.common.Memory;
 import org.drools.core.common.PropagationContext;
 import org.drools.core.common.ReteEvaluator;
+import org.drools.core.common.TupleSets;
 import org.drools.core.common.UpdateContext;
-import org.drools.core.reteoo.SegmentMemory.SegmentPrototype;
+import org.drools.core.reteoo.AccumulateNode.AccumulateMemory;
 import org.drools.core.reteoo.builder.BuildContext;
+import org.drools.util.bitmask.AllSetBitMask;
 import org.drools.util.bitmask.BitMask;
-import org.kie.api.definition.rule.Rule;
+import org.drools.util.bitmask.EmptyBitMask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * When joining a subnetwork into the main network again, RightInputAdapterNode adapts the
- * subnetwork's tuple into a fact in order right join it with the tuple being propagated in
- * the main network.
- */
-public class RightInputAdapterNode extends ObjectSource
-    implements
-    LeftTupleSinkNode,
-    PathEndNode {
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
-    private static final long serialVersionUID = 510l;
+import static org.drools.base.reteoo.PropertySpecificUtil.isPropertyReactive;
+import static org.drools.core.phreak.RuleNetworkEvaluator.doUpdatesReorderChildLeftTuple;
+import static org.drools.core.phreak.TupleEvaluationUtil.flushLeftTupleIfNecessary;
 
-    private LeftTupleSource   tupleSource;
+public abstract class RightInputAdapterNode<T extends  BetaNode> extends BaseNode
+        implements ObjectSinkNode,
+                   RightTupleSink {
 
-    /**
-     * This is first node inside of the subnetwork. The split, with two outs, would be the parent node.
-     */
-    private LeftTupleSource   startTupleSource;
+    protected static final Logger    log               = LoggerFactory.getLogger(RightInputAdapterNode.class);
+    protected static final boolean   isLogTraceEnabled = log.isTraceEnabled();
 
-    private boolean           tupleMemoryEnabled;
+    protected T                      betaNode;
 
-    private LeftTupleSinkNode previousTupleSinkNode;
-    private LeftTupleSinkNode nextTupleSinkNode;
+    private ObjectSinkNode           previousObjectSinkNode;
+    protected BitMask                declaredMask = EmptyBitMask.get();
+    protected BitMask                inferredMask = EmptyBitMask.get();
+    private ObjectSinkNode           nextObjectSinkNode;
+    private BitMask                  negativeMask = EmptyBitMask.get();
+    private ObjectTypeNodeId         inputOtnId   = ObjectTypeNodeId.DEFAULT_ID;
 
-    private LeftTupleNode[] pathNodes;
+    private ObjectSource             source;
 
-    private PathEndNode[] pathEndNodes;
+    private Collection<String>       listenedProperties;
 
-    private PathMemSpec pathMemSpec;
+    protected boolean                inputIsTupleToObjectNode;
 
-    private SegmentPrototype[] segmentPrototypes;
+    private boolean                  inputIsPassive;
 
-    private SegmentPrototype[] eagerSegmentPrototypes;
+    private transient ObjectTypeNode objectTypeNode;
 
-    private int objectCount;
+    public RightInputAdapterNode(int id, ObjectSource input, BuildContext context) {
+        super(id, context.getPartitionId());
+        inputIsTupleToObjectNode = NodeTypeEnums.TupleToObjectNode == input.getType();
 
-    public RightInputAdapterNode() {
-    }
+        source = input;
 
-    /**
-     * Constructor specifying the unique id of the node in the Rete network, the position of the propagating <code>FactHandleImpl</code> in
-     * <code>ReteTuple</code> and the source that propagates the receive <code>ReteTuple<code>s.
-     *
-     * @param id
-     *      Unique id
-     * @param source
-     *      The <code>TupleSource</code> which propagates the received <code>ReteTuple</code>
-     */
-    public RightInputAdapterNode(final int id,
-                                 final LeftTupleSource source,
-                                 final LeftTupleSource startTupleSource,
-                                 final BuildContext context) {
-        super( id, context.getPartitionId() );
-        this.tupleSource = source;
-        this.tupleMemoryEnabled = context.isTupleMemoryEnabled();
-        this.startTupleSource = startTupleSource;
+        this.hashcode = calculateHashCode();
 
-        hashcode = calculateHashCode();
-        initMemoryId( context );
-    }
-
-    @Override
-    public PathMemSpec getPathMemSpec() {
-        return getPathMemSpec(null);
-    }
-
-
-    /**
-     * used during network build time, potentially during rule removal time.
-     * @param removingTN
-     * @return
-     */
-    @Override
-    public PathMemSpec getPathMemSpec(TerminalNode removingTN) {
-        if (pathMemSpec == null) {
-            pathMemSpec = calculatePathMemSpec( startTupleSource, removingTN );
+        if (context.isStreamMode() ) {
+            ObjectTypeNode otn = getObjectTypeNode();
+            if (otn != null) {
+                setStreamMode(otn.getObjectType().isEvent() );
+            }
         }
-        return pathMemSpec;
+    }
+    public ObjectSource getParent() {
+        return source;
     }
 
-
-    @Override
-    public void nullPathMemSpec() {
-        pathMemSpec = null;
+    public T getBetaNode() {
+        return betaNode;
     }
 
-    @Override
-    public void setPathMemSpec(PathMemSpec pathMemSpec) {
-        this.pathMemSpec = pathMemSpec;
-    }
-
-    @Override
-    public void resetPathMemSpec(TerminalNode removingTN) {
-        nullPathMemSpec();
-        pathMemSpec = getPathMemSpec(removingTN);
+    public void setBetaNode(T betaNode) {
+        this.betaNode = betaNode;
     }
 
     @Override
-    public void setSegmentPrototypes(SegmentPrototype[] smems) {
-        this.segmentPrototypes = smems;
-    }
+    public void assertObject( InternalFactHandle factHandle, PropagationContext pctx, ReteEvaluator reteEvaluator ) {
+        final BetaMemory memory = getBetaMemoryFromRightInput(betaNode, reteEvaluator);
 
-    @Override
-    public SegmentPrototype[] getSegmentPrototypes() {
-        return segmentPrototypes;
-    }
+        RightTuple rightTuple = createRightTuple(factHandle, this, pctx);
 
-    @Override
-    public SegmentPrototype[] getEagerSegmentPrototypes() {
-        return eagerSegmentPrototypes;
-    }
-
-    @Override
-    public void setEagerSegmentPrototypes(SegmentPrototype[] eagerSegmentPrototypes) {
-        this.eagerSegmentPrototypes = eagerSegmentPrototypes;
-    }
-
-    @Override
-    public void setPathEndNodes(PathEndNode[] pathEndNodes) {
-        this.pathEndNodes = pathEndNodes;
-    }
-
-    @Override
-    public PathEndNode[] getPathEndNodes() {
-        return pathEndNodes;
-    }
-
-    public LeftTupleSource getStartTupleSource() {
-        return startTupleSource;
-    }
-
-    public int getPathIndex() {
-        return tupleSource.getPathIndex() + 1;
-    }
-
-    public int getObjectCount() {
-        return objectCount;
-    }
-
-    public void setObjectCount(int count) {
-        objectCount = count;
-    }
-
-    /**
-     * Creates and return the node memory
-     */    
-    public RiaPathMemory createMemory(final RuleBaseConfiguration config, ReteEvaluator reteEvaluator) {
-        return (RiaPathMemory) AbstractTerminalNode.initPathMemory( this, new RiaPathMemory(this, reteEvaluator) );
-    }
-
-    public void doAttach( BuildContext context ) {
-        this.tupleSource.addTupleSink( this, context );
-    }
-
-    public void networkUpdated(UpdateContext updateContext) {
-        this.tupleSource.networkUpdated(updateContext);
-    }
-
-
-    protected boolean doRemove(final RuleRemovalContext context,
-                            final ReteooBuilder builder) {
-        if ( !isInUse() ) {
-            tupleSource.removeTupleSink(this);
-            return true;
+        boolean stagedInsertWasEmpty = memory.getStagedRightTuples().addInsert(rightTuple);
+        if ( isLogTraceEnabled ) {
+            log.trace("BetaNode stagedInsertWasEmpty={}", stagedInsertWasEmpty );
         }
-        return false;
+
+        boolean shouldFlush = isStreamMode();
+        if ( memory.getAndIncCounter() == 0 ) {
+            if ( stagedInsertWasEmpty ) {
+                memory.setNodeDirtyWithoutNotify();
+            }
+            shouldFlush = memory.linkNode( betaNode, reteEvaluator, !inputIsPassive) | shouldFlush;
+        } else if ( stagedInsertWasEmpty ) {
+            shouldFlush = memory.setNodeDirty( betaNode, reteEvaluator, !inputIsPassive) | shouldFlush;
+        }
+
+        if (shouldFlush) {
+            flushLeftTupleIfNecessary( reteEvaluator, memory.getOrCreateSegmentMemory( betaNode, reteEvaluator ), isStreamMode() );
+        }
     }
 
-    public boolean isLeftTupleMemoryEnabled() {
-        return tupleMemoryEnabled;
+    public void modifyObject(InternalFactHandle factHandle, ModifyPreviousTuples modifyPreviousTuples, PropagationContext context, ReteEvaluator reteEvaluator) {
+        TupleImpl rightTuple = modifyPreviousTuples.peekRightTuple(partitionId);
+
+        // if the peek is for a different OTN we assume that it is after the current one and then this is an assert
+        while ( rightTuple != null && rightTuple.getInputOtnId().before(getInputOtnId()) ) {
+            modifyPreviousTuples.removeRightTuple(partitionId);
+
+            // we skipped this node, due to alpha hashing, so retract now
+            rightTuple.setPropagationContext( context );
+            BetaMemory bm = BetaNode.getBetaMemory(((RightInputAdapterNode)rightTuple.getSink()).getBetaNode(), reteEvaluator);
+            ((RightInputAdapterNode) rightTuple.getSink()).doDeleteRightTuple(rightTuple, reteEvaluator, bm);
+            rightTuple = modifyPreviousTuples.peekRightTuple(partitionId);
+        }
+
+        if ( rightTuple != null && rightTuple.getInputOtnId().equals(getInputOtnId()) ) {
+            modifyPreviousTuples.removeRightTuple(partitionId);
+            rightTuple.reAdd();
+            if ( context.getModificationMask().intersects(inferredMask) ) {
+                // RightTuple previously existed, so continue as modify
+                rightTuple.setPropagationContext( context );  // only update, if the mask intersects
+
+                BetaMemory bm = BetaNode.getBetaMemory(betaNode, reteEvaluator);
+                rightTuple.setPropagationContext( context );
+                doUpdateRightTuple(rightTuple, reteEvaluator, bm);
+            } else if (rightTuple.getMemory() != null) {
+                reorderRightTuple(reteEvaluator, rightTuple);
+            }
+        } else {
+            if ( context.getModificationMask().intersects(inferredMask) ) {
+                // RightTuple does not exist for this node, so create and continue as assert
+                assertObject( factHandle, context, reteEvaluator );
+            }
+        }
     }
+
+    protected void reorderRightTuple(ReteEvaluator reteEvaluator, TupleImpl rightTuple) {
+        BetaNode.getBetaMemory(betaNode, reteEvaluator).getRightTupleMemory().removeAdd(rightTuple);
+        doUpdatesReorderChildLeftTuple(rightTuple);
+    }
+
+    public void doDeleteRightTuple(final TupleImpl rightTuple,
+                                   final ReteEvaluator reteEvaluator,
+                                   final BetaMemory memory) {
+        TupleSets stagedRightTuples = memory.getStagedRightTuples();
+
+        boolean stagedDeleteWasEmpty = stagedRightTuples.addDelete(rightTuple);
+
+        boolean shouldFlush = isStreamMode();
+        if ( memory.getAndDecCounter() == 1 ) {
+            if ( stagedDeleteWasEmpty ) {
+                memory.setNodeDirtyWithoutNotify();
+            }
+            shouldFlush = memory.unlinkNode(reteEvaluator) | shouldFlush;
+        } else if ( stagedDeleteWasEmpty ) {
+            // nothing staged before, notify rule, so it can evaluate network
+            shouldFlush = memory.setNodeDirty( betaNode, reteEvaluator ) | shouldFlush;
+        }
+
+        if (shouldFlush) {
+            flushLeftTupleIfNecessary( reteEvaluator, memory.getOrCreateSegmentMemory( betaNode, reteEvaluator ), isStreamMode() );
+        }
+    }
+
+    public void doUpdateRightTuple(final TupleImpl rightTuple,
+                                   final ReteEvaluator reteEvaluator,
+                                   final BetaMemory memory) {
+        TupleSets stagedRightTuples = memory.getStagedRightTuples();
+
+        boolean stagedUpdateWasEmpty = stagedRightTuples.addUpdate( rightTuple );
+
+        boolean shouldFlush = isStreamMode();
+        if ( stagedUpdateWasEmpty  ) {
+            shouldFlush = memory.setNodeDirty( betaNode, reteEvaluator ) | shouldFlush;
+        }
+
+        if (shouldFlush) {
+            flushLeftTupleIfNecessary( reteEvaluator, memory.getOrCreateSegmentMemory( betaNode, reteEvaluator ), isStreamMode() );
+        }
+    }
+
+    public static BetaMemory getBetaMemoryFromRightInput(BetaNode betaNode, ReteEvaluator reteEvaluator) {
+        return NodeTypeEnums.AccumulateNode == betaNode.getType() ?
+               ((AccumulateMemory)reteEvaluator.getNodeMemory(betaNode)).getBetaMemory() :
+               (BetaMemory) reteEvaluator.getNodeMemory( betaNode );
+    }
+
+
+    public RightTuple createRightTuple(InternalFactHandle handle,
+                                       RightTupleSink sink,
+                                       PropagationContext context) {
+        RightTuple rightTuple = new RightTuple(handle, sink );
+        rightTuple.setPropagationContext( context );
+        return rightTuple;
+    }
+
+    public void initDeclaredMask(BuildContext context) {
+        if (context == null || context.getLastBuiltPatterns() == null) {
+            // only happens during unit tests
+            declaredMask = AllSetBitMask.get();
+            return;
+        }
+
+        Pattern pattern = context.getLastBuiltPatterns()[0]; // right input pattern
+        inputIsPassive = pattern.isPassive();
+
+        if (!inputIsTupleToObjectNode()) {
+            ObjectType objectType = pattern.getObjectType();
+
+            if (isPropertyReactive(context.getRuleBase(), objectType)) {
+                listenedProperties = pattern.getListenedProperties();
+                List<String> accessibleProperties = pattern.getAccessibleProperties( context.getRuleBase() );
+                declaredMask      = pattern.getPositiveWatchMask(accessibleProperties);
+                declaredMask = declaredMask.setAll(betaNode.getRawConstraints().getListenedPropertyMask(pattern, objectType, accessibleProperties));
+                negativeMask = pattern.getNegativeWatchMask(accessibleProperties);
+            } else {
+                // if property reactive is not on, then accept all modification propagations
+                declaredMask = AllSetBitMask.get();
+            }
+        } else {
+            declaredMask = AllSetBitMask.get();
+            // There would have been no right input pattern, so swap current to first, so leftInput can still work
+            context.setLastBuiltPattern( context.getLastBuiltPatterns()[0] );
+        }
+    }
+
+    protected void initInferredMask() {
+        BaseNode unwrappedRight = getParent();
+        if ( unwrappedRight.getType() == NodeTypeEnums.AlphaNode ) {
+            AlphaNode alphaNode = (AlphaNode) unwrappedRight;
+            inferredMask = alphaNode.updateMask(declaredMask);
+        } else {
+            inferredMask = declaredMask;
+        }
+        inferredMask = inferredMask.resetAll(negativeMask);
+    }
+
+    @Override
+    public boolean inputIsTupleToObjectNode() {
+        return inputIsTupleToObjectNode;
+    }
+
+    @Override
+    public void byPassModifyToBetaNode (final InternalFactHandle factHandle,
+                                        final ModifyPreviousTuples modifyPreviousTuples,
+                                        final PropagationContext context,
+                                        final ReteEvaluator reteEvaluator) {
+        modifyObject( factHandle, modifyPreviousTuples, context, reteEvaluator );
+    }
+
+
+    public BitMask calculateDeclaredMask(ObjectType modifiedType, List<String> settableProperties) {
+        return null;
+    }
+
+
+    public void updateSink(ObjectSink sink, PropagationContext context, InternalWorkingMemory workingMemory) {
+        source.updateSink(this, context,  workingMemory );
+    }
+
+    @Override
+    public abstract void retractRightTuple(TupleImpl rightTuple, PropagationContext context, ReteEvaluator reteEvaluator);
+
+
+    @Override
+    public abstract void modifyRightTuple(TupleImpl rightTuple, PropagationContext context, ReteEvaluator reteEvaluator);
 
     /**
      * Returns the next node
      * @return
-     *      The next TupleSinkNode
+     *      The next ObjectSinkNode
      */
-    public LeftTupleSinkNode getNextLeftTupleSinkNode() {
-        return this.nextTupleSinkNode;
+    public ObjectSinkNode getNextObjectSinkNode() {
+        return this.nextObjectSinkNode;
     }
 
     /**
      * Sets the next node
      * @param next
-     *      The next TupleSinkNode
+     *      The next ObjectSinkNode
      */
-    public void setNextLeftTupleSinkNode(final LeftTupleSinkNode next) {
-        this.nextTupleSinkNode = next;
+    public void setNextObjectSinkNode(final ObjectSinkNode next) {
+        this.nextObjectSinkNode = next;
     }
 
     /**
      * Returns the previous node
      * @return
-     *      The previous TupleSinkNode
+     *      The previous ObjectSinkNode
      */
-    public LeftTupleSinkNode getPreviousLeftTupleSinkNode() {
-        return this.previousTupleSinkNode;
+    public ObjectSinkNode getPreviousObjectSinkNode() {
+        return this.previousObjectSinkNode;
     }
 
     /**
      * Sets the previous node
      * @param previous
-     *      The previous TupleSinkNode
+     *      The previous ObjectSinkNode
      */
-    public void setPreviousLeftTupleSinkNode(final LeftTupleSinkNode previous) {
-        this.previousTupleSinkNode = previous;
+    public void setPreviousObjectSinkNode(final ObjectSinkNode previous) {
+        this.previousObjectSinkNode = previous;
     }
 
-    public int getType() {
-        return NodeTypeEnums.RightInputAdapterNode;
+    void disablePropertyReactivity() {
+        inferredMask = AllSetBitMask.get();
     }
 
-    private int calculateHashCode() {
-        return this.tupleSource.hashCode() * 17 + ((this.tupleMemoryEnabled) ? 1234 : 4321);
+    public BitMask getNegativeMask() {
+        return negativeMask;
+    }
+
+    public ObjectTypeNodeId getInputOtnId() {
+        return inputOtnId;
+    }
+
+    public void setInputOtnId(ObjectTypeNodeId inputOtnId) {
+        this.inputOtnId = inputOtnId;
+    }
+
+    public boolean isRightInputPassive() {
+        return inputIsPassive;
+    }
+
+    @Override
+    public ObjectTypeNode getObjectTypeNode() {
+        if (objectTypeNode == null) {
+            ObjectSource source = this.source;
+            while ( source != null ) {
+                if ( NodeTypeEnums.ObjectTypeNode == source.getType()) {
+                    objectTypeNode = (ObjectTypeNode) source;
+                    break;
+                }
+                source = source.source;
+            }
+        }
+        return objectTypeNode;
+    }
+
+    @Override
+    public void doAttach(BuildContext context) {
+        super.doAttach(context);
+        this.source.addObjectSink(this);
+    }
+
+    @Override
+    public boolean doRemove(RuleRemovalContext context, ReteooBuilder builder) {
+        if ( !isInUse() ) {
+            source.removeObjectSink(this);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isInUse() {
+        return betaNode.isInUse();
+    }
+
+    protected int calculateHashCode() {
+        int hash = 29 * source.hashCode();
+        if (listenedProperties != null) {
+            hash += 41 * listenedProperties.hashCode();
+        }
+        return hash + (inputIsPassive ? 43 : 0);
     }
 
     @Override
@@ -263,176 +377,37 @@ public class RightInputAdapterNode extends ObjectSource
             return true;
         }
 
-        return ((NetworkNode)object).getType() == NodeTypeEnums.RightInputAdapterNode && this.hashCode() == object.hashCode() &&
-               this.tupleSource.getId() == ((RightInputAdapterNode)object).tupleSource.getId() &&
-               this.tupleMemoryEnabled == ( (RightInputAdapterNode) object ).tupleMemoryEnabled;
+        if ( //!NodeTypeEnums.isBetaNode((NetworkNode)object) ||
+            this.hashCode() != object.hashCode()) {
+            return false;
+        }
+
+        RightInputAdapterNode other = (RightInputAdapterNode) object;
+        return this.getClass() == other.getClass() &&
+               this.inputIsPassive == other.inputIsPassive &&
+               Objects.equals(this.listenedProperties, other.listenedProperties) &&
+               this.source.getId() == other.source.getId();
     }
 
     @Override
     public String toString() {
-        return "RightInputAdapterNode(" + id + ")[ tupleMemoryEnabled=" + tupleMemoryEnabled + ", tupleSource=" + tupleSource + ", source="
+        return "RightInputAdapterNode(" + id + ")[ source="
                + source + ", associations=" + associations + ", partitionId=" + partitionId + "]";
     }
 
-    public LeftTupleSource getLeftTupleSource() {
-        return this.tupleSource;
+    public void networkUpdated(UpdateContext updateContext) {
+        this.source.networkUpdated(updateContext);
     }
 
-    public void setTupleSource( LeftTupleSource tupleSource ) {
-        this.tupleSource = tupleSource;
+    public final void setPartitionIdWithSinks( RuleBasePartitionId partitionId) {
+        this.partitionId = partitionId;
     }
 
-    public ObjectTypeNodeId getLeftInputOtnId() {
-        throw new UnsupportedOperationException();
+    public BitMask getDeclaredMask() {
+        return declaredMask;
     }
 
-    public void setLeftInputOtnId(ObjectTypeNodeId leftInputOtnId) {
-        throw new UnsupportedOperationException();
-    }      
-    
-    @Override
-    public BitMask calculateDeclaredMask(Pattern pattern, ObjectType modifiedType, List<String> settableProperties) {
-        throw new UnsupportedOperationException();
+    public BitMask getInferredMask() {
+        return inferredMask;
     }
-
-    public static class RiaPathMemory extends PathMemory implements Memory {
-        private List<RuleImpl> rules;
-
-        public RiaPathMemory(PathEndNode pathEndNode, ReteEvaluator reteEvaluator) {
-            super(pathEndNode, reteEvaluator);
-        }
-
-        @Override
-        protected boolean initDataDriven( ReteEvaluator reteEvaluator ) {
-            for (PathEndNode pnode : getPathEndNode().getPathEndNodes()) {
-                if (NodeTypeEnums.isTerminalNode(pnode)) {
-                    RuleImpl rule = ( (TerminalNode) pnode ).getRule();
-                    if ( isRuleDataDriven( reteEvaluator, rule ) ) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        public RightInputAdapterNode getRightInputAdapterNode() {
-            return (RightInputAdapterNode) getPathEndNode();
-        }
-
-        @Override
-        public void doLinkRule(ReteEvaluator reteEvaluator) {
-            getRightInputAdapterNode().getObjectSinkPropagator().doLinkRiaNode( reteEvaluator );
-        }
-
-        @Override
-        public void doLinkRule(ActivationsManager activationsManager) {
-            doLinkRule(activationsManager.getReteEvaluator());
-        }
-
-        @Override
-        public void doUnlinkRule(ReteEvaluator reteEvaluator) {
-            getRightInputAdapterNode().getObjectSinkPropagator().doUnlinkRiaNode( reteEvaluator );
-        }
-
-        private void updateRuleTerminalNodes() {
-            rules = new ArrayList<>();
-            for ( ObjectSink osink : getRightInputAdapterNode().getObjectSinkPropagator().getSinks() ) {
-                for ( LeftTupleSink ltsink : ((BetaNode)osink).getSinkPropagator().getSinks() )  {
-                    findAndAddTN(ltsink, rules );
-                }
-            }
-        }
-
-        private void findAndAddTN( LeftTupleSink ltsink, List<RuleImpl> terminalNodes) {
-            if ( NodeTypeEnums.isTerminalNode(ltsink)) {
-                terminalNodes.add( ((TerminalNode)ltsink).getRule() );
-            } else if ( ltsink.getType() == NodeTypeEnums.RightInputAdapterNode) {
-                for ( NetworkNode childSink : ( ltsink).getSinks() )  {
-                    findAndAddTN((LeftTupleSink)childSink, terminalNodes);
-                }
-            } else {
-                for ( LeftTupleSink childLtSink : (ltsink).getSinkPropagator().getSinks() )  {
-                    findAndAddTN(childLtSink, terminalNodes);
-                }
-            }
-        }
-
-        public List<RuleImpl> getAssociatedRules() {
-            if ( rules == null ) {
-                updateRuleTerminalNodes();
-            }
-            return rules;
-        }
-
-        public String getRuleNames() {
-            Set<String> ruleNames = new HashSet<>();
-            for (RuleImpl rule : getAssociatedRules()) {
-                ruleNames.add(rule.getName());
-            }
-            return ruleNames.toString();
-        }
-
-        @Override
-        public int getNodeType() {
-            return NodeTypeEnums.RightInputAdapterNode;
-        }
-
-        public String toString() {
-            return "RiaMem(" + getRightInputAdapterNode().getId() + ") [" +getRuleNames() + "]";
-        }
-    }
-
-    public BitMask getLeftInferredMask() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void updateSink(ObjectSink sink, PropagationContext context, InternalWorkingMemory wm) {
-        throw new UnsupportedOperationException();
-    }
-
-    public LeftTupleNode[] getPathNodes() {
-        if (pathNodes == null) {
-            pathNodes = AbstractTerminalNode.getPathNodes( this );
-        }
-        return pathNodes;
-    }
-
-    public boolean hasPathNode(LeftTupleNode node) {
-        for (LeftTupleNode pathNode : getPathNodes()) {
-            if (node.getId() == pathNode.getId()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public LeftTupleSinkPropagator getSinkPropagator() {
-        return EmptyLeftTupleSinkAdapter.getInstance();
-    }
-
-    @Override
-    public void addAssociation( BuildContext context, Rule rule ) {
-        super.addAssociation(context, rule);
-        context.addPathEndNode( this );
-    }
-
-    @Override
-    public boolean removeAssociation( Rule rule, RuleRemovalContext context ) {
-        boolean result = super.associations.remove(rule);
-        if (getAssociationsSize() == 0) {
-            // avoid to recalculate the pathEndNodes if this node is going to be removed
-            return result;
-        }
-
-        List<PathEndNode> remainingPathNodes = new ArrayList<>();
-        for (PathEndNode pathEndNode : pathEndNodes) {
-            if (pathEndNode.getAssociatedTerminalsSize() > 0) {
-                remainingPathNodes.add(pathEndNode);
-            }
-        }
-        pathEndNodes = remainingPathNodes.toArray( new PathEndNode[remainingPathNodes.size()] );
-        return result;
-    }
-
 }

@@ -19,12 +19,14 @@
 package org.drools.mvel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.drools.core.RuleBaseConfiguration;
 import org.drools.core.common.BetaConstraints;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.SingleBetaConstraints;
+import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.impl.RuleBaseFactory;
 import org.drools.core.reteoo.BetaMemory;
 import org.drools.core.reteoo.LeftTuple;
@@ -32,6 +34,7 @@ import org.drools.base.reteoo.NodeTypeEnums;
 import org.drools.base.rule.constraint.BetaConstraint;
 import org.drools.core.reteoo.MockLeftTupleSink;
 import org.drools.core.reteoo.TupleImpl;
+import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.util.FastIterator;
 import org.drools.core.util.index.TupleIndexHashTable;
 import org.drools.core.util.index.TupleIndexHashTable.FieldIndexHashTableFullIterator;
@@ -81,25 +84,28 @@ public class LeftTupleIndexHashTableIteratorTest extends AbstractTupleIndexHashT
         InternalFactHandle fh12 = (InternalFactHandle) ss.insert(new Foo("snicker", 0));
         InternalFactHandle fh13 = (InternalFactHandle) ss.insert(new Foo("snicker", 0));
 
-        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh1, new MockLeftTupleSink(0), true));
-        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh2, new MockLeftTupleSink(0), true));
-        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh3, new MockLeftTupleSink(0), true));
-        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh4, new MockLeftTupleSink(0), true));
-        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh5, new MockLeftTupleSink(0), true));
-        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh6, new MockLeftTupleSink(0), true));
-        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh7, new MockLeftTupleSink(0), true));
-        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh8, new MockLeftTupleSink(0), true));
-        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh9, new MockLeftTupleSink(0), true));
+        BuildContext bctx = new BuildContext(new KnowledgeBaseImpl("01"), Collections.emptyList());
+        MockLeftTupleSink sink = new MockLeftTupleSink(0, bctx);
+
+        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh1, sink, true));
+        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh2, sink, true));
+        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh3, sink, true));
+        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh4, sink, true));
+        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh5, sink, true));
+        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh6, sink, true));
+        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh7, sink, true));
+        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh8, sink, true));
+        betaMemory.getLeftTupleMemory().add(new LeftTuple(fh9, sink, true));
 
         TupleIndexHashTable hashTable = (TupleIndexHashTable) betaMemory.getLeftTupleMemory();
         // can't create a 0 hashCode, so forcing 
         TupleList leftTupleList = new TupleList();
-        leftTupleList.add(new LeftTuple(fh10, new MockLeftTupleSink(0), true));
+        leftTupleList.add(new LeftTuple(fh10, sink, true));
         hashTable.getTable()[0] = leftTupleList;
         leftTupleList = new TupleList();
-        leftTupleList.add(new LeftTuple(fh11, new MockLeftTupleSink(0), true));
-        leftTupleList.add(new LeftTuple(fh12, new MockLeftTupleSink(0), true));
-        leftTupleList.add(new LeftTuple(fh13, new MockLeftTupleSink(0), true));
+        leftTupleList.add(new LeftTuple(fh11, sink, true));
+        leftTupleList.add(new LeftTuple(fh12, sink, true));
+        leftTupleList.add(new LeftTuple(fh13, sink, true));
         hashTable.getTable()[0].setNext(leftTupleList);
 
         List tableIndexList = createTableIndexListForAssertion(hashTable);

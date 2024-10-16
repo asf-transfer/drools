@@ -39,6 +39,7 @@ import org.drools.base.rule.constraint.AlphaNodeFieldConstraint;
 import org.drools.base.time.impl.Timer;
 import org.drools.core.common.BetaConstraints;
 import org.drools.core.reteoo.AccumulateNode;
+import org.drools.core.reteoo.AccumulateRight;
 import org.drools.core.reteoo.AlphaNode;
 import org.drools.core.reteoo.AlphaTerminalNode;
 import org.drools.core.reteoo.AsyncReceiveNode;
@@ -48,17 +49,20 @@ import org.drools.core.reteoo.ConditionalBranchNode;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.EvalConditionNode;
 import org.drools.core.reteoo.ExistsNode;
+import org.drools.core.reteoo.ExistsRight;
 import org.drools.core.reteoo.FromNode;
 import org.drools.core.reteoo.JoinNode;
+import org.drools.core.reteoo.JoinRightAdapterNode;
 import org.drools.core.reteoo.LeftInputAdapterNode;
 import org.drools.core.reteoo.LeftTupleSource;
 import org.drools.core.reteoo.NotNode;
+import org.drools.core.reteoo.NotRight;
 import org.drools.core.reteoo.ObjectSource;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.QueryElementNode;
 import org.drools.core.reteoo.QueryTerminalNode;
 import org.drools.core.reteoo.ReactiveFromNode;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.TerminalNode;
 import org.drools.core.reteoo.TimerNode;
@@ -101,31 +105,35 @@ public class PhreakNodeFactory implements NodeFactory, Serializable {
         return new EvalConditionNode( id, tupleSource, eval, context );
     }
 
-    public RightInputAdapterNode buildRightInputNode( int id, LeftTupleSource leftInput, LeftTupleSource splitStart, BuildContext context ) {
+    public TupleToObjectNode buildRightInputNode(int id, LeftTupleSource leftInput, LeftTupleSource splitStart, BuildContext context) {
         LeftTupleSource startTupleSource = leftInput;
 
         while (startTupleSource.getLeftTupleSource() != splitStart) {
             startTupleSource = startTupleSource.getLeftTupleSource();
         }
-        return new RightInputAdapterNode( id, leftInput, startTupleSource, context );
+        return new TupleToObjectNode(id, leftInput, startTupleSource, context );
     }
 
     public JoinNode buildJoinNode( int id, LeftTupleSource leftInput, ObjectSource rightInput, BetaConstraints binder, BuildContext context ) {
-        return new JoinNode( id, leftInput, rightInput, binder, context );
+        JoinRightAdapterNode joinRight = new JoinRightAdapterNode(id, rightInput, context);
+        return new JoinNode(context.getNextNodeId(), leftInput, joinRight, binder, context );
     }
 
     public NotNode buildNotNode( int id, LeftTupleSource leftInput, ObjectSource rightInput, BetaConstraints binder, BuildContext context ) {
-        return new NotNode( id, leftInput, rightInput, binder, context );
+        NotRight notRight = new NotRight(id, rightInput, context);
+        return new NotNode(context.getNextNodeId(), leftInput, notRight, binder, context );
     }
 
     public ExistsNode buildExistsNode( int id, LeftTupleSource leftInput, ObjectSource rightInput, BetaConstraints binder, BuildContext context ) {
-        return new ExistsNode( id, leftInput, rightInput, binder, context );
+        ExistsRight existsRight = new ExistsRight(id, rightInput, context);
+        return new ExistsNode(context.getNextNodeId(), leftInput, existsRight, binder, context );
     }
 
     public AccumulateNode buildAccumulateNode(int id, LeftTupleSource leftInput, ObjectSource rightInput,
                                               AlphaNodeFieldConstraint[] resultConstraints, BetaConstraints sourceBinder,
                                               BetaConstraints resultBinder, Accumulate accumulate, BuildContext context) {
-        return new AccumulateNode(id, leftInput, rightInput, resultConstraints, sourceBinder, resultBinder, accumulate, context );
+        AccumulateRight accRight = new AccumulateRight(id, rightInput, context);
+        return new AccumulateNode(context.getNextNodeId(), leftInput, accRight, resultConstraints, sourceBinder, resultBinder, accumulate, context );
     }
 
     public LeftInputAdapterNode buildLeftInputAdapterNode( int id, ObjectSource objectSource, BuildContext context, boolean terminal ) {

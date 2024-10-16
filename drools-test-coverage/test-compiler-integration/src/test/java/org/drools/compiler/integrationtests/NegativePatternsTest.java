@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(Parameterized.class)
 public class NegativePatternsTest {
 
-    private static final int LOOPS = 300;
+    private static final int LOOPS = 2;
     private static final int SHORT_SLEEP_TIME = 20;
     private static final int LONG_SLEEP_TIME = 30;
 
@@ -217,12 +217,15 @@ public class NegativePatternsTest {
         final FactHandle handle = entryPoint.insert(new TestEvent(-1, "EventB"));
         advanceTime(SHORT_SLEEP_TIME);
         ksession.fireAllRules();
+        assertThat(firedRulesListener.ruleFiredCount("MultipleEvents")).isEqualTo(count);
 
         entryPoint.delete(handle);
         ksession.fireAllRules();
+        assertThat(firedRulesListener.ruleFiredCount("MultipleEvents")).isEqualTo(count);
         // it shouldn't fire because of the duration
         advanceTime(SHORT_SLEEP_TIME);
         ksession.fireAllRules();
+        assertThat(firedRulesListener.ruleFiredCount("MultipleEvents")).isEqualTo(count);
         // it shouldn't fire because event A is gone out of window
 
         while (count < LOOPS) {

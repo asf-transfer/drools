@@ -39,9 +39,11 @@ import org.drools.core.phreak.EagerPhreakBuilder.Pair;
 import org.drools.core.phreak.PhreakBuilder;
 import org.drools.core.reteoo.BetaMemory;
 import org.drools.core.reteoo.BetaNode;
+import org.drools.core.reteoo.RightInputAdapterNode;
 import org.drools.core.reteoo.EvalConditionNode;
 import org.drools.core.reteoo.ExistsNode;
 import org.drools.core.reteoo.JoinNode;
+import org.drools.core.reteoo.JoinRightAdapterNode;
 import org.drools.core.reteoo.LeftInputAdapterNode;
 import org.drools.core.reteoo.LeftInputAdapterNode.LiaNodeMemory;
 import org.drools.core.reteoo.LeftTupleNode;
@@ -99,7 +101,7 @@ public class AddRuleTest {
         ObjectTypeNode cotn = getObjectTypeNode(kbase1.getRete(), C.class);
 
         LeftInputAdapterNode lian = (LeftInputAdapterNode) aotn.getSinks()[0];
-        BetaNode cbeta = (BetaNode) cotn.getSinks()[0];
+        BetaNode cbeta = ((RightInputAdapterNode)cotn.getSinks()[0]).getBetaNode();
 
         insertAndFlush(wm);
 
@@ -152,7 +154,7 @@ public class AddRuleTest {
         ObjectTypeNode cotn = getObjectTypeNode(kbase1.getRete(), C.class);
 
         LeftInputAdapterNode lian = (LeftInputAdapterNode) aotn.getSinks()[0];
-        BetaNode cbeta = (BetaNode) cotn.getSinks()[0];
+        BetaNode cbeta = ((RightInputAdapterNode)cotn.getSinks()[0]).getBetaNode();
 
         insertAndFlush(wm);
 
@@ -188,9 +190,9 @@ public class AddRuleTest {
         ObjectTypeNode xotn = getObjectTypeNode(kbase1.getRete(), X.class);
 
         LeftInputAdapterNode lian = (LeftInputAdapterNode) aotn.getSinks()[0];
-        BetaNode ebeta = (BetaNode) eotn.getSinks()[0].getSinks()[0];
-        BetaNode ebeta3 = (BetaNode) eotn.getSinks()[2].getSinks()[0];
-        BetaNode xbeta = (BetaNode) xotn.getSinks()[0];
+        BetaNode ebeta = ((RightInputAdapterNode)eotn.getSinks()[0].getSinks()[0]).getBetaNode();
+        BetaNode ebeta3 = ((RightInputAdapterNode)eotn.getSinks()[2].getSinks()[0]).getBetaNode();
+        BetaNode xbeta = ((RightInputAdapterNode)xotn.getSinks()[0]).getBetaNode();
 
         insertAndFlush(wm);
 
@@ -246,10 +248,10 @@ public class AddRuleTest {
         ObjectTypeNode yotn = getObjectTypeNode(kbase1.getRete(), Y.class);
 
         LeftInputAdapterNode lian = (LeftInputAdapterNode) aotn.getSinks()[0];
-        BetaNode ebeta = (BetaNode) eotn.getSinks()[0].getSinks()[0];
-        BetaNode cbeta = (BetaNode) cotn.getSinks()[0];
-        BetaNode ebeta3 = (BetaNode) eotn.getSinks()[2].getSinks()[0];
-        BetaNode xbeta = (BetaNode) xotn.getSinks()[0];
+        BetaNode ebeta = ((RightInputAdapterNode)eotn.getSinks()[0].getSinks()[0]).getBetaNode();
+        BetaNode cbeta = ((RightInputAdapterNode)cotn.getSinks()[0]).getBetaNode();
+        BetaNode ebeta3 = ((RightInputAdapterNode)eotn.getSinks()[2].getSinks()[0]).getBetaNode();
+        BetaNode xbeta = ((RightInputAdapterNode)xotn.getSinks()[0]).getBetaNode();
 
         insertAndFlush(wm);
         wm.fireAllRules();
@@ -268,7 +270,7 @@ public class AddRuleTest {
         // now add a rule at the given split, so we can check paths were all updated correctly
         addRuleAtGivenSplit(kbase1, wm, cbeta, yotn);
 
-        BetaNode jbeta = (BetaNode) yotn.getSinks()[1];
+        BetaNode jbeta = ((RightInputAdapterNode)yotn.getSinks()[1]).getBetaNode();
         assertThat(((ClassObjectType)jbeta.getObjectTypeNode().getObjectType()).getClassType()).isSameAs(Y.class);
         assertThat(jbeta.getLeftTupleSource()).isSameAs(cbeta);
 
@@ -295,7 +297,7 @@ public class AddRuleTest {
         RuleTerminalNode rtn = new RuleTerminalNode(buildContext.getNextNodeId(), joinNode, rule, new GroupElement(), 0, buildContext);
         rtn.setPathEndNodes(new PathEndNode[]{rtn});
         rtn.doAttach(buildContext);
-        Arrays.stream(rtn.getPathNodes()).forEach( n -> {n.addAssociatedTerminal(rtn); ((BaseNode)n).addAssociation(rule);});
+        Arrays.stream(rtn.getPathNodes()).forEach( n -> {n.addAssociatedTerminal(rtn); ((BaseNode)n).addAssociation(rule, null);});
         new EagerPhreakBuilder().addRule(rtn, Collections.singletonList(wm), kbase1);
     }
 
@@ -313,8 +315,8 @@ public class AddRuleTest {
         ObjectTypeNode eotn = getObjectTypeNode(kbase1.getRete(), E.class);
 
         LeftInputAdapterNode lian = (LeftInputAdapterNode) aotn.getSinks()[0];
-        BetaNode cbeta = (BetaNode) cotn.getSinks()[0];
-        BetaNode ebeta3 = (BetaNode) eotn.getSinks()[0].getSinks()[0];
+        BetaNode cbeta = ((RightInputAdapterNode)cotn.getSinks()[0]).getBetaNode();
+        BetaNode ebeta3 = ((RightInputAdapterNode)eotn.getSinks()[0].getSinks()[0]).getBetaNode();
         EvalConditionNode evnode = (EvalConditionNode)  cbeta.getSinks()[0];
 
         insertAndFlush(wm);
@@ -356,7 +358,7 @@ public class AddRuleTest {
         ObjectTypeNode botn = getObjectTypeNode(kbase1.getRete(), B.class);
 
         LeftInputAdapterNode lian = (LeftInputAdapterNode) aotn.getSinks()[0];
-        BetaNode bbeta = (BetaNode) botn.getSinks()[0];
+        BetaNode bbeta = ((RightInputAdapterNode)botn.getSinks()[0]).getBetaNode();
 
         insertAndFlush(wm);
 
@@ -396,7 +398,7 @@ public class AddRuleTest {
         SegmentPrototype smemProto0 = kbase1.getSegmentPrototype(lian);
 
         PathEndNode endNode0 = smemProto0.getPathEndNodes()[0];
-        assertThat(endNode0.getType()).isEqualTo(NodeTypeEnums.RightInputAdapterNode);
+        assertThat(endNode0.getType()).isEqualTo(NodeTypeEnums.TupleToObjectNode);
         assertThat(endNode0.getPathMemSpec().allLinkedTestMask()).isEqualTo(2);
         assertThat(endNode0.getPathMemSpec().smemCount()).isEqualTo(2);
 
@@ -415,8 +417,8 @@ public class AddRuleTest {
         ObjectTypeNode cotn = getObjectTypeNode(kbase1.getRete(), C.class);
         ObjectTypeNode xotn = getObjectTypeNode(kbase1.getRete(), X.class);
 
-        BetaNode cBeta = (BetaNode) cotn.getSinks()[0];
-        BetaNode xBeta = (BetaNode) xotn.getSinks()[0];
+        BetaNode cBeta = ((RightInputAdapterNode)cotn.getSinks()[0]).getBetaNode();
+        BetaNode xBeta = ((RightInputAdapterNode)xotn.getSinks()[0]).getBetaNode();
 
         TerminalNode[] tns = kbase1.getReteooBuilder().getTerminalNodes("org.kie.r0");
         assertThat(tns.length).isEqualTo(1);
@@ -442,9 +444,9 @@ public class AddRuleTest {
         ObjectTypeNode xotn = getObjectTypeNode(kbase1.getRete(), X.class);
         ObjectTypeNode botn = getObjectTypeNode(kbase1.getRete(), B.class);
 
-        BetaNode fBeta = (BetaNode) fotn.getSinks()[0];
-        BetaNode xBeta = (BetaNode) xotn.getSinks()[0];
-        ExistsNode exists = (ExistsNode) ((LeftTupleNode)botn.getSinks()[1].getSinks()[0]).getLeftTupleSource();
+        BetaNode fBeta = ((RightInputAdapterNode)fotn.getSinks()[0]).getBetaNode();
+        BetaNode xBeta = ((RightInputAdapterNode)xotn.getSinks()[0]).getBetaNode();
+        ExistsNode exists = (ExistsNode) ((RightInputAdapterNode)botn.getSinks()[1].getSinks()[0]).getBetaNode().getLeftTupleSource();
 
         TerminalNode[] tns = kbase1.getReteooBuilder().getTerminalNodes("org.kie.r0");
         assertThat(tns.length).isEqualTo(1);
@@ -830,7 +832,7 @@ public class AddRuleTest {
         kbase1.addPackages( buildKnowledgePackage("r2", "   A() B() C() X() E()\n") );
 
         ObjectTypeNode eotn = getObjectTypeNode(kbase1, E.class );
-        JoinNode eNode = (JoinNode) eotn.getObjectSinkPropagator().getSinks()[0];
+        JoinNode eNode = ((JoinRightAdapterNode)eotn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
         RuleTerminalNode rtn = ( RuleTerminalNode ) eNode.getSinkPropagator().getLastLeftTupleSink();
 
         PathMemory pm = wm.getNodeMemory(rtn);

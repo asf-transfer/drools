@@ -37,14 +37,18 @@ import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.impl.InternalRuleBase;
 import org.drools.core.reteoo.AccumulateNode;
+import org.drools.core.reteoo.AccumulateRight;
 import org.drools.core.reteoo.BetaMemory;
 import org.drools.core.reteoo.BetaNode;
 import org.drools.core.reteoo.ExistsNode;
+import org.drools.core.reteoo.ExistsRight;
 import org.drools.core.reteoo.FromNode;
+import org.drools.core.reteoo.JoinRightAdapterNode;
 import org.drools.core.reteoo.NotNode;
+import org.drools.core.reteoo.NotRight;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.QueryElementNode;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.kiesession.session.StatefulKnowledgeSessionImpl;
 import org.drools.testcoverage.common.model.Address;
@@ -2232,19 +2236,19 @@ public class BackwardChainingTest extends AbstractBackwardChainingTest {
         }
 
         assertThat(node).isNotNull();
-        final BetaNode stringBetaNode = (BetaNode) node.getObjectSinkPropagator().getSinks()[0];
-        final QueryElementNode queryElementNode1 = (QueryElementNode) stringBetaNode.getSinkPropagator().getSinks()[0];
-        final RightInputAdapterNode riaNode1 = (RightInputAdapterNode) queryElementNode1.getSinkPropagator().getSinks()[0];
-        final AccumulateNode accNode = (AccumulateNode) riaNode1.getObjectSinkPropagator().getSinks()[0];
+        final BetaNode stringBetaNode = ((JoinRightAdapterNode) node.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
+        final QueryElementNode  queryElementNode1 = (QueryElementNode) stringBetaNode.getSinkPropagator().getSinks()[0];
+        final TupleToObjectNode riaNode1          = (TupleToObjectNode) queryElementNode1.getSinkPropagator().getSinks()[0];
+        final AccumulateNode    accNode           =((AccumulateRight) riaNode1.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
 
-        final QueryElementNode queryElementNode2 = (QueryElementNode) accNode.getSinkPropagator().getSinks()[0];
-        final RightInputAdapterNode riaNode2 = (RightInputAdapterNode) queryElementNode2.getSinkPropagator().getSinks()[0];
-        final ExistsNode existsNode = (ExistsNode) riaNode2.getObjectSinkPropagator().getSinks()[0];
+        final QueryElementNode  queryElementNode2 = (QueryElementNode) accNode.getSinkPropagator().getSinks()[0];
+        final TupleToObjectNode riaNode2          = (TupleToObjectNode) queryElementNode2.getSinkPropagator().getSinks()[0];
+        final ExistsNode        existsNode        = ((ExistsRight)riaNode2.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
 
         final QueryElementNode queryElementNode3 = (QueryElementNode) existsNode.getSinkPropagator().getSinks()[0];
-        final FromNode fromNode = (FromNode) queryElementNode3.getSinkPropagator().getSinks()[0];
-        final RightInputAdapterNode riaNode3 = (RightInputAdapterNode) fromNode.getSinkPropagator().getSinks()[0];
-        final NotNode notNode = (NotNode) riaNode3.getObjectSinkPropagator().getSinks()[0];
+        final FromNode          fromNode = (FromNode) queryElementNode3.getSinkPropagator().getSinks()[0];
+        final TupleToObjectNode riaNode3 = (TupleToObjectNode) fromNode.getSinkPropagator().getSinks()[0];
+        final NotNode           notNode  = ((NotRight)riaNode3.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
 
         final KieSession ksession = kbase.newKieSession();
         try {

@@ -36,6 +36,7 @@ import org.drools.core.reteoo.ObjectSource;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.QueryTerminalNode;
 import org.drools.core.reteoo.Rete;
+import org.drools.core.reteoo.RightInputAdapterNode;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.kiesession.session.StatefulKnowledgeSessionImpl;
 import org.kie.api.runtime.KieSession;
@@ -66,8 +67,18 @@ public class SessionInspector {
                            ObjectTypeNodeVisitor.INSTANCE );
         this.visitors.put( NodeTypeEnums.AlphaNode,
                            AlphaNodeVisitor.INSTANCE );
-        this.visitors.put( NodeTypeEnums.RightInputAdapterNode,
+        this.visitors.put( NodeTypeEnums.TupleToObjectNode,
                            RightInputAdapterNodeVisitor.INSTANCE );
+
+
+        this.visitors.put( NodeTypeEnums.JoinRightAdapterNode,
+                           BetaRightAdapterNodeVisitor.INSTANCE );
+        this.visitors.put( NodeTypeEnums.ExistsRightAdapterNode,
+                           BetaRightAdapterNodeVisitor.INSTANCE );
+        this.visitors.put( NodeTypeEnums.NotRightAdapterNode,
+                           BetaRightAdapterNodeVisitor.INSTANCE );
+        this.visitors.put( NodeTypeEnums.AccumulateRightAdapterNode,
+                           BetaRightAdapterNodeVisitor.INSTANCE );
 
         // left tuple source nodes
         this.visitors.put( NodeTypeEnums.JoinNode,
@@ -171,7 +182,9 @@ public class SessionInspector {
                                 nodeStack,
                                 info );
             }
-        } else if ( parent instanceof RuleTerminalNode || parent instanceof QueryTerminalNode ) {
+        } else if (parent instanceof RightInputAdapterNode<?> ) {
+            // no children to visit
+        }  else if ( parent instanceof RuleTerminalNode || parent instanceof QueryTerminalNode ) {
             // no children to visit
         } else {
             // did we forget any node type?

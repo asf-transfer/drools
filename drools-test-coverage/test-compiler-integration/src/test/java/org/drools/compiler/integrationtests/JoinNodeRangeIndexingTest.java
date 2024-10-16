@@ -30,6 +30,7 @@ import java.util.Set;
 import org.drools.ancompiler.CompiledNetwork;
 import org.drools.core.common.BetaConstraints;
 import org.drools.core.reteoo.JoinNode;
+import org.drools.core.reteoo.JoinRightAdapterNode;
 import org.drools.core.reteoo.ObjectSink;
 import org.drools.core.reteoo.ObjectSinkPropagator;
 import org.drools.core.reteoo.ObjectTypeNode;
@@ -118,8 +119,8 @@ public class JoinNodeRangeIndexingTest {
         boolean isPassedForJoinNode = false;
         ObjectSink[] sinks = objectSinkPropagator.getSinks();
         for (ObjectSink sink : sinks) {
-            if (sink instanceof JoinNode) {
-                JoinNode join = (JoinNode) sink;
+            if (sink instanceof JoinRightAdapterNode) {
+                JoinNode join = ((JoinRightAdapterNode) sink).getBetaNode();
                 BetaConstraints betaConstraints = join.getRawConstraints();
                 assertThat(betaConstraints.isIndexed()).isEqualTo(isIndexed);
                 isPassedForJoinNode = true;

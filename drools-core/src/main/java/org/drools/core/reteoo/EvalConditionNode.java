@@ -30,10 +30,8 @@ import org.drools.base.reteoo.NodeTypeEnums;
 import org.drools.base.rule.EvalCondition;
 import org.drools.base.rule.RuleComponent;
 import org.drools.core.RuleBaseConfiguration;
-import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.Memory;
 import org.drools.core.common.MemoryFactory;
-import org.drools.core.common.PropagationContext;
 import org.drools.core.common.ReteEvaluator;
 import org.drools.core.common.UpdateContext;
 import org.drools.core.reteoo.builder.BuildContext;
@@ -74,7 +72,7 @@ public class EvalConditionNode extends LeftTupleSource
         this.setObjectCount(leftInput.getObjectCount()); // 'eval' nodes do not increase the count
         this.tupleMemoryEnabled = context.isTupleMemoryEnabled();
 
-        initMasks(context, tupleSource);
+        initMasks(context);
 
         hashcode = calculateHashCode();
     }
@@ -89,8 +87,8 @@ public class EvalConditionNode extends LeftTupleSource
     }
 
     @Override
-    protected void initInferredMask(LeftTupleSource leftInput) {
-        super.initInferredMask( leftInput );
+    protected void initInferredMask() {
+        super.initInferredMask( );
         if (NodeTypeEnums.isBetaNode(leftInput)) {
             ((BetaNode)leftInput).disablePropertyReactivity();
         }
@@ -268,8 +266,8 @@ public class EvalConditionNode extends LeftTupleSource
     }
 
     @Override
-    public void addAssociation( BuildContext context, Rule rule ) {
-        super.addAssociation(context, rule);
+    public void addAssociation(Rule rule, BuildContext context) {
+        super.addAssociation(rule, context);
         componentsMap.put(new RuleKey(rule, context.getSubRuleIndex()), context.peekRuleComponent());
     }
 

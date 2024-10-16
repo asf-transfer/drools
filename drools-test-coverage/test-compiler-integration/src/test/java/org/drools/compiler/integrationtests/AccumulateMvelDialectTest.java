@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.drools.core.reteoo.JoinNode;
+import org.drools.core.reteoo.JoinRightAdapterNode;
 import org.drools.core.reteoo.LeftTupleSink;
 import org.drools.core.reteoo.ObjectSink;
 import org.drools.core.reteoo.ObjectTypeNode;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.testcoverage.common.model.Cheese;
 import org.drools.testcoverage.common.model.Person;
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
@@ -310,11 +310,11 @@ public class AccumulateMvelDialectTest {
             final ObjectSink[] oSinks = cheeseOtn.getObjectSinkPropagator().getSinks();
             assertThat(oSinks.length).isEqualTo(1);
 
-            final JoinNode cheeseJoin = (JoinNode) oSinks[0];
-            final LeftTupleSink[] ltSinks = cheeseJoin.getSinkPropagator().getSinks();
+            final JoinRightAdapterNode cheeseJoin = (JoinRightAdapterNode ) oSinks[0];
+            final LeftTupleSink[]      ltSinks    = cheeseJoin.getBetaNode().getSinkPropagator().getSinks();
 
             assertThat(ltSinks.length).isEqualTo(1);
-            final RightInputAdapterNode rian = (RightInputAdapterNode) ltSinks[0];
+            final TupleToObjectNode rian = (TupleToObjectNode) ltSinks[0];
             assertThat(rian.getObjectSinkPropagator().size()).isEqualTo(2);   //  RiaNode is shared, if this has two outputs
 
             wm.insert(new Cheese("stilton", 10));

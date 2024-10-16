@@ -169,8 +169,8 @@ public class AlphaNetworkModifyTest {
             final LeftTupleSink[] sinks = liaNode.getSinkPropagator().getSinks();
 
             assertThat(sinks.length).isEqualTo(2);
-            assertThat(sinks[0].getLeftInputOtnId().getId()).isEqualTo(0);
-            assertThat(sinks[1].getLeftInputOtnId().getId()).isEqualTo(1);
+            assertThat(sinks[0].getInputOtnId().getId()).isEqualTo(0);
+            assertThat(sinks[1].getInputOtnId().getId()).isEqualTo(1);
         } finally {
             wm.dispose();
         }
@@ -224,9 +224,9 @@ public class AlphaNetworkModifyTest {
 
             final LeftTupleSink[] sinks = liaNode.getSinkPropagator().getSinks();
 
-            assertThat(sinks[0].getLeftInputOtnId().getId()).isEqualTo(0);
-            assertThat(sinks[1].getLeftInputOtnId().getId()).isEqualTo(1);
-            assertThat(sinks[2].getLeftInputOtnId().getId()).isEqualTo(2);
+            assertThat(sinks[0].getInputOtnId().getId()).isEqualTo(0);
+            assertThat(sinks[1].getInputOtnId().getId()).isEqualTo(1);
+            assertThat(sinks[2].getInputOtnId().getId()).isEqualTo(2);
 
             final ObjectTypeNode otnPerson = getObjectTypeNode(kbase, "Person" );
             final ObjectTypeNode otnCheese = getObjectTypeNode(kbase, "Cheese" );

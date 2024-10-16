@@ -5728,13 +5728,14 @@ public class CepEspTest extends AbstractCepEspTest {
 
             SessionPseudoClock clock = ksession.getSessionClock();
 
-            ksession.insert(1);
+            FactHandle fh1 = ksession.insert(1);
             clock.advanceTime(2, TimeUnit.HOURS);
-            ksession.insert(2L);
+            FactHandle fh2 = ksession.insert(2L);
             assertThat(ksession.fireAllRules()).isEqualTo(0);
 
             clock.advanceTime(2, TimeUnit.HOURS); // Should expire first event
-            ksession.insert(1L);
+
+            FactHandle fh3 = ksession.insert(1L);
             assertThat(ksession.fireAllRules()).isEqualTo(0);
 
         } finally {

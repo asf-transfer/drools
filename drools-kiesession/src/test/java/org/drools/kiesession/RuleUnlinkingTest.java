@@ -31,6 +31,10 @@ import org.drools.core.common.PropagationContextFactory;
 import org.drools.base.definitions.rule.impl.RuleImpl;
 import org.drools.core.phreak.BuildtimeSegmentUtilities;
 import org.drools.core.reteoo.BetaMemory;
+import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.ExistsRight;
+import org.drools.core.reteoo.JoinRightAdapterNode;
+import org.drools.core.reteoo.NotRight;
 import org.drools.core.reteoo.PathEndNode;
 import org.drools.core.reteoo.TerminalNode;
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
@@ -91,20 +95,23 @@ public class RuleUnlinkingTest {
                                           int type,
                                           LeftTupleSource leftTupleSource,
                                           RuleImpl rule) {
-        MockObjectSource mockObjectSource = new MockObjectSource( 8 );
+        MockObjectSource  mockObjectSource = new MockObjectSource( 8 );
 
         LeftTupleSink networkNode = null;
         switch ( type ) {
             case JOIN_NODE : {
-                networkNode = new JoinNode( id, leftTupleSource, mockObjectSource, new EmptyBetaConstraints(), buildContext );
+                RightInputAdapterNode right = new JoinRightAdapterNode(9, mockObjectSource, buildContext);
+                networkNode = new JoinNode( id, leftTupleSource, right, new EmptyBetaConstraints(), buildContext );
                 break;
             }
             case EXISTS_NODE : {
-                networkNode = new ExistsNode( id, leftTupleSource, mockObjectSource, new EmptyBetaConstraints(), buildContext );
+                RightInputAdapterNode right = new ExistsRight(9, mockObjectSource, buildContext);
+                networkNode = new ExistsNode( id, leftTupleSource, right, new EmptyBetaConstraints(), buildContext );
                 break;
             }
             case NOT_NODE : {
-                networkNode = new NotNode( id, leftTupleSource, mockObjectSource, new EmptyBetaConstraints(), buildContext );
+                RightInputAdapterNode right = new NotRight(9, mockObjectSource, buildContext);
+                networkNode = new NotNode( id, leftTupleSource, right, new EmptyBetaConstraints(), buildContext );
                 break;
             }
             case RULE_TERMINAL_NODE : {
@@ -159,29 +166,29 @@ public class RuleUnlinkingTest {
 //                              \
 //                               n6 -> n7 -> n8 -> r3                   
                    
-        liaNode.addAssociation( rule1 );
-        liaNode.addAssociation( rule2 );
-        liaNode.addAssociation( rule3 );
+        liaNode.addAssociation(rule1, null);
+        liaNode.addAssociation(rule2, null);
+        liaNode.addAssociation(rule3, null);
 
-        n1.addAssociation( rule1 );
-        n1.addAssociation( rule2 );
-        n1.addAssociation( rule3 );
-        n2.addAssociation( rule1 );
-        n2.addAssociation( rule2 );
-        n2.addAssociation( rule3 );
+        n1.addAssociation(rule1, null);
+        n1.addAssociation(rule2, null);
+        n1.addAssociation(rule3, null);
+        n2.addAssociation(rule1, null);
+        n2.addAssociation(rule2, null);
+        n2.addAssociation(rule3, null);
 
-        n3.addAssociation( rule1 );
-        n3.addAssociation( rule2 );
-        n3.addAssociation( rule3 );
+        n3.addAssociation(rule1, null);
+        n3.addAssociation(rule2, null);
+        n3.addAssociation(rule3, null);
 
-        n4.addAssociation( rule2 );
-        n4.addAssociation( rule3 );
-        n5.addAssociation( rule2 );
-        n5.addAssociation( rule3 );
+        n4.addAssociation(rule2, null);
+        n4.addAssociation(rule3, null);
+        n5.addAssociation(rule2, null);
+        n5.addAssociation(rule3, null);
 
-        n6.addAssociation( rule3 );
-        n7.addAssociation( rule3 );
-        n8.addAssociation( rule3 );
+        n6.addAssociation(rule3, null);
+        n7.addAssociation(rule3, null);
+        n8.addAssociation(rule3, null);
 
         // assumes no subnetworks
         for (TerminalNode tn : new TerminalNode[] {rtn1, rtn2, rtn3}) {
@@ -323,10 +330,10 @@ public class RuleUnlinkingTest {
 
         RuntimeSegmentUtilities.getOrCreateSegmentMemory(liaNode, wm);
         liaNode.assertObject( f1, context, wm );
-        n1.assertObject( f1, context, wm );
-        n3.assertObject( f1, context, wm );
-        n4.assertObject( f1, context, wm );
-        n8.assertObject( f1, context, wm );
+        n1.getRightInput().assertObject( f1, context, wm );
+        n3.getRightInput().assertObject( f1, context, wm );
+        n4.getRightInput().assertObject( f1, context, wm );
+        n8.getRightInput().assertObject( f1, context, wm );
 
         assertThat(rtn1Rs.isRuleLinked()).isFalse();
         assertThat(rtn2Rs.isRuleLinked()).isFalse();
@@ -337,7 +344,7 @@ public class RuleUnlinkingTest {
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isFalse();
 
         DefaultFactHandle f2 = (DefaultFactHandle) wm.insert( "test2" );
-        n2.assertObject( f2, context, wm );
+        n2.getRightInput().assertObject( f2, context, wm );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isTrue();
 
         assertThat(rtn1Rs.isRuleLinked()).isTrue();
@@ -348,7 +355,7 @@ public class RuleUnlinkingTest {
         bm = (BetaMemory) wm.getNodeMemory(n5);
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isFalse();
 
-        n5.assertObject( f1, context, wm );
+        n5.getRightInput().assertObject( f1, context, wm );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isTrue();
 
         assertThat(rtn1Rs.isRuleLinked()).isTrue();
@@ -356,8 +363,8 @@ public class RuleUnlinkingTest {
         assertThat(rtn3Rs.isRuleLinked()).isFalse();
 
         // Link in Rule3
-        n6.assertObject( f1, context, wm );
-        n7.assertObject( f1, context, wm );
+        n6.getRightInput().assertObject( f1, context, wm );
+        n7.getRightInput().assertObject( f1, context, wm );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isTrue();
 
         assertThat(rtn1Rs.isRuleLinked()).isTrue();
@@ -365,7 +372,7 @@ public class RuleUnlinkingTest {
         assertThat(rtn3Rs.isRuleLinked()).isTrue();
 
         // retract n2, should unlink all rules
-        n2.retractRightTuple( f2.getFirstRightTuple(), context, wm );
+        n2.getRightInput().retractRightTuple( f2.getFirstRightTuple(), context, wm );
         assertThat(rtn1Rs.isRuleLinked()).isFalse();
         assertThat(rtn2Rs.isRuleLinked()).isFalse();
         assertThat(rtn3Rs.isRuleLinked()).isFalse();

@@ -189,7 +189,7 @@ public class RightTuple extends TupleImpl {
         super.setExpired();
         // events expired at firing time should have a chance to produce a join (DROOLS-1329)
         // but shouldn't participate to an accumulate (DROOLS-4393)
-        if (this.getSink().getType() == NodeTypeEnums.AccumulateNode) {
+        if (this.getSink().getType() == NodeTypeEnums.AccumulateRightAdapterNode) {
             retractTuple( pctx, reteEvaluator );
         }
     }

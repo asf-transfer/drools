@@ -26,42 +26,29 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.drools.base.base.ValueResolver;
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
+import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.reteoo.MockLeftTupleSink;
 import org.drools.core.reteoo.RuleTerminalNodeLeftTuple;
 import org.drools.core.reteoo.TupleFactory;
-import org.drools.core.reteoo.TupleImpl;
 import org.drools.drl.parser.DrlParser;
 import org.drools.drl.parser.DroolsParserException;
 import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.rule.builder.RuleBuildContext;
 import org.drools.compiler.rule.builder.RuleBuilder;
-import org.drools.core.RuleBaseConfiguration;
 import org.drools.base.base.ClassObjectType;
-import org.drools.core.common.EmptyBetaConstraints;
 import org.drools.core.common.InternalFactHandle;
-import org.drools.core.common.Memory;
 import org.drools.core.common.PropagationContextFactory;
-import org.drools.core.common.ReteEvaluator;
 import org.drools.base.definitions.InternalKnowledgePackage;
 import org.drools.base.definitions.rule.impl.RuleImpl;
-import org.drools.core.reteoo.BetaNode;
 import org.drools.core.reteoo.CoreComponentFactory;
 import org.drools.core.reteoo.LeftTuple;
-import org.drools.core.reteoo.LeftTuple;
-import org.drools.core.reteoo.LeftTupleSource;
 import org.drools.core.reteoo.MockTupleSource;
-import org.drools.core.reteoo.ModifyPreviousTuples;
-import org.drools.core.reteoo.ObjectSource;
-import org.drools.core.reteoo.ReteooBuilder;
-import org.drools.core.reteoo.RuleRemovalContext;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.RuntimeComponentFactory;
-import org.drools.core.reteoo.Sink;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.base.rule.Declaration;
 import org.drools.base.rule.GroupElement;
@@ -214,8 +201,9 @@ public class MVELConsequenceBuilderTest {
         final Cheese cheddar = new Cheese( "cheddar",
                                            10 );
         final InternalFactHandle f0 = (InternalFactHandle) ksession.insert( cheddar );
+        BuildContext bctx = new BuildContext(new KnowledgeBaseImpl("id0"), Collections.emptyList());
         final LeftTuple tuple = new LeftTuple( f0,
-                                               new MockLeftTupleSink(0),
+                                               new MockLeftTupleSink(0, bctx),
                                                true );
 
         RuleTerminalNode rtn = new RuleTerminalNode();
@@ -451,66 +439,5 @@ public class MVELConsequenceBuilderTest {
         assertThat(context.getRule().getNamedConsequence("name1")).isNotSameAs(context.getRule().getConsequence());
         assertThat(context.getRule().getNamedConsequence("name2")).isNotSameAs(context.getRule().getConsequence());
         assertThat(context.getRule().getNamedConsequence("name2")).isNotSameAs(context.getRule().getNamedConsequence( "name1"));
-    }
-
-    public static class MockBetaNode extends BetaNode {
-        
-        public MockBetaNode() {
-            
-        }
-
-        @Override
-        protected boolean doRemove( RuleRemovalContext context, ReteooBuilder builder) {
-            return true;
-        }
-
-        MockBetaNode(final int id,
-                     final LeftTupleSource leftInput,
-                     final ObjectSource rightInput,
-                     BuildContext buildContext) {
-            super( id,
-                   leftInput,
-                   rightInput,
-                   EmptyBetaConstraints.getInstance(),
-                   buildContext );
-        }        
-
-        MockBetaNode(final int id,
-                     final LeftTupleSource leftInput,
-                     final ObjectSource rightInput) {
-            super( id,
-                   leftInput,
-                   rightInput,
-                   EmptyBetaConstraints.getInstance(),
-                   null );
-        }
-
-        public void assertObject(final InternalFactHandle factHandle,
-                                 final PropagationContext pctx,
-                                 final ValueResolver valueResolver) {
-        }
-
-        @Override
-        public void modifyObject( InternalFactHandle factHandle, ModifyPreviousTuples modifyPreviousTuples, PropagationContext context, ReteEvaluator reteEvaluator) {
-        }
-
-        public void retractRightTuple(final TupleImpl rightTuple,
-                                      final PropagationContext context,
-                                      final ReteEvaluator reteEvaluator) {
-        }
-
-        public int getType() {
-            return 0;
-        }
-
-        public void modifyRightTuple(TupleImpl rightTuple,
-                                     PropagationContext context,
-                                     ReteEvaluator reteEvaluator) {
-        }
-
-        public Memory createMemory(RuleBaseConfiguration config, ReteEvaluator reteEvaluator) {
-            return super.createMemory( config, reteEvaluator);
-        }
-
     }
 }

@@ -31,6 +31,10 @@ import org.drools.core.common.PropagationContextFactory;
 import org.drools.base.definitions.rule.impl.RuleImpl;
 import org.drools.core.phreak.BuildtimeSegmentUtilities;
 import org.drools.core.reteoo.BetaMemory;
+import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.ExistsRight;
+import org.drools.core.reteoo.JoinRightAdapterNode;
+import org.drools.core.reteoo.NotRight;
 import org.drools.core.reteoo.PathEndNode;
 import org.drools.core.reteoo.SegmentMemory.SegmentPrototype;
 import org.drools.core.reteoo.TerminalNode;
@@ -88,15 +92,18 @@ public class NodeSegmentUnlinkingTest {
         BetaNode betaNode = null;
         switch ( type ) {
             case JOIN_NODE : {
-                betaNode = new JoinNode( id, leftTupleSource, mockObjectSource, new EmptyBetaConstraints(), buildContext );
+                RightInputAdapterNode right = new JoinRightAdapterNode(9, mockObjectSource, buildContext);
+                betaNode = new JoinNode( id, leftTupleSource, right, new EmptyBetaConstraints(), buildContext );
                 break;
             }
             case EXISTS_NODE : {
-                betaNode = new ExistsNode( id, leftTupleSource, mockObjectSource, new EmptyBetaConstraints(), buildContext );
+                RightInputAdapterNode right = new ExistsRight(9, mockObjectSource, buildContext);
+                betaNode = new ExistsNode( id, leftTupleSource, right, new EmptyBetaConstraints(), buildContext );
                 break;
             }
             case NOT_NODE : {
-                betaNode = new NotNode( id, leftTupleSource, mockObjectSource, new EmptyBetaConstraints(), buildContext );
+                RightInputAdapterNode right = new NotRight(9, mockObjectSource, buildContext);
+                betaNode = new NotNode( id, leftTupleSource, right, new EmptyBetaConstraints(), buildContext );
                 break;
             }
         }
@@ -167,25 +174,25 @@ public class NodeSegmentUnlinkingTest {
         //                      \
         //                      n7 -> n8 -> r3          
         
-        n1.addAssociation( rule1 );
-        n1.addAssociation( rule2 );
-        n1.addAssociation( rule3 );
-        n2.addAssociation( rule1 );
-        n2.addAssociation( rule2 );
-        n2.addAssociation( rule3 );
+        n1.addAssociation(rule1, null);
+        n1.addAssociation(rule2, null);
+        n1.addAssociation(rule3, null);
+        n2.addAssociation(rule1, null);
+        n2.addAssociation(rule2, null);
+        n2.addAssociation(rule3, null);
 
-        n3.addAssociation( rule2 );
-        n3.addAssociation( rule3 );
+        n3.addAssociation(rule2, null);
+        n3.addAssociation(rule3, null);
 
-        n4.addAssociation( rule2 );
-        n4.addAssociation( rule3 );
-        n5.addAssociation( rule2 );
-        n5.addAssociation( rule3 );
-        n6.addAssociation( rule2 );
-        n6.addAssociation( rule3 );
+        n4.addAssociation(rule2, null);
+        n4.addAssociation(rule3, null);
+        n5.addAssociation(rule2, null);
+        n5.addAssociation(rule3, null);
+        n6.addAssociation(rule2, null);
+        n6.addAssociation(rule3, null);
 
-        n7.addAssociation( rule3 );
-        n8.addAssociation( rule3 );
+        n7.addAssociation(rule3, null);
+        n8.addAssociation(rule3, null);
 
         // assumes no subnetworks
         for (TerminalNode tn : new TerminalNode[] {rtn1, rtn2, rtn3}) {
@@ -208,29 +215,35 @@ public class NodeSegmentUnlinkingTest {
         MockObjectSource mockObjectSource = new MockObjectSource( 8 );
         MockTupleSource mockTupleSource = new MockTupleSource(9, buildContext);
 
+        RightInputAdapterNode right1 = new JoinRightAdapterNode(10, mockObjectSource, buildContext);
+        RightInputAdapterNode right2 = new JoinRightAdapterNode(11, mockObjectSource, buildContext);
+        RightInputAdapterNode right3 = new JoinRightAdapterNode(12, mockObjectSource, buildContext);
+        RightInputAdapterNode right4 = new JoinRightAdapterNode(12, mockObjectSource, buildContext);
+        RightInputAdapterNode right5 = new JoinRightAdapterNode(12, mockObjectSource, buildContext);
+
         // n2 is only node in it's segment
         ObjectTypeNode otn = new ObjectTypeNode( 2, null, new ClassObjectType( String.class ), buildContext );
-        BetaNode n1 = new JoinNode( 10, new LeftInputAdapterNode(3, otn, buildContext ), mockObjectSource,
+        BetaNode n1 = new JoinNode( 10, new LeftInputAdapterNode(3, otn, buildContext ), right1,
                                     new EmptyBetaConstraints(), buildContext );
-        BetaNode n2 = new JoinNode( 11, n1, mockObjectSource,
+        BetaNode n2 = new JoinNode( 11, n1, right2,
                                     new EmptyBetaConstraints(), buildContext );
-        BetaNode n3 = new JoinNode( 12, n1, mockObjectSource,
+        BetaNode n3 = new JoinNode( 12, n1, right3,
                                     new EmptyBetaConstraints(), buildContext );
-        BetaNode n4 = new JoinNode( 13, n2, mockObjectSource,
+        BetaNode n4 = new JoinNode( 13, n2, right4,
                                     new EmptyBetaConstraints(), buildContext );
-        BetaNode n5 = new JoinNode( 14, n2, mockObjectSource,
+        BetaNode n5 = new JoinNode( 14, n2, right5,
                                     new EmptyBetaConstraints(), buildContext );
 
-        n1.addAssociation( rule1 );
-        n1.addAssociation( rule2 );
-        n1.addAssociation( rule3 );
+        n1.addAssociation(rule1, null);
+        n1.addAssociation(rule2, null);
+        n1.addAssociation(rule3, null);
 
-        n2.addAssociation( rule2 );
-        n2.addAssociation( rule3 );
+        n2.addAssociation(rule2, null);
+        n2.addAssociation(rule3, null);
 
-        n3.addAssociation( rule1 );
-        n4.addAssociation( rule2 );
-        n5.addAssociation( rule3 );
+        n3.addAssociation(rule1, null);
+        n4.addAssociation(rule2, null);
+        n5.addAssociation(rule3, null);
 
         mockObjectSource.attach(buildContext);
         mockTupleSource.attach(buildContext);
@@ -287,7 +300,7 @@ public class NodeSegmentUnlinkingTest {
         // Initialise from n1
         ksession = (StatefulKnowledgeSessionImpl)kBase.newKieSession();
 
-        n1.assertObject( (InternalFactHandle) ksession.insert( "str" ), context, ksession );
+        n1.getRightInput().assertObject( (InternalFactHandle) ksession.insert( "str" ), context, ksession );
         
 
         liaMem = ksession.getNodeMemory(liaNode);
@@ -308,7 +321,7 @@ public class NodeSegmentUnlinkingTest {
         RuntimeSegmentUtilities.getOrCreateSegmentMemory(liaNode, ksession);
         
         InternalFactHandle fh1 = (InternalFactHandle) ksession.insert( "str1" );
-        n1.assertObject( fh1, context, ksession );
+        n1.getRightInput().assertObject( fh1, context, ksession );
         
         LiaNodeMemory liaMem = ksession.getNodeMemory(liaNode);
         assertThat(liaMem.getNodePosMaskBit()).isEqualTo(1);
@@ -454,18 +467,18 @@ public class NodeSegmentUnlinkingTest {
         StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newKieSession();
 
         DefaultFactHandle f1 = (DefaultFactHandle) ksession.insert( "test1" );
-        n3.assertObject( f1, context, ksession );
+        n3.getRightInput().assertObject( f1, context, ksession );
 
         BetaMemory bm = (BetaMemory) ksession.getNodeMemory(n3);
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isFalse();
 
-        n4.assertObject( f1, context, ksession );
+        n4.getRightInput().assertObject( f1, context, ksession );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isFalse();
 
-        n5.assertObject( f1, context, ksession );
+        n5.getRightInput().assertObject( f1, context, ksession );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isFalse();
 
-        n6.assertObject( f1, context, ksession );
+        n6.getRightInput().assertObject( f1, context, ksession );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isTrue(); // only after all 4 nodes are populated, is the segment linked in
     }
 
@@ -478,18 +491,18 @@ public class NodeSegmentUnlinkingTest {
         StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newKieSession();
 
         DefaultFactHandle f1 = (DefaultFactHandle) ksession.insert( "test1" );
-        n3.assertObject( f1, context, ksession );
+        n3.getRightInput().assertObject( f1, context, ksession );
 
         BetaMemory bm = (BetaMemory) ksession.getNodeMemory(n3);
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isFalse();
 
-        n4.assertObject( f1, context, ksession );
+        n4.getRightInput().assertObject( f1, context, ksession );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isFalse();
 
-        n5.assertObject( f1, context, ksession );
+        n5.getRightInput().assertObject( f1, context, ksession );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isFalse();
 
-        n6.assertObject( f1, context, ksession );
+        n6.getRightInput().assertObject( f1, context, ksession );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isTrue(); // only after all 4 nodes are populated, is the segment linked in
     }
 
@@ -516,13 +529,13 @@ public class NodeSegmentUnlinkingTest {
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isTrue(); // not nodes start off linked
 
         DefaultFactHandle f1 = (DefaultFactHandle) ksession.insert( "test1" ); // unlinked after first assertion
-        n3.assertObject( f1, context, ksession );
+        n3.getRightInput().assertObject( f1, context, ksession );
                 
         // this doesn't unlink on the assertObject, as the node's memory must be processed. So use the helper method the main network evaluator uses.
         PhreakNotNode.unlinkNotNodeOnRightInsert( (NotNode) n3, bm, ksession );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isFalse();                
 
-        n3.retractRightTuple( f1.getFirstRightTuple(), context, ksession );
+        n3.getRightInput().retractRightTuple( f1.getFirstRightTuple(), context, ksession );
         assertThat(bm.getSegmentMemory().isSegmentLinked()).isTrue(); 
                 //assertFalse( bm.getSegmentMemory().isSigmentLinked() ); // check retraction unlinks again         
     }

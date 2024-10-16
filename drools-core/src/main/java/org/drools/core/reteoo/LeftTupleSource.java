@@ -50,16 +50,16 @@ import static org.drools.base.reteoo.PropertySpecificUtil.isPropertyReactive;
  */
 public abstract class LeftTupleSource extends BaseNode implements LeftTupleNode {
 
-    protected BitMask                 leftDeclaredMask = EmptyBitMask.get();
-    protected BitMask                 leftInferredMask = EmptyBitMask.get();
-    protected BitMask                 leftNegativeMask = EmptyBitMask.get();
+    protected BitMask declaredMask     = EmptyBitMask.get();
+    protected BitMask inferredMask = EmptyBitMask.get();
+    protected BitMask negativeMask = EmptyBitMask.get();
 
 
     /** The left input <code>TupleSource</code>. */
     protected LeftTupleSource         leftInput;
 
 
-    private ObjectTypeNodeId leftInputOtnId = ObjectTypeNodeId.DEFAULT_ID;
+    private ObjectTypeNodeId inputOtnId = ObjectTypeNodeId.DEFAULT_ID;
 
     /** The destination for <code>Tuples</code>. */
     protected LeftTupleSinkPropagator sink;
@@ -81,7 +81,7 @@ public abstract class LeftTupleSource extends BaseNode implements LeftTupleNode 
      * @param id
      */
     protected LeftTupleSource(int id, BuildContext context) {
-        super(id, context != null ? context.getPartitionId() : RuleBasePartitionId.MAIN_PARTITION);
+        super(id, context.getPartitionId());
         this.sink = EmptyLeftTupleSinkAdapter.getInstance();
         initMemoryId( context );
     }
@@ -96,12 +96,12 @@ public abstract class LeftTupleSource extends BaseNode implements LeftTupleNode 
 
     public abstract int getType();
 
-    public ObjectTypeNodeId getLeftInputOtnId() {
-        return leftInputOtnId;
+    public ObjectTypeNodeId getInputOtnId() {
+        return inputOtnId;
     }
 
-    public void setLeftInputOtnId(ObjectTypeNodeId leftInputOtnId) {
-        this.leftInputOtnId = leftInputOtnId;
+    public void setInputOtnId(ObjectTypeNodeId inputOtnId) {
+        this.inputOtnId = inputOtnId;
     }
 
 
@@ -111,6 +111,14 @@ public abstract class LeftTupleSource extends BaseNode implements LeftTupleNode 
 
     public LeftTupleSource getLeftTupleSource() {
         return leftInput;
+    }
+
+    public LeftTupleSource getLeftInput() {
+        return leftInput;
+    }
+
+    public LeftTupleSinkPropagator getSink() {
+        return sink;
     }
 
     public final void setLeftTupleSource(LeftTupleSource leftInput) {
@@ -124,6 +132,10 @@ public abstract class LeftTupleSource extends BaseNode implements LeftTupleNode 
 
     public void setObjectCount(int count) {
         objectCount = count;
+    }
+
+    public BaseNode getParent() {
+        return leftInput;
     }
 
     /**
@@ -224,23 +236,21 @@ public abstract class LeftTupleSource extends BaseNode implements LeftTupleNode 
         return this.sink.size() > 0;
     }
 
-    protected final void initMasks(BuildContext context,
-                                   LeftTupleSource leftInput) {
-        initDeclaredMask( context, leftInput );
-        initInferredMask( leftInput );
+    protected final void initMasks(BuildContext context) {
+        initDeclaredMask( context );
+        initInferredMask( );
     }
 
-    protected void initDeclaredMask(BuildContext context,
-                                    LeftTupleSource leftInput) {
-        if ( context == null || context.getLastBuiltPatterns() == null ) {
+    protected void initDeclaredMask(BuildContext context) {
+        if ( context == null || context.getLastBuiltPatterns() == null) {
             // only happens during unit tests
-            leftDeclaredMask = AllSetBitMask.get();
+            declaredMask = AllSetBitMask.get();
             return;
         }
 
         if ( !NodeTypeEnums.isLeftInputAdapterNode(leftInput)) {
             // BetaNode's not after LIANode are not relevant for left mask property specific, so don't block anything.
-            leftDeclaredMask = AllSetBitMask.get();
+            declaredMask = AllSetBitMask.get();
             return;
         }
 
@@ -250,20 +260,20 @@ public abstract class LeftTupleSource extends BaseNode implements LeftTupleNode 
 
         if ( !(objectType instanceof ClassObjectType) ) {
             // Only ClassObjectType can use property specific
-            leftDeclaredMask = AllSetBitMask.get();
+            declaredMask = AllSetBitMask.get();
             return;
         }
 
         if ( pattern != null && isPropertyReactive(context.getRuleBase(), objectType) ) {
             Collection<String> leftListenedProperties = pattern.getListenedProperties();
             List<String> accessibleProperties = getAccessibleProperties( context.getRuleBase(), objectType );
-            leftDeclaredMask = calculatePositiveMask( objectType, leftListenedProperties, accessibleProperties );
-            leftDeclaredMask = setNodeConstraintsPropertyReactiveMask(leftDeclaredMask, objectType, accessibleProperties);
-            leftNegativeMask = calculateNegativeMask( objectType, leftListenedProperties, accessibleProperties );
+            declaredMask     = calculatePositiveMask(objectType, leftListenedProperties, accessibleProperties);
+            declaredMask = setNodeConstraintsPropertyReactiveMask(declaredMask, objectType, accessibleProperties);
+            negativeMask = calculateNegativeMask(objectType, leftListenedProperties, accessibleProperties);
             setLeftListenedProperties(leftListenedProperties);
         } else {
             // if property specific is not on, then accept all modification propagations
-            leftDeclaredMask = AllSetBitMask.get();
+            declaredMask = AllSetBitMask.get();
         }
     }
 
@@ -283,38 +293,38 @@ public abstract class LeftTupleSource extends BaseNode implements LeftTupleNode 
 
     protected void setLeftListenedProperties(Collection<String> leftListenedProperties) { }
 
-    protected void initInferredMask(LeftTupleSource leftInput) {
-        LeftTupleSource unwrappedLeft = unwrapLeftInput(leftInput);
+    protected void initInferredMask() {
+        LeftTupleSource unwrappedLeft = unwrapLeftInput();
         if ( NodeTypeEnums.isLeftInputAdapterNode(unwrappedLeft) && ((LeftInputAdapterNode)unwrappedLeft).getParentObjectSource().getType() == NodeTypeEnums.AlphaNode ) {
             ObjectSource objectSource = ((LeftInputAdapterNode)unwrappedLeft).getParentObjectSource();
-            leftInferredMask = objectSource.updateMask( leftDeclaredMask );
+            inferredMask = objectSource.updateMask(declaredMask);
         } else {
-            leftInferredMask = leftDeclaredMask;
+            inferredMask = declaredMask;
         }
-        leftInferredMask = leftInferredMask.resetAll(leftNegativeMask);
+        inferredMask = inferredMask.resetAll(negativeMask);
     }
 
-    private LeftTupleSource unwrapLeftInput(LeftTupleSource leftInput) {
+    private LeftTupleSource unwrapLeftInput() {
         if (leftInput.getType() == NodeTypeEnums.FromNode || leftInput.getType() == NodeTypeEnums.ReactiveFromNode) {
             return leftInput.getLeftTupleSource();
         }
         return leftInput;
     }
 
-    public BitMask getLeftDeclaredMask() {
-        return leftDeclaredMask;
+    public BitMask getDeclaredMask() {
+        return declaredMask;
     }
 
-    public BitMask getLeftInferredMask() {
-        return leftInferredMask;
+    public BitMask getInferredMask() {
+        return inferredMask;
     }
 
-    protected void setLeftInferredMask(BitMask leftInferredMask) {
-        this.leftInferredMask = leftInferredMask;
+    protected void setInferredMask(BitMask inferredMask) {
+        this.inferredMask = inferredMask;
     }
 
-    public BitMask getLeftNegativeMask() {
-        return leftNegativeMask;
+    public BitMask getNegativeMask() {
+        return negativeMask;
     }
 
     public ObjectType getObjectType() {

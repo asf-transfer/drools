@@ -86,7 +86,9 @@ public class NodesPartitioningTest {
         NetworkNode[] sinks = node.getSinks();
         if (sinks != null) {
             for (NetworkNode sink : sinks) {
-                if (sink instanceof BaseNode) {
+                if (sink instanceof RightInputAdapterNode<?>) {
+                    traverse(((RightInputAdapterNode)sink).getBetaNode());
+                } else if (sink instanceof BaseNode) {
                     traverse((BaseNode)sink);
                 }
             }
@@ -99,13 +101,15 @@ public class NodesPartitioningTest {
         } else if (node instanceof ObjectTypeNode) {
             assertThat(node.getPartitionId()).isSameAs(RuleBasePartitionId.MAIN_PARTITION);
             checkPartitionedSinks((ObjectTypeNode) node);
-        } else if (node instanceof ObjectSource ) {
-            ObjectSource source = ( (ObjectSource) node ).getParentObjectSource();
+        } else if (node instanceof RightInputAdapterNode){
+            assertThat(node.getPartitionId()).isSameAs(((RightInputAdapterNode)node).getBetaNode().getPartitionId());
+        } if (node instanceof ObjectSource ) {
+            BaseNode source = ( (ObjectSource) node ).getParent();
             if ( !(source instanceof ObjectTypeNode) ) {
                 assertThat(node.getPartitionId()).isSameAs(source.getPartitionId());
             }
         } else if (node instanceof BetaNode ) {
-            ObjectSource rightInput = ( (BetaNode) node ).getRightInput();
+            ObjectSource rightInput = ( (BetaNode) node ).getRightInput().getParent();
             if ( !(rightInput instanceof ObjectTypeNode) ) {
                 assertThat(node.getPartitionId()).isSameAs(rightInput.getPartitionId());
             }

@@ -29,6 +29,7 @@ import org.drools.core.common.NodeMemories;
 import org.drools.core.impl.InternalRuleBase;
 import org.drools.core.reteoo.BetaMemory;
 import org.drools.core.reteoo.BetaNode;
+import org.drools.core.reteoo.NotRight;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.RightTuple;
 import org.drools.core.reteoo.TupleImpl;
@@ -207,7 +208,7 @@ public class NotTest {
 
     private InternalFactHandle getBlockerFactHandle(KieSession ksession) {
         ObjectTypeNode otn = getObjectTypeNode(ksession.getKieBase(), Person.class);
-        BetaNode notNode = (BetaNode) otn.getSinks()[0].getSinks()[0];
+        BetaNode notNode = ((NotRight)otn.getSinks()[0].getSinks()[0]).getBetaNode();
 
         StatefulKnowledgeSessionImpl ksessionImpl = (StatefulKnowledgeSessionImpl) ksession;
         NodeMemories                 nodeMemories = ksessionImpl.getNodeMemories();

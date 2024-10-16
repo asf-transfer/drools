@@ -78,7 +78,7 @@ public class QueryElementNode extends LeftTupleSource implements LeftTupleSinkNo
         this.tupleMemoryEnabled = tupleMemoryEnabled;
         this.openQuery = openQuery;
         this.dataDriven = context != null && context.getRule().isDataDriven();
-        initMasks( context, tupleSource );
+        initMasks( context );
         this.argsTemplate = initArgsTemplate( context );
 
         hashcode = calculateHashCode();

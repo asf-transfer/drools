@@ -19,8 +19,6 @@
 package org.drools.core.reteoo;
 
 import org.drools.base.common.RuleBasePartitionId;
-import org.drools.core.common.InternalFactHandle;
-import org.drools.core.common.PropagationContext;
 import org.drools.util.bitmask.BitMask;
 
 /**
@@ -33,11 +31,13 @@ public interface LeftTupleSink extends LeftTupleNode, Sink {
 
     boolean isLeftTupleMemoryEnabled();
 
-    ObjectTypeNodeId getLeftInputOtnId();
+    ObjectTypeNodeId getInputOtnId();
 
-    void setLeftInputOtnId(ObjectTypeNodeId leftInputOtnId);
+    void setInputOtnId(ObjectTypeNodeId leftInputOtnId);
 
-    BitMask getLeftInferredMask();
+    BitMask getDeclaredMask();
+
+    BitMask getInferredMask();
 
     void setPartitionIdWithSinks( RuleBasePartitionId partitionId );
 }

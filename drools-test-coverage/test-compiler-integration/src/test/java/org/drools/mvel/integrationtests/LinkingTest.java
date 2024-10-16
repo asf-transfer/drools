@@ -29,7 +29,8 @@ import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.MemoryFactory;
 import org.drools.core.impl.InternalRuleBase;
 import org.drools.core.reteoo.BetaMemory;
-import org.drools.core.reteoo.RightInputAdapterNode.RiaPathMemory;
+import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode.SubnetworkPathMemory;
 import org.drools.kiesession.session.StatefulKnowledgeSessionImpl;
 import org.drools.core.phreak.RuleAgendaItem;
 import org.drools.core.phreak.RuleExecutor;
@@ -42,7 +43,7 @@ import org.drools.core.reteoo.LeftInputAdapterNode.LiaNodeMemory;
 import org.drools.core.reteoo.NotNode;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.PathMemory;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.SegmentMemory;
 import org.drools.core.reteoo.Tuple;
@@ -261,20 +262,20 @@ public class LinkingTest {
         ExistsNode existsNode3 = ( ExistsNode) liaNode.getSinkPropagator().getSinks()[2];
 
         JoinNode joinNodeB = ( JoinNode) liaNode.getSinkPropagator().getSinks()[0];
-        assertThat(getObjectTypeNode(kbase, B.class)).isSameAs(joinNodeB.getRightInput());
+        assertThat(getObjectTypeNode(kbase, B.class)).isSameAs(joinNodeB.getRightInput().getParent());
 
         JoinNode joinNodeC = ( JoinNode) joinNodeB.getSinkPropagator().getSinks()[0];
-        assertThat(getObjectTypeNode(kbase, C.class)).isSameAs(joinNodeC.getRightInput());
+        assertThat(getObjectTypeNode(kbase, C.class)).isSameAs(joinNodeC.getRightInput().getParent());
         assertThat(joinNodeC.getSinkPropagator().size()).isEqualTo(2);
 
         JoinNode joinNodeD = ( JoinNode) joinNodeC.getSinkPropagator().getSinks()[0];
-        assertThat(getObjectTypeNode(kbase, X.class)).isSameAs(joinNodeD.getRightInput());
+        assertThat(getObjectTypeNode(kbase, X.class)).isSameAs(joinNodeD.getRightInput().getParent());
         assertThat(joinNodeD.getSinkPropagator().size()).isEqualTo(2);
 
 
-        assertThat(((RightInputAdapterNode) joinNodeC.getSinkPropagator().getSinks()[1]).getObjectSinkPropagator().getSinks()[0]).isSameAs(existsNode2);
+        assertThat(((RightInputAdapterNode)((TupleToObjectNode) joinNodeC.getSinkPropagator().getSinks()[1]).getObjectSinkPropagator().getSinks()[0]).getBetaNode()).isSameAs(existsNode2);
 
-        assertThat(((RightInputAdapterNode) joinNodeD.getSinkPropagator().getSinks()[1]).getObjectSinkPropagator().getSinks()[0]).isSameAs(existsNode3);
+        assertThat(((RightInputAdapterNode)((TupleToObjectNode) joinNodeD.getSinkPropagator().getSinks()[1]).getObjectSinkPropagator().getSinks()[0]).getBetaNode()).isSameAs(existsNode3);
     }
 
     @Test
@@ -423,7 +424,7 @@ public class LinkingTest {
         JoinNode dNode = ( JoinNode) cNode.getSinkPropagator().getSinks()[0];
         assertThat(dNode.getSinkPropagator().size()).isEqualTo(1);
 
-        RightInputAdapterNode riaNode1 =  ( RightInputAdapterNode ) dNode.getSinkPropagator().getSinks()[0];
+        TupleToObjectNode riaNode1 =  (TupleToObjectNode) dNode.getSinkPropagator().getSinks()[0];
 
 
         JoinNode eNode = ( JoinNode ) exists1n.getSinkPropagator().getSinks()[0];
@@ -571,14 +572,14 @@ public class LinkingTest {
         assertThat(pmem.getSegmentMemories().length).isEqualTo(4);
         assertThat(pmem.getAllLinkedMaskTest()).isEqualTo(11); // the exists eval segment does not need to be linked in
 
-        RiaPathMemory riaMem =  (RiaPathMemory) wm.getNodeMemory((MemoryFactory) exists1n.getRightInput());
+        SubnetworkPathMemory riaMem =  (SubnetworkPathMemory) wm.getNodeMemory((MemoryFactory) exists1n.getRightInput().getParent());
         assertThat(riaMem.getAllLinkedMaskTest()).isEqualTo(2); // second segment must be linked in
 
         wm.insert(  new B() );
         wm.insert(  new C() );
         assertThat(riaMem.getSegmentMemories().length).isEqualTo(2);
 
-        riaMem =  (RiaPathMemory) wm.getNodeMemory((MemoryFactory) exists2n.getRightInput());
+        riaMem =  (SubnetworkPathMemory) wm.getNodeMemory((MemoryFactory) exists2n.getRightInput().getParent());
         assertThat(riaMem.getAllLinkedMaskTest()).isEqualTo(0); // no segments to be linked in
     }
 
@@ -625,11 +626,11 @@ public class LinkingTest {
         JoinNode eNode = ( JoinNode) dNode.getSinkPropagator().getSinks()[0];
         JoinNode fNode = ( JoinNode) eNode.getSinkPropagator().getSinks()[0];
 
-        RightInputAdapterNode riaNode2 =  ( RightInputAdapterNode ) fNode.getSinkPropagator().getSinks()[0];
-        assertThat(riaNode2.getObjectSinkPropagator().getSinks()[0]).isEqualTo(exists2n);
+        TupleToObjectNode riaNode2 =  (TupleToObjectNode) fNode.getSinkPropagator().getSinks()[0];
+        assertThat(((RightInputAdapterNode)riaNode2.getObjectSinkPropagator().getSinks()[0]).getBetaNode()).isEqualTo(exists2n);
 
-        RightInputAdapterNode riaNode1 =  ( RightInputAdapterNode ) exists2n.getSinkPropagator().getSinks()[0];
-        assertThat(riaNode1.getObjectSinkPropagator().getSinks()[0]).isEqualTo(exists1n);
+        TupleToObjectNode riaNode1 =  (TupleToObjectNode) exists2n.getSinkPropagator().getSinks()[0];
+        assertThat(((RightInputAdapterNode)riaNode1.getObjectSinkPropagator().getSinks()[0]).getBetaNode()).isEqualTo(exists1n);
 
         JoinNode gNode = ( JoinNode) exists1n.getSinkPropagator().getSinks()[0];
         RuleTerminalNode rtn = ( RuleTerminalNode) gNode.getSinkPropagator().getSinks()[0];
@@ -697,8 +698,8 @@ public class LinkingTest {
         JoinNode eNode = ( JoinNode) dNode.getSinkPropagator().getSinks()[0];
         JoinNode fNode = ( JoinNode) eNode.getSinkPropagator().getSinks()[0];
 
-        RightInputAdapterNode riaNode2 =  ( RightInputAdapterNode ) fNode.getSinkPropagator().getSinks()[0];
-        RightInputAdapterNode riaNode1 =  ( RightInputAdapterNode ) exists2n.getSinkPropagator().getSinks()[0];
+        TupleToObjectNode riaNode2 =  (TupleToObjectNode) fNode.getSinkPropagator().getSinks()[0];
+        TupleToObjectNode riaNode1 =  (TupleToObjectNode) exists2n.getSinkPropagator().getSinks()[0];
 
         JoinNode gNode = ( JoinNode) exists1n.getSinkPropagator().getSinks()[0];
         RuleTerminalNode rtn = ( RuleTerminalNode) gNode.getSinkPropagator().getSinks()[0];
@@ -720,8 +721,8 @@ public class LinkingTest {
         BetaMemory fMem       = (BetaMemory)   wm.getNodeMemory(fNode);
         BetaMemory gMem       = (BetaMemory)   wm.getNodeMemory(gNode);
 
-        RiaPathMemory riaMem1 = (RiaPathMemory) wm.getNodeMemory(riaNode1);
-        RiaPathMemory riaMem2 = (RiaPathMemory) wm.getNodeMemory(riaNode2);
+        SubnetworkPathMemory riaMem1 = (SubnetworkPathMemory) wm.getNodeMemory(riaNode1);
+        SubnetworkPathMemory riaMem2 = (SubnetworkPathMemory) wm.getNodeMemory(riaNode2);
 
         PathMemory rs = wm.getNodeMemory(rtn);
 

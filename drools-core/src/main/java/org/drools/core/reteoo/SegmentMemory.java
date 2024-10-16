@@ -34,7 +34,7 @@ import org.drools.core.phreak.BuildtimeSegmentUtilities;
 import org.drools.core.phreak.RuntimeSegmentUtilities;
 import org.drools.core.reteoo.AsyncReceiveNode.AsyncReceiveMemory;
 import org.drools.core.reteoo.QueryElementNode.QueryElementNodeMemory;
-import org.drools.core.reteoo.RightInputAdapterNode.RiaPathMemory;
+import org.drools.core.reteoo.TupleToObjectNode.SubnetworkPathMemory;
 import org.drools.core.reteoo.TimerNode.TimerNodeMemory;
 import org.drools.core.util.LinkedList;
 import org.drools.core.util.DoubleLinkedEntry;
@@ -291,7 +291,7 @@ public class SegmentMemory extends LinkedList<SegmentMemory>
     }
 
     private boolean isAssociatedWith( PathMemory pmem ) {
-        if (NodeTypeEnums.RightInputAdapterNode == pmem.getNodeType()) {
+        if (NodeTypeEnums.TupleToObjectNode == pmem.getNodeType()) {
             for (PathEndNode endNode : pmem.getPathEndNode().getPathEndNodes() ) {
                 if (NodeTypeEnums.isTerminalNode(endNode)) {
                     if ( proto.getRootNode().hasAssociatedTerminal((AbstractTerminalNode)endNode)) {
@@ -611,7 +611,7 @@ public class SegmentMemory extends LinkedList<SegmentMemory>
         public static MemoryPrototype get(Memory memory) {
             if (memory instanceof BetaMemory) {
                 BetaMemory betaMemory = (BetaMemory)memory;
-                return new BetaMemoryPrototype(betaMemory.getNodePosMaskBit(), betaMemory.getRiaRuleMemory() != null ? betaMemory.getRiaRuleMemory().getRightInputAdapterNode() : null);
+                return new BetaMemoryPrototype(betaMemory.getNodePosMaskBit(), betaMemory.getSubnetworkPathMemory() != null ? betaMemory.getSubnetworkPathMemory().getTupleToObjectNode() : null);
             }
             if (memory instanceof LeftInputAdapterNode.LiaNodeMemory) {
                 return new LiaMemoryPrototype(((LeftInputAdapterNode.LiaNodeMemory)memory).getNodePosMaskBit());
@@ -625,7 +625,7 @@ public class SegmentMemory extends LinkedList<SegmentMemory>
             }
             if (memory instanceof AccumulateNode.AccumulateMemory) {
                 BetaMemory betaMemory = ((AccumulateNode.AccumulateMemory)memory).getBetaMemory();
-                return new AccumulateMemoryPrototype(new BetaMemoryPrototype( betaMemory.getNodePosMaskBit(), betaMemory.getRiaRuleMemory() != null ? betaMemory.getRiaRuleMemory().getRightInputAdapterNode() : null) );
+                return new AccumulateMemoryPrototype(new BetaMemoryPrototype( betaMemory.getNodePosMaskBit(), betaMemory.getSubnetworkPathMemory() != null ? betaMemory.getSubnetworkPathMemory().getTupleToObjectNode() : null) );
             }
             if (memory instanceof ReactiveFromNode.ReactiveFromMemory) {
                 return new ReactiveFromMemoryPrototype(((ReactiveFromNode.ReactiveFromMemory)memory).getNodePosMaskBit());
@@ -645,23 +645,23 @@ public class SegmentMemory extends LinkedList<SegmentMemory>
     }
 
     public static class BetaMemoryPrototype extends MemoryPrototype {
-        private final RightInputAdapterNode riaNode;
+        private final TupleToObjectNode tton;
 
-        public BetaMemoryPrototype(long nodePosMaskBit, RightInputAdapterNode riaNode) {
+        public BetaMemoryPrototype(long nodePosMaskBit, TupleToObjectNode tton) {
             this.nodePosMaskBit = nodePosMaskBit;
-            this.riaNode = riaNode;
+            this.tton           = tton;
         }
 
         @Override
         public void populateMemory(ReteEvaluator reteEvaluator, Memory memory) {
             BetaMemory betaMemory = (BetaMemory)memory;
             betaMemory.setNodePosMaskBit(nodePosMaskBit);
-            if (riaNode != null) {
-                RiaPathMemory riaMem = (RiaPathMemory) reteEvaluator.getNodeMemories().peekNodeMemory(riaNode);
+            if (tton != null) {
+                SubnetworkPathMemory riaMem = (SubnetworkPathMemory) reteEvaluator.getNodeMemories().peekNodeMemory(tton);
                 if (riaMem == null) {
-                    riaMem = ( RiaPathMemory) RuntimeSegmentUtilities.initializePathMemory(reteEvaluator, riaNode);
+                    riaMem = (SubnetworkPathMemory) RuntimeSegmentUtilities.initializePathMemory(reteEvaluator, tton);
                 }
-                betaMemory.setRiaRuleMemory(riaMem);
+                betaMemory.setSubnetworkPathMemory(riaMem);
             }
         }
     }

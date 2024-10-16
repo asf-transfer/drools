@@ -51,7 +51,6 @@ import org.drools.core.common.UpdateContext;
 import org.drools.core.impl.InternalRuleBase;
 import org.drools.core.phreak.PhreakBuilder;
 import org.drools.core.reteoo.PathEndNode;
-import org.drools.core.reteoo.RightInputAdapterNode;
 import org.drools.core.reteoo.RuleBuilder;
 import org.drools.core.reteoo.TerminalNode;
 import org.drools.core.reteoo.WindowNode;
@@ -230,11 +229,11 @@ public class ReteooRuleBuilder implements RuleBuilder {
         for ( int i = 0; i < pathEndNodes.length; i++ ) {
             PathEndNode node = context.getPathEndNodes().get(pathEndNodes.length-1-i);
             pathEndNodes[i] = node;
-            if (node.getType() == NodeTypeEnums.RightInputAdapterNode && node.getPathEndNodes() != null) {
-                PathEndNode[] riaPathEndNodes = new PathEndNode[node.getPathEndNodes().length + i];
-                System.arraycopy( pathEndNodes, 0, riaPathEndNodes, 0, i );
-                System.arraycopy( node.getPathEndNodes(), 0, riaPathEndNodes, i, node.getPathEndNodes().length );
-                node.setPathEndNodes( riaPathEndNodes );
+            if (node.getType() == NodeTypeEnums.TupleToObjectNode && node.getPathEndNodes() != null) {
+                PathEndNode[] SubnetworkNodes = new PathEndNode[node.getPathEndNodes().length + i];
+                System.arraycopy( pathEndNodes, 0, SubnetworkNodes, 0, i );
+                System.arraycopy( node.getPathEndNodes(), 0, SubnetworkNodes, i, node.getPathEndNodes().length );
+                node.setPathEndNodes( SubnetworkNodes );
             } else {
                 node.setPathEndNodes( pathEndNodes );
             }

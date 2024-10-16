@@ -54,6 +54,8 @@ import org.drools.core.impl.EnvironmentFactory;
 import org.drools.core.impl.RuleBaseFactory;
 import org.drools.core.marshalling.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.core.reteoo.CoreComponentFactory;
+import org.drools.core.reteoo.JoinNode;
+import org.drools.core.reteoo.JoinRightAdapterNode;
 import org.drools.core.reteoo.MockTupleSource;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.RuleTerminalNode;
@@ -1057,11 +1059,12 @@ public class MarshallingTest extends CommonTestMethodBase {
         // Make sure the rete node map is created correctly
         Map<Integer, BaseNode> nodes = RuleBaseNodes.getNodeMap( (InternalKnowledgeBase) kBase);
 
-        assertThat(nodes.size()).isEqualTo(5);
+        assertThat(nodes.size()).isEqualTo(6);
         assertThat(((ClassObjectType) ((ObjectTypeNode) nodes.get(3)).getObjectType()).getClassType().getSimpleName()).isEqualTo("Cheese");
         assertThat(((ClassObjectType) ((ObjectTypeNode) nodes.get(5)).getObjectType()).getClassType().getSimpleName()).isEqualTo("Person");
-        assertThat(nodes.get(6).getClass().getSimpleName().endsWith("JoinNode")).as("Should end with JoinNode").isTrue();
-        assertThat(((RuleTerminalNode) nodes.get(7)).getRule().getName()).isEqualTo("Rule 1");
+        assertThat(nodes.get(6).getClass() == JoinRightAdapterNode.class).as("Should end with JoinNode").isTrue();
+        assertThat(nodes.get(7).getClass() == JoinNode.class).as("Should end with JoinNode").isTrue();
+        assertThat(((RuleTerminalNode) nodes.get(8)).getRule().getName()).isEqualTo("Rule 1");
 
         KieSession session = kBase.newKieSession();
 

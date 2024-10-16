@@ -22,6 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.base.reteoo.NodeTypeEnums;
+import org.drools.core.common.BaseNode;
+import org.drools.core.common.InternalFactHandle;
+import org.drools.core.common.InternalWorkingMemory;
+import org.drools.core.common.Memory;
 import org.drools.core.common.ReteEvaluator;
 import org.drools.core.impl.InternalRuleBase;
 import org.drools.core.phreak.RuleExecutor;

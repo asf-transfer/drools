@@ -34,7 +34,7 @@ public class NodeTypeEnumTest {
     AlphaNode              alphaNode  = new AlphaNode();
     WindowNode             winNode    = new WindowNode();
 
-    RightInputAdapterNode  riaNode    = new RightInputAdapterNode();
+    TupleToObjectNode      ttoNode = new TupleToObjectNode();
 
     RuleTerminalNode       rtNode     = new RuleTerminalNode();
     QueryTerminalNode      qtNode     = new QueryTerminalNode();
@@ -58,7 +58,7 @@ public class NodeTypeEnumTest {
         assertThat(isObjectSource(otNode)).isTrue();
         assertThat(isObjectSource(alphaNode)).isTrue();
 
-        assertThat(isObjectSource(riaNode)).isTrue();
+        assertThat(isObjectSource(ttoNode)).isTrue();
 
         assertThat(isObjectSource(rtNode)).isFalse();
         assertThat(isObjectSource(qtNode)).isFalse();
@@ -83,7 +83,7 @@ public class NodeTypeEnumTest {
         assertThat(isObjectSink(otNode)).isTrue();
         assertThat(isObjectSink(alphaNode)).isTrue();
 
-        assertThat(isObjectSink(riaNode)).isFalse();
+        assertThat(isObjectSink(ttoNode)).isFalse();
 
         assertThat(isObjectSink(rtNode)).isFalse();
         assertThat(isObjectSink(qtNode)).isFalse();
@@ -107,7 +107,7 @@ public class NodeTypeEnumTest {
         assertThat(isLeftTupleSource(reteNod)).isFalse();
         assertThat(isLeftTupleSource(otNode)).isFalse();
         assertThat(isLeftTupleSource(alphaNode)).isFalse();
-        assertThat(isLeftTupleSource(riaNode)).isFalse();
+        assertThat(isLeftTupleSource(ttoNode)).isFalse();
 
         assertThat(isLeftTupleSource(rtNode)).isFalse();
         assertThat(isLeftTupleSource(qtNode)).isFalse();
@@ -132,7 +132,7 @@ public class NodeTypeEnumTest {
         assertThat(isLeftTupleSink(otNode)).isFalse();
         assertThat(isLeftTupleSink(alphaNode)).isFalse();
 
-        assertThat(isLeftTupleSink(riaNode)).isTrue();
+        assertThat(isLeftTupleSink(ttoNode)).isTrue();
 
         assertThat(isLeftTupleSink(rtNode)).isTrue();
         assertThat(isLeftTupleSink(qtNode)).isTrue();
@@ -157,7 +157,7 @@ public class NodeTypeEnumTest {
         assertThat(isBetaNode(otNode)).isFalse();
         assertThat(isBetaNode(alphaNode)).isFalse();
 
-        assertThat(isBetaNode(riaNode)).isFalse();
+        assertThat(isBetaNode(ttoNode)).isFalse();
 
         assertThat(isBetaNode(rtNode)).isFalse();
         assertThat(isBetaNode(qtNode)).isFalse();

@@ -31,7 +31,7 @@ public interface RightTupleSink extends Sink {
                           final PropagationContext context,
                           final ReteEvaluator reteEvaluator);
 
-    default ObjectTypeNodeId getRightInputOtnId() {
+    default ObjectTypeNodeId getInputOtnId() {
         return null;
     }
 

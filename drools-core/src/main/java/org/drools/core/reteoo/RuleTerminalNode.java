@@ -98,7 +98,7 @@ public class RuleTerminalNode extends AbstractTerminalNode {
     public void doAttach( BuildContext context ) {
         super.doAttach(context);
         getLeftTupleSource().addTupleSink(this, context);
-        addAssociation( context, context.getRule() );
+        addAssociation(context.getRule(), context);
     }
 
     void initDeclarations(Map<String, Declaration> decls, final BuildContext context) {
@@ -160,11 +160,11 @@ public class RuleTerminalNode extends AbstractTerminalNode {
         return NodeTypeEnums.RuleTerminalNode;
     }
 
-    public ObjectTypeNodeId getLeftInputOtnId() {
+    public ObjectTypeNodeId getInputOtnId() {
         return leftInputOtnId;
     }
 
-    public void setLeftInputOtnId(ObjectTypeNodeId leftInputOtnId) {
+    public void setInputOtnId(ObjectTypeNodeId leftInputOtnId) {
         this.leftInputOtnId = leftInputOtnId;
     }
 

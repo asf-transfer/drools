@@ -56,8 +56,8 @@ public interface ObjectSinkPropagator
                                  final PropagationContext context,
                                  final ReteEvaluator reteEvaluator);
     
-    void doLinkRiaNode(ReteEvaluator reteEvaluator);
+    void doLinkSubnetwork(ReteEvaluator reteEvaluator);
 
-    void doUnlinkRiaNode(ReteEvaluator reteEvaluator);
+    void doUnlinkSubnetwork(ReteEvaluator reteEvaluator);
 
 }

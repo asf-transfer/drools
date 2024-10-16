@@ -20,8 +20,6 @@ package org.drools.core.reteoo;
 
 import org.drools.base.reteoo.NodeTypeEnums;
 import org.drools.core.common.BetaConstraints;
-import org.drools.core.common.PropagationContext;
-import org.drools.core.common.ReteEvaluator;
 import org.drools.core.reteoo.builder.BuildContext;
 
 public class JoinNode extends BetaNode {
@@ -34,7 +32,7 @@ public class JoinNode extends BetaNode {
 
     public JoinNode(final int id,
                     final LeftTupleSource leftInput,
-                    final ObjectSource rightInput,
+                    final RightInputAdapterNode rightInput,
                     final BetaConstraints binder,
                     final BuildContext context) {
         super( id,
@@ -54,26 +52,4 @@ public class JoinNode extends BetaNode {
         return "[JoinNode(" + this.getId() + ") - " + getObjectTypeNode().getObjectType() + "]";
     }
 
-    public void retractRightTuple( final TupleImpl rightTuple,
-                                   final PropagationContext pctx,
-                                   final ReteEvaluator reteEvaluator ) {
-        final BetaMemory memory = (BetaMemory) reteEvaluator.getNodeMemory(this);
-        rightTuple.setPropagationContext( pctx );
-        doDeleteRightTuple( rightTuple, reteEvaluator, memory );
-    }
-
-    @Override
-    public void modifyRightTuple(TupleImpl rightTuple, PropagationContext context, ReteEvaluator reteEvaluator) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean doRemove(RuleRemovalContext context, ReteooBuilder builder) {
-        if ( !isInUse() ) {
-            getLeftTupleSource().removeTupleSink( this );
-            getRightInput().removeObjectSink( this );
-            return true;
-        }
-        return false;
-    }
 }

@@ -54,7 +54,7 @@ public interface NetworkNode extends Serializable {
 
     NetworkNode[] getSinks();
 
-    default boolean isRightInputIsRiaNode() {
+    default boolean inputIsTupleToObjectNode() {
         // not ideal, but this was here to allow NetworkNode to be in drools-base
         return false;
     }

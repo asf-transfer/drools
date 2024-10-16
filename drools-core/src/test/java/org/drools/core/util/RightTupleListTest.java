@@ -20,12 +20,16 @@ package org.drools.core.util;
 
 import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.InternalFactHandle;
+import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.reteoo.LeftTuple;
 import org.drools.core.reteoo.MockLeftTupleSink;
 import org.drools.core.reteoo.MockObjectSink;
+import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.test.model.Cheese;
 import org.drools.core.util.index.TupleList;
 import org.junit.Test;
+
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,6 +42,7 @@ public class RightTupleListTest {
         final InternalFactHandle h1 = new DefaultFactHandle( 1,
                                                              stilton1 );
 
-        assertThat(map.getFirst(new LeftTuple(h1, new MockLeftTupleSink(0), true ))).isNull();
+        BuildContext bctx = new BuildContext(new KnowledgeBaseImpl("1"), Collections.emptyList());
+        assertThat(map.getFirst(new LeftTuple(h1, new MockLeftTupleSink(0, bctx), true ))).isNull();
     }
 }

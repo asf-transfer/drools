@@ -33,7 +33,7 @@ import org.drools.core.common.TupleStartEqualsConstraint;
 import org.drools.core.reteoo.AccumulateNode;
 import org.drools.core.reteoo.CoreComponentFactory;
 import org.drools.core.reteoo.LeftTupleSource;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.base.rule.constraint.BetaConstraint;
 
 public class CollectBuilder
@@ -69,13 +69,13 @@ public class CollectBuilder
 
         // if object source is null, then we need to adapt tuple source into a subnetwork
         if ( context.getObjectSource() == null ) {
-            RightInputAdapterNode riaNode = CoreComponentFactory.get().getNodeFactoryService().buildRightInputNode( context.getNextNodeId(),
-                                                                                                                       context.getTupleSource(),
-                                                                                                                       tupleSource,
-                                                                                                                       context );
+            TupleToObjectNode tton = CoreComponentFactory.get().getNodeFactoryService().buildRightInputNode(context.getNextNodeId(),
+                                                                                                               context.getTupleSource(),
+                                                                                                               tupleSource,
+                                                                                                               context);
 
             // attach right input adapter node to convert tuple source into an object source
-            context.setObjectSource( utils.attachNode( context, riaNode ) );
+            context.setObjectSource( utils.attachNode( context, tton ) );
 
             // restore tuple source from before the start of the sub network
             context.setTupleSource( tupleSource );

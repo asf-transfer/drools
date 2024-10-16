@@ -41,7 +41,7 @@ import org.drools.core.reteoo.PathEndNode;
 import org.drools.core.reteoo.PathEndNode.PathMemSpec;
 import org.drools.core.reteoo.QueryElementNode;
 import org.drools.core.reteoo.ReactiveFromNode;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.core.reteoo.SegmentMemory.AccumulateMemoryPrototype;
 import org.drools.core.reteoo.SegmentMemory.AsyncReceiveMemoryPrototype;
 import org.drools.core.reteoo.SegmentMemory.AsyncSendMemoryPrototype;
@@ -66,7 +66,7 @@ public class BuildtimeSegmentUtilities {
         SegmentPrototype smproto = endNode.getSegmentPrototypes()[endNode.getSegmentPrototypes().length-1];
         if (smproto.getPathEndNodes() != null) {
             // This is a special check, for shared subnetwork paths. It ensure it's initallysed only once,
-            // even though the rian is shared with different TNs.
+            // even though the TupleToObjectNode is shared with different TNs.
             return;
         }
 
@@ -88,7 +88,7 @@ public class BuildtimeSegmentUtilities {
     private static void setSegments(PathEndNode endNode, SegmentPrototype[] smems) {
         List<SegmentPrototype> eager = new ArrayList<>();
         for (SegmentPrototype smem : smems) {
-            // The segments before the start of a subnetwork, will be null for a rian path.
+            // The segments before the start of a subnetwork, will be null for a TupleToObjectNode path.
             if (smem != null && smem.requiresEager()) {
                 eager.add(smem);
             }
@@ -162,7 +162,7 @@ public class BuildtimeSegmentUtilities {
         // reset to find the next segments and set their position and their bit mask
         int ruleSegmentPosMask = 1;
         for (int i = 0; i < smems.size(); i++) {
-            if ( start >= 0 && smems.get(i) != null) { // The segments before the start of a subnetwork, will be null for a rian path.
+            if ( start >= 0 && smems.get(i) != null) { // The segments before the start of a subnetwork, will be null for a TupleToObjectNode path.
                 smems.get(i).setPos(i);
                 if (smems.get(i).getAllLinkedMaskTest() > 0) {
                     smems.get(i).setSegmentPosMaskBit(ruleSegmentPosMask);
@@ -239,8 +239,8 @@ public class BuildtimeSegmentUtilities {
                     case NodeTypeEnums.QueryElementNode:
                         updateNodeBit = processQueryNode((QueryElementNode) node, memories, nodes, nodePosMask);
                         break;
-                    case NodeTypeEnums.RightInputAdapterNode:
-                        processRightInputAdapterNode((RightInputAdapterNode) node, memories, nodes);
+                    case NodeTypeEnums.TupleToObjectNode:
+                        processRightInputAdapterNode((TupleToObjectNode) node, memories, nodes);
                         break;
                     case NodeTypeEnums.RuleTerminalNode:
                     case NodeTypeEnums.QueryTerminalNode:
@@ -309,7 +309,7 @@ public class BuildtimeSegmentUtilities {
         nodes.add(tupleSource);
     }
 
-    private static void processRightInputAdapterNode(RightInputAdapterNode tupleSource, List<MemoryPrototype> memories, List<LeftTupleNode> nodes) {
+    private static void processRightInputAdapterNode(TupleToObjectNode tupleSource, List<MemoryPrototype> memories, List<LeftTupleNode> nodes) {
         RightInputAdapterPrototype mem = new RightInputAdapterPrototype();
         memories.add(mem);
         nodes.add(tupleSource);
@@ -356,16 +356,16 @@ public class BuildtimeSegmentUtilities {
 
     private static long processBetaNode(BetaNode betaNode, SegmentPrototype smem, List<MemoryPrototype> memories, List<LeftTupleNode> nodes,
                                         long nodePosMask, long allLinkedTestMask, boolean updateNodeBit, TerminalNode removingTn, InternalRuleBase rbase) {
-        RightInputAdapterNode riaNode = null;
-        if (betaNode.isRightInputIsRiaNode()) {
+        TupleToObjectNode tton = null;
+        if (betaNode.getRightInput().inputIsTupleToObjectNode()) {
             // there is a subnetwork, so create all it's segment memory prototypes
-            riaNode = (RightInputAdapterNode) betaNode.getRightInput();
+            tton = (TupleToObjectNode) betaNode.getRightInput().getParent();
 
-            SegmentPrototype[] smems = createLeftTupleNodeProtoMemories(riaNode, removingTn, rbase);
-            setSegments(riaNode, smems);
+            SegmentPrototype[] smems = createLeftTupleNodeProtoMemories(tton, removingTn, rbase);
+            setSegments(tton, smems);
 
-            if (updateNodeBit && canBeDisabled(betaNode) && riaNode.getPathMemSpec().allLinkedTestMask() > 0) {
-                // only ria's with reactive subnetworks can be disabled and thus need checking
+            if (updateNodeBit && canBeDisabled(betaNode) && tton.getPathMemSpec().allLinkedTestMask() > 0) {
+                // only TupleToObjectNode's with reactive subnetworks can be disabled and thus need checking
                 allLinkedTestMask = allLinkedTestMask | nodePosMask;
             }
         } else if (updateNodeBit && canBeDisabled(betaNode)) {
@@ -377,7 +377,7 @@ public class BuildtimeSegmentUtilities {
             smem.linkNode(nodePosMask);
         }
 
-        BetaMemoryPrototype bm = new BetaMemoryPrototype(nodePosMask, riaNode);
+        BetaMemoryPrototype bm = new BetaMemoryPrototype(nodePosMask, tton);
 
         if (NodeTypeEnums.AccumulateNode == betaNode.getType())  {
             AccumulateMemoryPrototype am = new AccumulateMemoryPrototype(bm);
@@ -393,7 +393,7 @@ public class BuildtimeSegmentUtilities {
     public static boolean canBeDisabled(BetaNode betaNode) {
         // non empty not nodes and accumulates can never be disabled and thus don't need checking
         return (!(NodeTypeEnums.NotNode == betaNode.getType() && !((NotNode) betaNode).isEmptyBetaConstraints()) &&
-                NodeTypeEnums.AccumulateNode != betaNode.getType() && !betaNode.isRightInputPassive());
+                NodeTypeEnums.AccumulateNode != betaNode.getType() && !betaNode.getRightInput().isRightInputPassive());
     }
 
     /**
@@ -411,7 +411,7 @@ public class BuildtimeSegmentUtilities {
 
     /**
      * Returns whether the node is the tip of a segment.
-     * EndNodes (rtn and rian) are always the tip of a segment.
+     * EndNodes (rtn and TupleToObjectNode) are always the tip of a segment.
      *
      * node cannot be null.
      *
@@ -466,7 +466,7 @@ public class BuildtimeSegmentUtilities {
                     mask |= JOIN_NODE_BIT;
                     break;
                 case NodeTypeEnums.ExistsNode:
-                    if ( ( (ExistsNode) node ).isRightInputPassive() ) {
+                    if ( ( (ExistsNode) node ).getRightInput().isRightInputPassive() ) {
                         mask |= PASSIVE_EXISTS_NODE_BIT;
                     } else {
                         mask |= REACTIVE_EXISTS_NODE_BIT;

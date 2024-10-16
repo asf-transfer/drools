@@ -42,8 +42,8 @@ public class StackEntry extends AbstractLinkedListNode<StackEntry> {
     private final SegmentMemory[]      smems;
     private final int                  smemIndex;
     private final TupleSets trgTuples;
-    private final boolean              resumeFromNextNode;
-    private final boolean              processRian;
+    private final boolean resumeFromNextNode;
+    private final boolean processSubnetwork;
 
 
     public StackEntry(NetworkNode node,
@@ -55,17 +55,17 @@ public class StackEntry extends AbstractLinkedListNode<StackEntry> {
                       int smemIndex,
                       TupleSets trgTuples,
                       boolean resumeFromNextNode,
-                      boolean processRian) {
-        this.bit = bit;
-        this.node = node;
-        this.sink = sink;
-        this.pmem = pmem;
-        this.nodeMem = nodeMem;
-        this.smems = smems;
-        this.smemIndex = smemIndex;
-        this.trgTuples = trgTuples;
+                      boolean processSubnetwork) {
+        this.bit                = bit;
+        this.node               = node;
+        this.sink               = sink;
+        this.pmem               = pmem;
+        this.nodeMem            = nodeMem;
+        this.smems              = smems;
+        this.smemIndex          = smemIndex;
+        this.trgTuples          = trgTuples;
         this.resumeFromNextNode = resumeFromNextNode;
-        this.processRian = processRian;
+        this.processSubnetwork  = processSubnetwork;
     }
 
     public long getBit() {
@@ -105,7 +105,7 @@ public class StackEntry extends AbstractLinkedListNode<StackEntry> {
     }
 
 
-    public boolean isProcessRian() {
-        return processRian;
+    public boolean isProcessSubnetwork() {
+        return processSubnetwork;
     }
 }

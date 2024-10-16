@@ -23,6 +23,7 @@ import java.util.List;
 import org.drools.base.base.ClassObjectType;
 import org.drools.core.reteoo.AlphaNode;
 import org.drools.core.reteoo.BetaNode;
+import org.drools.core.reteoo.RightInputAdapterNode;
 import org.drools.core.reteoo.CompositeObjectSinkAdapter;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.ObjectSink;
@@ -58,7 +59,7 @@ public class IndexTest extends BaseModelTest {
         KieSession ksession = getKieSession( str );
 
         ObjectTypeNode otn = getObjectTypeNodeForClass( ksession, Person.class );
-        BetaNode beta = (BetaNode) otn.getObjectSinkPropagator().getSinks()[0];
+        BetaNode beta = ((RightInputAdapterNode)otn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
         IndexableConstraint betaConstraint = (IndexableConstraint) beta.getConstraints()[0];
         assertThat(betaConstraint.getLeftIndexExtractor()).isNotNull();
 
@@ -222,7 +223,7 @@ public class IndexTest extends BaseModelTest {
         KieSession ksession = getKieSession( str );
 
         ObjectTypeNode otn = getObjectTypeNodeForClass( ksession, Person.class );
-        BetaNode beta = (BetaNode) otn.getObjectSinkPropagator().getSinks()[0];
+        BetaNode beta = ((RightInputAdapterNode)otn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
         // this beta index is only supported by executable model
         assertThat(beta.getRawConstraints().isIndexed()).isEqualTo(this.testRunType.isExecutableModel());
 
@@ -327,7 +328,7 @@ public class IndexTest extends BaseModelTest {
         KieSession ksession = getKieSession( str );
 
         ObjectTypeNode otn = getObjectTypeNodeForClass( ksession, Person.class );
-        BetaNode beta = (BetaNode) otn.getObjectSinkPropagator().getSinks()[0];
+        BetaNode beta = ((RightInputAdapterNode)otn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
         // this beta index is only supported by executable model
         assertThat(beta.getRawConstraints().isIndexed()).isEqualTo(this.testRunType.isExecutableModel());
 
@@ -356,7 +357,7 @@ public class IndexTest extends BaseModelTest {
         KieSession ksession = getKieSession( str );
 
         ObjectTypeNode otn = getObjectTypeNodeForClass( ksession, Person.class );
-        BetaNode beta = (BetaNode) otn.getObjectSinkPropagator().getSinks()[0];
+        BetaNode beta = ((RightInputAdapterNode)otn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
         // this beta index is only supported by executable model
         assertThat(beta.getRawConstraints().isIndexed()).isEqualTo(this.testRunType.isExecutableModel());
 

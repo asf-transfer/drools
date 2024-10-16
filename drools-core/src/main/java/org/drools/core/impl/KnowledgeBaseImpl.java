@@ -160,6 +160,10 @@ public class KnowledgeBaseImpl implements InternalRuleBase {
 
     public KnowledgeBaseImpl() { }
 
+    public KnowledgeBaseImpl(String id) {
+        this(id, (CompositeBaseConfiguration)  RuleBaseFactory.newKnowledgeBaseConfiguration());
+    }
+
     public KnowledgeBaseImpl(final String id,
                              final CompositeBaseConfiguration config) {
         this.config = config;

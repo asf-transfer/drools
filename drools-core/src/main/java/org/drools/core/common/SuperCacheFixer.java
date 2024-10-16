@@ -21,24 +21,28 @@ package org.drools.core.common;
 import org.drools.base.common.NetworkNode;
 import org.drools.base.reteoo.NodeTypeEnums;
 import org.drools.core.reteoo.AccumulateNode;
+import org.drools.core.reteoo.AccumulateRight;
 import org.drools.core.reteoo.AlphaTerminalNode;
 import org.drools.core.reteoo.AsyncReceiveNode;
 import org.drools.core.reteoo.AsyncSendNode;
 import org.drools.core.reteoo.ConditionalBranchNode;
 import org.drools.core.reteoo.EvalConditionNode;
 import org.drools.core.reteoo.ExistsNode;
+import org.drools.core.reteoo.ExistsRight;
 import org.drools.core.reteoo.FromNode;
 import org.drools.core.reteoo.JoinNode;
+import org.drools.core.reteoo.JoinRightAdapterNode;
 import org.drools.core.reteoo.LeftInputAdapterNode;
 import org.drools.core.reteoo.LeftTupleNode;
 import org.drools.core.reteoo.LeftTupleSinkNode;
 import org.drools.core.reteoo.LeftTupleSource;
 import org.drools.core.reteoo.NotNode;
+import org.drools.core.reteoo.NotRight;
 import org.drools.core.reteoo.ObjectTypeNodeId;
 import org.drools.core.reteoo.QueryElementNode;
 import org.drools.core.reteoo.QueryTerminalNode;
 import org.drools.core.reteoo.ReactiveFromNode;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.core.reteoo.RightTuple;
 import org.drools.core.reteoo.RightTupleSink;
 import org.drools.core.reteoo.RuleTerminalNode;
@@ -57,7 +61,7 @@ public class SuperCacheFixer {
         switch (s.getType()) {
             case NodeTypeEnums.RuleTerminalNode : return (RuleTerminalNode) s;
             case NodeTypeEnums.QueryTerminalNode: return (QueryTerminalNode) s;
-            case NodeTypeEnums.RightInputAdapterNode: return (RightInputAdapterNode) s;
+            case NodeTypeEnums.TupleToObjectNode: return (TupleToObjectNode) s;
             case NodeTypeEnums.LeftInputAdapterNode: return (LeftInputAdapterNode) s;
             case NodeTypeEnums.AlphaTerminalNode: return (AlphaTerminalNode) s;
             case NodeTypeEnums.AccumulateNode : return (AccumulateNode) s;
@@ -81,10 +85,10 @@ public class SuperCacheFixer {
     public static RightTupleSink getRightTupleSink(RightTuple t) {
         Sink s = t.getSink();
         switch (s.getType()) {
-            case NodeTypeEnums.AccumulateNode : return (AccumulateNode) s;
-            case NodeTypeEnums.ExistsNode: return (ExistsNode) s;
-            case NodeTypeEnums.NotNode: return (NotNode) s;
-            case NodeTypeEnums.JoinNode: return (JoinNode) s;
+            case NodeTypeEnums.AccumulateRightAdapterNode: return (AccumulateRight) s;
+            case NodeTypeEnums.ExistsRightAdapterNode: return (ExistsRight) s;
+            case NodeTypeEnums.NotRightAdapterNode: return (NotRight) s;
+            case NodeTypeEnums.JoinRightAdapterNode: return (JoinRightAdapterNode) s;
             case NodeTypeEnums.WindowNode: return (WindowNode) s;
             case NodeTypeEnums.MockBetaNode: return (RightTupleSink) s;
             case NodeTypeEnums.MockAlphaNode: return (RightTupleSink) s;
@@ -97,7 +101,7 @@ public class SuperCacheFixer {
         switch (n.getType()) {
             case NodeTypeEnums.RuleTerminalNode : return (RuleTerminalNode) n;
             case NodeTypeEnums.QueryTerminalNode: return (QueryTerminalNode) n;
-            case NodeTypeEnums.RightInputAdapterNode: return (RightInputAdapterNode) n;
+            case NodeTypeEnums.TupleToObjectNode: return (TupleToObjectNode) n;
             case NodeTypeEnums.AccumulateNode : return (AccumulateNode) n;
             case NodeTypeEnums.ExistsNode: return (ExistsNode) n;
             case NodeTypeEnums.NotNode: return (NotNode) n;
@@ -119,22 +123,22 @@ public class SuperCacheFixer {
     public static ObjectTypeNodeId getLeftInputOtnId(TupleImpl t) {
         Sink s = t.getSink();
         switch (s.getType()) {
-            case NodeTypeEnums.RuleTerminalNode : return ((RuleTerminalNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.QueryTerminalNode: return ((QueryTerminalNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.RightInputAdapterNode: return ((RightInputAdapterNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.AccumulateNode : return ((AccumulateNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.ExistsNode: return ((ExistsNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.NotNode: return ((NotNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.JoinNode: return ((JoinNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.FromNode: return ((FromNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.EvalConditionNode: return ((EvalConditionNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.AsyncReceiveNode: return ((AsyncReceiveNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.AsyncSendNode: return ((AsyncSendNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.ReactiveFromNode: return ((ReactiveFromNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.ConditionalBranchNode: return ((ConditionalBranchNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.QueryElementNode: return ((QueryElementNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.TimerConditionNode: return ((TimerNode) s).getLeftInputOtnId();
-            case NodeTypeEnums.MockBetaNode: return ((LeftTupleSource)s).getLeftInputOtnId();
+            case NodeTypeEnums.RuleTerminalNode : return ((RuleTerminalNode) s).getInputOtnId();
+            case NodeTypeEnums.QueryTerminalNode: return ((QueryTerminalNode) s).getInputOtnId();
+            case NodeTypeEnums.TupleToObjectNode: return ((TupleToObjectNode) s).getInputOtnId();
+            case NodeTypeEnums.AccumulateNode : return ((AccumulateNode) s).getInputOtnId();
+            case NodeTypeEnums.ExistsNode: return ((ExistsNode) s).getInputOtnId();
+            case NodeTypeEnums.NotNode: return ((NotNode) s).getInputOtnId();
+            case NodeTypeEnums.JoinNode: return ((JoinNode) s).getInputOtnId();
+            case NodeTypeEnums.FromNode: return ((FromNode) s).getInputOtnId();
+            case NodeTypeEnums.EvalConditionNode: return ((EvalConditionNode) s).getInputOtnId();
+            case NodeTypeEnums.AsyncReceiveNode: return ((AsyncReceiveNode) s).getInputOtnId();
+            case NodeTypeEnums.AsyncSendNode: return ((AsyncSendNode) s).getInputOtnId();
+            case NodeTypeEnums.ReactiveFromNode: return ((ReactiveFromNode) s).getInputOtnId();
+            case NodeTypeEnums.ConditionalBranchNode: return ((ConditionalBranchNode) s).getInputOtnId();
+            case NodeTypeEnums.QueryElementNode: return ((QueryElementNode) s).getInputOtnId();
+            case NodeTypeEnums.TimerConditionNode: return ((TimerNode) s).getInputOtnId();
+            case NodeTypeEnums.MockBetaNode: return ((LeftTupleSource)s).getInputOtnId();
             default:
                 throw new UnsupportedOperationException("Node does not have an LeftInputOtnId: " + s);
         }
@@ -143,11 +147,11 @@ public class SuperCacheFixer {
     public static ObjectTypeNodeId getRightInputOtnId(TupleImpl t) {
         Sink s = t.getSink();
         switch (s.getType()) {
-            case NodeTypeEnums.AccumulateNode : return ((AccumulateNode) s).getRightInputOtnId();
-            case NodeTypeEnums.ExistsNode: return ((ExistsNode) s).getRightInputOtnId();
-            case NodeTypeEnums.NotNode: return ((NotNode) s).getRightInputOtnId();
-            case NodeTypeEnums.JoinNode: return ((JoinNode) s).getRightInputOtnId();
-            case NodeTypeEnums.WindowNode: return ((WindowNode) s).getRightInputOtnId();
+            case NodeTypeEnums.AccumulateRightAdapterNode: return ((AccumulateRight) s).getInputOtnId();
+            case NodeTypeEnums.ExistsRightAdapterNode: return ((ExistsRight) s).getInputOtnId();
+            case NodeTypeEnums.NotRightAdapterNode: return ((NotRight) s).getInputOtnId();
+            case NodeTypeEnums.JoinRightAdapterNode: return ((JoinRightAdapterNode) s).getInputOtnId();
+            case NodeTypeEnums.WindowNode: return ((WindowNode) s).getInputOtnId();
             default:
                 throw new UnsupportedOperationException("Node does not have an RightInputOtnId: " + s);
         }
@@ -158,7 +162,7 @@ public class SuperCacheFixer {
         switch (s.getType()) {
             case NodeTypeEnums.RuleTerminalNode : return ((RuleTerminalNode) s).getLeftTupleSource();
             case NodeTypeEnums.QueryTerminalNode: return  ((QueryTerminalNode) s).getLeftTupleSource();
-            case NodeTypeEnums.RightInputAdapterNode: return  ((RightInputAdapterNode) s).getLeftTupleSource();
+            case NodeTypeEnums.TupleToObjectNode: return  ((TupleToObjectNode) s).getLeftTupleSource();
             case NodeTypeEnums.AccumulateNode : return  ((AccumulateNode) s).getLeftTupleSource();
             case NodeTypeEnums.ExistsNode: return  ((ExistsNode) s).getLeftTupleSource();
             case NodeTypeEnums.NotNode: return  ((NotNode) s).getLeftTupleSource();

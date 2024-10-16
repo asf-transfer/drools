@@ -34,7 +34,9 @@ public class NodeTypeEnums {
     public static final int EndNodeMask = 1 << 8;
     public static final int BetaMask    = 1 << 9;
 
-    public static final int MemoryFactoryMask = 1 << 10;
+    public static final int BetaRightMask    = 1 << 10;
+
+    public static final int MemoryFactoryMask = 1 << 11;
     
     public static final int shift = 15; // This must shift the node IDs, enough so their bits are not mutated by the masks.
 
@@ -46,8 +48,15 @@ public class NodeTypeEnums {
     public static final int WindowNode              = (150 << shift) | ObjectSourceMask | ObjectSinkMask | MemoryFactoryMask;
 
     // ObjectSource, LeftTupleSink
-    public static final int RightInputAdapterNode   = (160 << shift) | ObjectSourceMask | TupleSinkMask |
-                                                      TupleNodeMask | EndNodeMask | MemoryFactoryMask;
+    public static final int TupleToObjectNode = (160 << shift) | ObjectSourceMask | TupleSinkMask |
+                                                TupleNodeMask | EndNodeMask | MemoryFactoryMask;
+
+    public static final int JoinRightAdapterNode   = (162 << shift) | ObjectSinkMask | BetaRightMask;
+    public static final int ExistsRightAdapterNode   = (164 << shift) | ObjectSinkMask | BetaRightMask;
+    public static final int NotRightAdapterNode   = (166 << shift) | ObjectSinkMask | BetaRightMask;
+    public static final int AccumulateRightAdapterNode   = (168 << shift) | ObjectSinkMask | BetaRightMask;
+
+
     // LefTTupleSink, LeftTupleNode
     public static final int RuleTerminalNode        = (180 << shift) | TupleSinkMask | TerminalNodeMask |
                                                       TupleNodeMask | EndNodeMask | MemoryFactoryMask;
@@ -97,8 +106,12 @@ public class NodeTypeEnums {
         return (node.getType() & BetaMask) != 0;
     }
 
-    public static boolean isBetaNodeWithRian(NetworkNode node) {
-        return isBetaNode(node) && node.isRightInputIsRiaNode();
+    public static boolean isBetaNodeWithSubnetwork(NetworkNode node) {
+        return isBetaNode(node) && node.inputIsTupleToObjectNode();
+    }
+
+    public static boolean isBetaNodeWithoutSubnetwork(NetworkNode node) {
+        return isBetaNode(node) && !node.inputIsTupleToObjectNode();
     }
 
     public static boolean isTerminalNode(NetworkNode node) {
@@ -128,6 +141,10 @@ public class NodeTypeEnums {
      */
     public static boolean isLeftInputAdapterNode(NetworkNode node) {
         return (node.getType() & LeftInputAdapterMask) != 0;
+    }
+
+    public static boolean isBetaRightNode(NetworkNode node) {
+        return (node.getType() & BetaRightMask) != 0;
     }
 
 }

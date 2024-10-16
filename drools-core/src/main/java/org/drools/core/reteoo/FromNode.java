@@ -94,7 +94,7 @@ public class FromNode<T extends FromNode.FromMemory> extends LeftTupleSource
         this.tupleMemoryEnabled = tupleMemoryEnabled;
         this.from = from;
 
-        initMasks(context, tupleSource);
+        initMasks(context);
 
         hashcode = calculateHashCode();
     }
@@ -145,17 +145,16 @@ public class FromNode<T extends FromNode.FromMemory> extends LeftTupleSource
     }
 
     @Override
-    protected void initDeclaredMask(BuildContext context,
-                                    LeftTupleSource leftInput) {
-        super.initDeclaredMask(context, leftInput);
+    protected void initDeclaredMask(BuildContext context) {
+        super.initDeclaredMask(context);
 
-        if ( leftDeclaredMask.isAllSet() ) {
+        if ( declaredMask.isAllSet() ) {
             return;
         }
 
         if ( context == null || context.getLastBuiltPatterns() == null ) {
             // only happens during unit tests
-            leftDeclaredMask = AllSetBitMask.get();
+            declaredMask = AllSetBitMask.get();
             return;
         }
 
@@ -170,8 +169,8 @@ public class FromNode<T extends FromNode.FromMemory> extends LeftTupleSource
         if ( isPropertyReactive( context.getRuleBase(), objectType ) ) {
             Collection<String> leftListenedProperties = pattern.getListenedProperties();
             List<String> accessibleProperties = getAccessibleProperties( context.getRuleBase(), objectType );
-            leftDeclaredMask = leftDeclaredMask.setAll( calculatePositiveMask( objectType, leftListenedProperties, accessibleProperties ) );
-            leftNegativeMask = leftNegativeMask.setAll( calculateNegativeMask( objectType, leftListenedProperties, accessibleProperties ) );
+            declaredMask = declaredMask.setAll(calculatePositiveMask(objectType, leftListenedProperties, accessibleProperties));
+            negativeMask = negativeMask.setAll(calculateNegativeMask(objectType, leftListenedProperties, accessibleProperties));
         }
     }
 

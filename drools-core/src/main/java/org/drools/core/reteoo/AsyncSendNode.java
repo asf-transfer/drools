@@ -82,7 +82,7 @@ public class AsyncSendNode<T extends AsyncSendNode.AsyncSendMemory> extends Left
         this.send = send;
         this.messageId = send.getMessageId();
 
-        initMasks(context, tupleSource);
+        initMasks(context);
 
         hashcode = calculateHashCode();
     }

@@ -33,17 +33,7 @@ public interface BaseTerminalNode extends NetworkNode {
 
     void initInferredMask();
 
-    BitMask getDeclaredMask();
-
-    void setDeclaredMask(BitMask mask);
-
-    BitMask getInferredMask();
-
-    void setInferredMask(BitMask mask);
-
     BitMask getNegativeMask();
-
-    void setNegativeMask(BitMask mask);
 
     RuleImpl getRule();
 

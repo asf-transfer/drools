@@ -21,12 +21,13 @@ package org.drools.mvel.integrationtests;
 import java.util.Collection;
 
 import org.drools.base.base.ClassObjectType;
+import org.drools.core.reteoo.RightInputAdapterNode;
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.core.reteoo.BetaNode;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.LeftTupleSink;
 import org.drools.core.reteoo.ObjectTypeNode;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.base.rule.EntryPointId;
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
@@ -74,9 +75,9 @@ public class PathEndNodeTest {
 
         EntryPointNode epn = kbase.getRete().getEntryPointNode( EntryPointId.DEFAULT );
         ObjectTypeNode otn = epn.getObjectTypeNodes().get( new ClassObjectType( Long.class) );
-        BetaNode beta1 = (BetaNode) otn.getObjectSinkPropagator().getSinks()[0];
-        RightInputAdapterNode rian = (RightInputAdapterNode) beta1.getSinkPropagator().getSinks()[0];
-        BetaNode beta2 = (BetaNode) rian.getObjectSinkPropagator().getSinks()[0];
+        BetaNode          beta1 = ((RightInputAdapterNode)otn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
+        TupleToObjectNode rian  = (TupleToObjectNode) beta1.getSinkPropagator().getSinks()[0];
+        BetaNode          beta2 = ((RightInputAdapterNode)rian.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
         LeftTupleSink[] sinks = beta2.getSinkPropagator().getSinks();
         RuleTerminalNode rtn1 = (RuleTerminalNode) sinks[0];
         RuleTerminalNode rtn2 = (RuleTerminalNode) sinks[1];

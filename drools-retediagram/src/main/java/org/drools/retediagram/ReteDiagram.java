@@ -53,7 +53,7 @@ import org.drools.core.reteoo.NotNode;
 import org.drools.core.reteoo.ObjectSource;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.Rete;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.Sink;
 import org.drools.base.rule.constraint.BetaConstraint;
@@ -245,7 +245,7 @@ public class ReteDiagram {
                 .filter(kv->LeftInputAdapterNode.class.isAssignableFrom( kv.getKey() ))
                 .flatMap(kv->kv.getValue().stream()).collect(toList());
         printNodeMapNodes(l3, out);
-        printNodeMapNodes(nodeMap.getOrDefault(RightInputAdapterNode.class, Collections.emptyList()), out);
+        printNodeMapNodes(nodeMap.getOrDefault(TupleToObjectNode.class, Collections.emptyList()), out);
         // Level 4: BN
         List<BaseNode> l4 = nodeMap.entrySet().stream()
                                 .filter(kv->BetaNode.class.isAssignableFrom( kv.getKey() ))
@@ -304,7 +304,7 @@ public class ReteDiagram {
         
         // RIA
         Set<BaseNode> lria = levelMap.entrySet().stream()
-                                .filter(kv->RightInputAdapterNode.class.isAssignableFrom( kv.getKey() ))
+                                .filter(kv-> TupleToObjectNode.class.isAssignableFrom(kv.getKey()))
                                 .flatMap(kv->kv.getValue().stream()).collect(toSet());
         printLevelMapLevel("lria", lria, out);
         
@@ -425,7 +425,7 @@ public class ReteDiagram {
             return "AN"+node.getId();
         } else if (node instanceof LeftInputAdapterNode ) {
             return "LIA"+node.getId();
-        } else if (node instanceof RightInputAdapterNode ) {
+        } else if (node instanceof TupleToObjectNode) {
             return "RIA"+node.getId();
         } else if (node instanceof BetaNode ) {
             return "BN"+node.getId();
@@ -450,7 +450,7 @@ public class ReteDiagram {
                     escapeDot(n.getConstraint().toString()));
         } else if (node instanceof LeftInputAdapterNode ) {
             return "[shape=house orientation=-90]";
-        } else if (node instanceof RightInputAdapterNode ) {
+        } else if (node instanceof TupleToObjectNode) {
             return "[shape=house orientation=90]";
         } else if (node instanceof JoinNode ) {
             BetaNode         n           = (BetaNode) node;

@@ -30,13 +30,14 @@ import org.drools.core.reteoo.BetaMemory;
 import org.drools.core.reteoo.ConditionalBranchNode;
 import org.drools.base.reteoo.InitialFactImpl;
 import org.drools.core.reteoo.JoinNode;
+import org.drools.core.reteoo.JoinRightAdapterNode;
 import org.drools.core.reteoo.LeftInputAdapterNode;
 import org.drools.core.reteoo.LeftInputAdapterNode.LiaNodeMemory;
 import org.drools.core.reteoo.LeftTupleSource;
 import org.drools.core.reteoo.NotNode;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.PathMemory;
-import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.TupleToObjectNode;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.SegmentMemory;
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
@@ -188,7 +189,7 @@ public class SegmentCreationTest {
 
         LeftInputAdapterNode lian = (LeftInputAdapterNode) dotn.getObjectSinkPropagator().getSinks()[0];
 
-        JoinNode beta = (JoinNode) aotn.getObjectSinkPropagator().getSinks()[0];
+        JoinNode beta = ((JoinRightAdapterNode) aotn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
         RuleTerminalNode rtn1 = ( RuleTerminalNode) beta.getSinkPropagator().getSinks()[0];
         JoinNode bNode = ( JoinNode ) beta.getSinkPropagator().getSinks()[1];
         RuleTerminalNode rtn2 = ( RuleTerminalNode) bNode.getSinkPropagator().getSinks()[0];
@@ -245,8 +246,8 @@ public class SegmentCreationTest {
         LeftInputAdapterNode liaNode = (LeftInputAdapterNode) aotn.getObjectSinkPropagator().getSinks()[0];
         
         JoinNode bNode = ( JoinNode ) liaNode.getSinkPropagator().getSinks()[0];
-        JoinNode cNode = ( JoinNode ) bNode.getSinkPropagator().getSinks()[0];
-        RightInputAdapterNode riaNode = ( RightInputAdapterNode ) cNode.getSinkPropagator().getSinks()[0];
+        JoinNode          cNode   = ( JoinNode ) bNode.getSinkPropagator().getSinks()[0];
+        TupleToObjectNode riaNode = (TupleToObjectNode) cNode.getSinkPropagator().getSinks()[0];
         
         NotNode notNode = ( NotNode ) liaNode.getSinkPropagator().getSinks()[1];
         RuleTerminalNode rtn1 = ( RuleTerminalNode) notNode.getSinkPropagator().getSinks()[0];
@@ -271,7 +272,7 @@ public class SegmentCreationTest {
         
         BetaMemory bm = (BetaMemory) wm.getNodeMemory(notNode);
         assertThat(smem.getNext()).isEqualTo(bm.getSegmentMemory());
-        assertThat(bm.getRiaRuleMemory().getSegmentMemory()).isEqualTo(bSmem); // check subnetwork ref was made
+        assertThat(bm.getSubnetworkPathMemory().getSegmentMemory()).isEqualTo(bSmem); // check subnetwork ref was made
     }        
 
     
@@ -287,12 +288,12 @@ public class SegmentCreationTest {
 
         LeftInputAdapterNode lian = (LeftInputAdapterNode) dotn.getObjectSinkPropagator().getSinks()[0];
 
-        JoinNode joinNode = (JoinNode) aotn.getObjectSinkPropagator().getSinks()[0];
+        JoinNode joinNode = ((JoinRightAdapterNode) aotn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
         RuleTerminalNode rtn1 = ( RuleTerminalNode) joinNode.getSinkPropagator().getSinks()[0];
         
         JoinNode bNode = ( JoinNode ) joinNode.getSinkPropagator().getSinks()[1];
-        JoinNode cNode = ( JoinNode ) bNode.getSinkPropagator().getSinks()[0];
-        RightInputAdapterNode riaNode = ( RightInputAdapterNode ) cNode.getSinkPropagator().getSinks()[0];
+        JoinNode          cNode   = ( JoinNode ) bNode.getSinkPropagator().getSinks()[0];
+        TupleToObjectNode riaNode = (TupleToObjectNode) cNode.getSinkPropagator().getSinks()[0];
         
         NotNode notNode = ( NotNode ) joinNode.getSinkPropagator().getSinks()[2];
         RuleTerminalNode rtn2 = ( RuleTerminalNode) notNode.getSinkPropagator().getSinks()[0];
@@ -337,13 +338,13 @@ public class SegmentCreationTest {
 
         LeftInputAdapterNode lian = (LeftInputAdapterNode) dotn.getObjectSinkPropagator().getSinks()[0];
 
-        JoinNode beta = (JoinNode) aotn.getObjectSinkPropagator().getSinks()[0];
+        JoinNode beta = ((JoinRightAdapterNode) aotn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
         RuleTerminalNode rtn1 = ( RuleTerminalNode) beta.getSinkPropagator().getSinks()[0];
         
         JoinNode bNode = ( JoinNode ) beta.getSinkPropagator().getSinks()[1];
         JoinNode cNode = ( JoinNode ) bNode.getSinkPropagator().getSinks()[0];
-        RuleTerminalNode rtn2 = ( RuleTerminalNode ) cNode.getSinkPropagator().getSinks()[0];
-        RightInputAdapterNode riaNode = ( RightInputAdapterNode ) cNode.getSinkPropagator().getSinks()[1];
+        RuleTerminalNode  rtn2    = ( RuleTerminalNode ) cNode.getSinkPropagator().getSinks()[0];
+        TupleToObjectNode riaNode = (TupleToObjectNode) cNode.getSinkPropagator().getSinks()[1];
         
         NotNode notNode = ( NotNode ) beta.getSinkPropagator().getSinks()[2];
         RuleTerminalNode rtn3 = ( RuleTerminalNode) notNode.getSinkPropagator().getSinks()[0];
@@ -448,7 +449,7 @@ public class SegmentCreationTest {
 
         ObjectTypeNode aotn = getObjectTypeNode(kbase, LinkingTest.A.class );
 
-        LeftTupleSource liaNode = (LeftTupleSource) aotn.getObjectSinkPropagator().getSinks()[0];
+        LeftTupleSource liaNode = ((JoinRightAdapterNode) aotn.getObjectSinkPropagator().getSinks()[0]).getBetaNode();
 
         ConditionalBranchNode cen1Node = ( ConditionalBranchNode ) liaNode.getSinkPropagator().getSinks()[1];
         JoinNode bNode = ( JoinNode ) cen1Node.getSinkPropagator().getSinks()[0];

@@ -53,7 +53,7 @@ public class RightMemory {
         List<TupleImpl> rightTuples = new ArrayList<>();
         for ( Object object : objects ) {
             InternalFactHandle fh = (InternalFactHandle) wm.insert( object );
-            TupleImpl expectedRightTuple = new RightTuple(fh, node ); //node.createLeftTuple( fh, node, true );
+            TupleImpl expectedRightTuple = new RightTuple(fh, node.getRightInput() ); //node.createLeftTuple( fh, node, true );
             expectedRightTuple.setPropagationContext( new PhreakPropagationContext() );
             rightTuples.add( expectedRightTuple );
         }
