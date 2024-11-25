@@ -33,6 +33,7 @@ import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.globalstate.ConfigurationStorage;
 import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManagerAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,8 @@ public class EmbeddedStorageManager implements InfinispanStorageManager {
     static final EmbeddedStorageManager INSTANCE = new EmbeddedStorageManager();
 
     private DefaultCacheManager embeddedCacheManager;
+
+    private EmbeddedCacheManagerAdmin cacheContainerAdmin;
     private Configuration cacheConfiguration;
 
     public static final String CACHE_DIR = "cache";
@@ -76,6 +79,7 @@ public class EmbeddedStorageManager implements InfinispanStorageManager {
 
         // Initialize the default Cache Manager.
         embeddedCacheManager = new DefaultCacheManager(global.build());
+        cacheContainerAdmin = embeddedCacheManager.administration();
 
         // Create a distributed cache with synchronous replication.
         ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -113,7 +117,7 @@ public class EmbeddedStorageManager implements InfinispanStorageManager {
     @Override
     public void removeStorage(String storageName) {
         if (embeddedCacheManager.cacheExists(storageName)) {
-            embeddedCacheManager.removeCache(storageName);
+            cacheContainerAdmin.removeCache(storageName);
         }
     }
 

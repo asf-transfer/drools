@@ -83,7 +83,7 @@ class EmbeddedStorageManagerTest {
         assertThat(StorageManagerFactory.get().getStorageManager().getStorageNames()).containsExactlyInAnyOrder(SESSION_STORAGE_PREFIX + "0_" + "epDefault", "METADATA_0");
     }
 
-    public static class FakeCacheManager extends DefaultCacheManager {
+    public static class FakeCacheManager extends DefaultCacheManager{
 
         private Map<String, Object> cacheMap = new ConcurrentHashMap<>();
 
@@ -101,11 +101,6 @@ class EmbeddedStorageManagerTest {
         @Override
         public boolean cacheExists(String cacheName) {
             return cacheMap.containsKey(cacheName);
-        }
-
-        @Override
-        public void removeCache(String cacheName) {
-            cacheMap.remove(cacheName);
         }
 
         @Override
