@@ -35,7 +35,7 @@
 
   <properties>
     <java.module.name>org.drools.reliability.infinispan</java.module.name>
-    <version.testcontainers>1.17.2</version.testcontainers>
+    <version.testcontainers>1.20.1</version.testcontainers>
   </properties>
 
   <dependencyManagement>

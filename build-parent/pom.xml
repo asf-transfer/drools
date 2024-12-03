@@ -67,9 +67,9 @@
     <version.com.miglayout>3.7.4</version.com.miglayout>
     <version.domino-slf4j-logger>1.0.1</version.domino-slf4j-logger>
     <version.com.google.protobuf>3.25.5</version.com.google.protobuf>
-    <version.com.h2database>2.2.220</version.com.h2database>
+    <version.com.h2database>2.3.232</version.com.h2database>
     <version.com.networknt.json-schema-validator>1.0.86</version.com.networknt.json-schema-validator>
-    <version.com.sun.xml.bind>4.0.4</version.com.sun.xml.bind>
+    <version.com.sun.xml.bind>4.0.5</version.com.sun.xml.bind>
     <version.com.thoughtworks.xstream>1.4.21</version.com.thoughtworks.xstream>
     <version.guru.nidi>0.18.0</version.guru.nidi>
     <version.info.picocli>4.7.5</version.info.picocli>
@@ -191,7 +191,7 @@
 
     <version.net.byte-buddy>1.14.11</version.net.byte-buddy>
 
-    <version.org.postgresql>42.7.2</version.org.postgresql>
+    <version.org.postgresql>42.7.4</version.org.postgresql>
 
     <version.ch.obermuhlner>2.0.1</version.ch.obermuhlner>
     <version.io.smallrye.jandex>3.2.2</version.io.smallrye.jandex>
