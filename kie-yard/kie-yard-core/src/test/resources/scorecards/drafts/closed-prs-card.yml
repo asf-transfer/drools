@@ -1,0 +1,23 @@
+specVersion: alpha
+kind: YaRD
+name: "Closed PRs"
+expressionLang: jshell
+inputs:
+  - name: "Creator"
+    type: string
+  - name: "Created"
+    type: datetime
+  - name: "Closed"
+    type: datetime
+  - name: "Severity"
+# Another one for closed PRs?
+# Gap check
+# Reviewers acked
+# Code smells and so on were in check
+elements:
+  - name: Time Taken to Ack
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Reported` -`Acked`

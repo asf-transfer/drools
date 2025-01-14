@@ -1,0 +1,57 @@
+specVersion: alpha
+kind: YaRD
+name: "Testing MVEL"
+inputs:
+  - name: Work Address
+    type: boolean
+elements:
+  - name: JSON Test
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        '{ "Company": "Best Company LTD" }'
+  - name: Map Test
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        [ "Map": "Hello" ]
+  - name: Delivery Items
+    type: Decision
+    logic:
+      type: DecisionTable
+      hitPolicy: COLLECT
+      inputs: [ 'Work Address']
+      rules:
+        - when: [ true ]
+          then: '{ "Item": { "Name": "Work Shoes" } }'
+        - when: [ true ]
+          then: '{ "Item": { "Name": "Work Hat" } }'
+        - when: [ true ]
+          then: '{ "Item": { "Name": "Work Shirt" } }'
+        - when: [ false ]
+          then: '{ "Item": { "Name": "Holiday Hat" } }'
+  - name: Customer
+    type: Decision
+    logic:
+      type: DecisionTable
+      hitPolicy: ANY
+      inputs: [ 'Work Address']
+      rules:
+        - when: [ true ]
+          then: '{ "Address": { "Street": "Work Street", "Number": 23 } }'
+        - when: [ false ]
+          then: '{ "Address": { "Street": "Free Time Path", "Number": 123 } }'
+  - name: Mailing Address
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        Customer.Address
+  - name: Delivery Item Names
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        ( Item.Name in `Delivery Items` )

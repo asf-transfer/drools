@@ -1,0 +1,22 @@
+specVersion: alpha
+kind: YaRD
+name: "Main broken"
+expressionLang: jshell
+inputs:
+  - name: "Creator"
+    type: string
+  - name: "Created"
+    type: datetime
+  - name: "Closed"
+    type: datetime
+  - name: "Severity"
+# Times the nightlies failed
+# Amount of test failures
+# Build failures
+elements:
+  - name: Time Taken to Ack
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Reported` -`Acked`

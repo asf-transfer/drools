@@ -1,0 +1,29 @@
+specVersion: alpha
+kind: YaRD
+name: "Traffic Violation"
+inputs:
+  - name: "Length"
+    type: integer
+  - name: "Width"
+    type: number
+  - name: "Height"
+    type: number
+  - name: "Weight"
+    type: number
+elements:
+  - name: Package
+    type: Decision
+    logic:
+      type: DecisionTable
+      # First matching result will be picked
+      hitPolicy: FIRST
+      inputs: [ "Height", "Width", "Length", "Weight" ]
+      rules:
+        - when: [ '<= 3', '<= 25','<= 35', '<= 2' ]
+          then: '{ "Size": "S", "Cost": 5.90 }'
+        - when: [ '<= 11','<= 32','<= 42', '<=25' ]
+          then: '{ "Size": "M", "Cost": 6.90 }'
+        - when: [ '<= 19', '<= 36', '<= 60', '<= 25' ]
+          then: '{ "Size": "L", "Cost": 8.90 }'
+        - when: [ '<= 37', '<= 36', '<= 60', '<= 25' ]
+          then: '{ "Size": "XL", "Cost": 10.90}'

@@ -1,0 +1,19 @@
+specVersion: alpha
+kind: YaRD
+name: 'BasePrice'
+inputs:
+  - name: Age
+    type: number
+elements:
+  - name: Ten
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        10
+  - name: Ten
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        5 + 5 

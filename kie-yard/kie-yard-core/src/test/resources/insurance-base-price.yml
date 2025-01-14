@@ -1,0 +1,29 @@
+specVersion: alpha
+kind: YaRD
+name: 'BasePrice'
+inputs:
+  - name: 'Age'
+    type: number
+  - name: 'Previous incidents?'
+    type: boolean
+elements:
+  - name: 'Base price'
+    type: Decision
+    logic:
+      type: DecisionTable
+      inputs: [ 'Age', 'Previous incidents?' ]
+      rules:
+        - when: [ '<21', false ]
+          then: 800
+        - when: [ '<21', true ]
+          then: 1000
+        - when: [ '>=21', false ]
+          then: 500
+        - when: [ '>=21', true ]
+          then: 600
+  - name: 'Downpayment'
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        Math.max(`Base price` * 0.07, 50)

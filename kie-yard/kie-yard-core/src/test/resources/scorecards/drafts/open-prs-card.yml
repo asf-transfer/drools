@@ -1,0 +1,21 @@
+specVersion: alpha
+kind: YaRD
+name: "Open PRs"
+expressionLang: jshell
+inputs:
+  - name: "Creator"
+    type: string
+  - name: "Created"
+    type: datetime
+  - name: "Closed"
+    type: datetime
+  - name: "Severity"
+# Check they have 2 reviewers set, open - close gap is scored based on length
+# Tests are ran, code smells minimal
+elements:
+  - name: Time Taken to Ack
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Reported` -`Acked`

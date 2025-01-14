@@ -38,6 +38,7 @@
       <module>kie-efesto-bom</module>
       <module>kie-dmn-bom</module>
       <module>kie-pmml-bom</module>
+      <module>kie-yard-bom</module>
     </modules>
 
 </project>

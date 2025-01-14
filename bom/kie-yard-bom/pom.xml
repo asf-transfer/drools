@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.kie</groupId>
+    <artifactId>kie-core-bom</artifactId>
+    <version>999-SNAPSHOT</version>
+    <relativePath>../kie-core-bom/pom.xml</relativePath>
+  </parent>
+
+  <artifactId>kie-yard-bom</artifactId>
+  <packaging>pom</packaging>
+
+  <name>Kie YaRD BOM (Bill Of Materials)</name>
+  <description>
+    Import this BOM in your dependencyManagement if you want to depend on multiple Kie YaRD artifacts.
+  </description>
+
+  <url>https://www.drools.org</url>
+
+  <scm>
+    <connection>scm:git:https://github.com/apache/incubator-kie-drools.git</connection>
+    <developerConnection>scm:git:git@github.com:apache/incubator-kie-drools.git</developerConnection>
+    <url>https://github.com/apache/incubator-kie-drools</url>
+  </scm>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/apache/incubator-kie-issues/issues</url>
+  </issueManagement>
+  <developers>
+    <developer>
+      <name>All developers are listed on the team website</name>
+      <url>http://www.drools.org/community/team.html</url>
+    </developer>
+  </developers>
+  <contributors>
+    <contributor>
+      <name>All contributors are listed on the team website</name>
+      <url>http://www.drools.org/community/team.html</url>
+    </contributor>
+  </contributors>
+  <mailingLists>
+    <mailingList>
+      <name>Development mailing list</name>
+      <post>dev@kie.apache.org</post>
+      <subscribe>dev-subscribe@kie.apache.org</subscribe>
+      <unsubscribe>dev-unsubscribe@kie.apache.org</unsubscribe>
+      <archive>https://lists.apache.org/list.html?dev@kie.apache.org</archive>
+    </mailingList>
+    <mailingList>
+      <name>setup</name>
+      <subscribe>https://groups.google.com/forum/#!forum/drools-setup</subscribe>
+      <unsubscribe>https://groups.google.com/forum/#!forum/drools-setup</unsubscribe>
+    </mailingList>
+    <mailingList>
+      <name>usage</name>
+      <subscribe>https://groups.google.com/forum/#!forum/drools-usage</subscribe>
+      <unsubscribe>https://groups.google.com/forum/#!forum/drools-usage</unsubscribe>
+    </mailingList>
+  </mailingLists>
+
+  <!-- IMPORTANT: Do not declare any build things here! Declare them in kie-user-bom-parent. -->
+  <build/>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-bom</artifactId>
+        <type>pom</type>
+        <version>${project.version}</version>
+        <scope>import</scope>
+      </dependency>
+      <!--
+        IMPORTANT: Only declare modules of Kie YaRD
+        Do not declare external dependencies.
+        Do not duplicate modules from another bom.
+      -->
+      <!--
+          Declare all dependency versions. Do not declare <scope> or <optional>.
+          Each module should declare it's direct dependencies and possibly overwrite scope/optional.
+          Always declare the sources jar too and optionally the test-jar.
+      -->
+
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-yard-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-yard-api</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-yard-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-yard-core</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+</project>

@@ -1,0 +1,47 @@
+specVersion: alpha
+kind: YaRD
+name: "Git Repository Completeness"
+expressionLang: jshell
+inputs:
+  - name: "README"
+    type: string
+  - name: "Web Page Link"
+    type: string
+  - name: "Documentation Link"
+    type: string
+elements:
+  - name: Has README.md file
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `README` != null
+  - name: README has link to web page
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `README`.contains( `Web Page Link` )
+  - name: README has a link to documentation
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `README`.contains( `Documentation Link` )
+  - name: README has a title for 'How to contribute'
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `README`.contains( "#How to contribute" )
+  - name: Score
+    type: Decision
+    logic:
+      type: DecisionTable
+      hitPolicy: COLLECT COUNT
+      inputs: [ "true == {0}" ]
+      rules:
+        - [ "Has README.md file" ]
+        - [ "README has link to web page" ]
+        - [ "README has a link to documentation" ]
+        - [ "README has a title for 'How to contribute'" ]

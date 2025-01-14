@@ -1,0 +1,40 @@
+specVersion: alpha
+kind: YaRD
+name: "Resource Limits"
+expressionLang: jshell
+inputs:
+  - name: "CPU Count"
+    type: number
+  - name: "Memory Use"
+    type: number
+  - name: "Run Started"
+    type: datetime
+  - name: "Run Ended"
+    type: datetime
+elements:
+  - name: Run Time
+    type: Decision
+    logic:
+      type: LiteralExpression
+      # With JShell this does not work, but this can be done with a Java oneliner
+      expression: |
+        `Run Started` -`Run Ended`
+  - name: Fitting profiles
+    type: Decision
+    logic:
+      type: DecisionTable
+      hitPolicy: COLLECT
+      inputs: [ "Run Time", "Memory Use", "CPU Count" ]
+      # This assumes there are set profiles that include the above parameters
+      # How well we meet them is visualized in the score
+      rules:
+        - when: [ '<=30m', '<=20', '<=1' ] # Low profile
+          then: 4
+        - when: [ '<=3h00m', '<=40', '<=1' ] # Medium
+          then: 3
+        - when: [ '<=4h00m', '<=50', '<=1' ] # High
+          then: 2
+        - when: [ '<=2h30m', '<=60', '<=1' ] # Ultra
+          then: 1
+        - when: [ '-', '-', '-' ] # Unacceptable
+          then: 0

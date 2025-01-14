@@ -178,6 +178,7 @@
     <module>efesto</module>
     <module>kie-drl</module>
     <module>kie-dmn</module>
+    <module>kie-yard</module>
     <module>kie-pmml-trusty</module>
     <module>kie-maven-plugin</module>
     <module>kie-archetypes</module>

@@ -1,0 +1,21 @@
+specVersion: alpha
+kind: YaRD
+name: "Main broken"
+expressionLang: jshell
+inputs:
+  - name: "Creator"
+    type: string
+  - name: "Created"
+    type: datetime
+  - name: "Closed"
+    type: datetime
+  - name: "Severity"
+# How long was branch broken
+# Was the correct protocol followed, what ever that is
+elements:
+  - name: Time Taken to Ack
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Reported` -`Acked`

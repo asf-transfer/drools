@@ -1,0 +1,56 @@
+specVersion: alpha
+kind: YaRD
+name: "Git Repository Completeness"
+expressionLang: jshell
+inputs:
+  - name: "Repository Data"
+    type: 'http://myapi.org/jsonSchema.json#GitRepositoryData'
+elements:
+  - name: Has Owners
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Git Data`.owners.size > 0
+  - name: Has Description
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        !`Git Data`.description.trim.isEmpty()
+  - name: Code of Conduct is Set
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Git Data`.codeOfConduct != null
+        && !`Git Data`.codeOfConduct.trim.isEmpty()
+  - name: Security Information is Set
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Git Data`.securityInformation != null
+        && !`Git Data`.securityInformation.trim.isEmpty()
+  - name: Weighted Score
+    type: Decision
+    logic:
+      type: DecisionTable
+      hitPolicy: COLLECT
+      inputs: [ "true == {0}" ]
+      outputComponents: [ "Line Score" ]
+      rules:
+        - when: [ 'Has Owners' ]
+          then: 4
+        - when: [ 'Has Description' ]
+          then: 1
+        - when: [ 'Code of Conduct is Set' ]
+          then: 4
+        - when: [ 'Security Information is Set' ]
+          then: 2
+  - name: Score
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Weighted Score`.stream.mapToInt(Integer::intValue).sum();

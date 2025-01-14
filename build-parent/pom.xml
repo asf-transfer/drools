@@ -216,6 +216,9 @@
     <version.maven-checkstyle>3.3.0</version.maven-checkstyle>
     <version.build.helper.maven.plugin>3.4.0</version.build.helper.maven.plugin>
     <version.maven-javadoc-plugin.override>3.6.2</version.maven-javadoc-plugin.override>
+
+    <version.yaml.mapper>0.4</version.yaml.mapper>
+    <version.jshell>1.1.0</version.jshell>
   </properties>
 
   <dependencyManagement>
@@ -1141,6 +1144,21 @@
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>
         <version>${version.org.jboss.logging}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.kie.j2cl.tools.yaml.mapper</groupId>
+          <artifactId>common</artifactId>
+          <version>${version.yaml.mapper}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.kie.j2cl.tools.yaml.mapper</groupId>
+          <artifactId>processor</artifactId>
+          <version>${version.yaml.mapper}</version>
+      </dependency>
+      <dependency>
+          <groupId>ch.obermuhlner</groupId>
+          <artifactId>jshell-scriptengine</artifactId>
+          <version>${version.jshell}</version>
       </dependency>
     </dependencies>
 

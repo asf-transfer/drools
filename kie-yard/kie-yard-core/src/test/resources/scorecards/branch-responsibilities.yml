@@ -1,0 +1,38 @@
+specVersion: alpha
+kind: YaRD
+name: "Branch responsibilities"
+expressionLang: jshell
+inputs:
+  - name: "Main POM"
+    type: 'http://myapi.org/jsonSchema.json#POM'
+  - name: "Latest Tag POM"
+    type: 'http://myapi.org/jsonSchema.json#POM'
+elements:
+  - name: Main is set on SNAPSHOT
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Main POM`.version.endsWith("-SNAPSHOT")
+  - name: Main version is higher than latest Tag
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        `Main POM`.version > `Latest Tag POM`.version
+  - name: Tag is not on SNAPSHOT
+    type: Decision
+    logic:
+      type: LiteralExpression
+      expression: |
+        !`Latest Tag POM`.version.endWith("-SNAPSHOT")
+  - name: Score
+    type: Decision
+    logic:
+      type: DecisionTable
+      hitPolicy: COLLECT COUNT
+      inputs: [ "true == {0}" ] # this is not in the current spec, neither is inserting the values below
+      rules:
+        - [ 'Main is set on SNAPSHOT' ]
+        - [ 'Main version is higher than latest Tag' ]
+        - [ 'Tag is not on SNAPSHOT' ]
