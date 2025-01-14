@@ -40,7 +40,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} / Java-${{ matrix.java-version }} / Maven-${{ matrix.maven-version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Java and Maven Setup
         uses: apache/incubator-kie-kogito-pipelines/.ci/actions/maven@main
         with:
