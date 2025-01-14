@@ -265,7 +265,7 @@ public class ClassAwareObjectStore implements Externalizable, ObjectStore {
     }
 
     private ConcreteClassStore makeStoreConcrete(SingleClassStore storeToMakeConcrete) {
-        ConcreteClassStore store = storeToMakeConcrete.makeConcrete();
+        ConcreteClassStore store = storeToMakeConcrete.makeConcrete(this.isEqualityBehaviour);
         Class<?> storedClass = storeToMakeConcrete.getStoredClass();
 
         for (SingleClassStore classStore : storesMap.values()) {
@@ -296,7 +296,7 @@ public class ClassAwareObjectStore implements Externalizable, ObjectStore {
         Iterator<InternalFactHandle> factHandlesIterator(boolean assrt);
 
         boolean isConcrete();
-        ConcreteClassStore makeConcrete();
+        ConcreteClassStore makeConcrete(boolean isEqualityBehaviour);
 
         default Iterator<InternalFactHandle> iterator() {
             return factHandlesIterator(true);
@@ -428,8 +428,8 @@ public class ClassAwareObjectStore implements Externalizable, ObjectStore {
         }
 
         @Override
-        public ConcreteClassStore makeConcrete() {
-            identityMap = new FactHandleMap(true);
+        public ConcreteClassStore makeConcrete(boolean isEqualityBehaviour) {
+            identityMap = new FactHandleMap(!isEqualityBehaviour);
             return this;
         }
     }
