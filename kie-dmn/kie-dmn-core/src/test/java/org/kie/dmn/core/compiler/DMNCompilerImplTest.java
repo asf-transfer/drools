@@ -18,22 +18,38 @@
  */
 package org.kie.dmn.core.compiler;
 
+import java.io.StringReader;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.kie.dmn.api.core.DMNCompilerConfiguration;
+import org.kie.dmn.api.core.DMNModel;
+import org.kie.dmn.core.api.DMNFactory;
+import org.kie.dmn.core.impl.DMNModelImpl;
 import org.kie.dmn.model.api.DMNElementReference;
 import org.kie.dmn.model.api.Definitions;
 import org.kie.dmn.model.api.InformationRequirement;
 import org.kie.dmn.model.v1_5.TDMNElementReference;
 import org.kie.dmn.model.v1_5.TDefinitions;
 import org.kie.dmn.model.v1_5.TInformationRequirement;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 class DMNCompilerImplTest {
 
     private static final String nameSpace = "http://www.montera.com.au/spec/DMN/local-hrefs";
     private static Definitions parent;
+    private static DMNCompilerImpl dmnCompiler;
+    private static DMNCompilerImpl.AfterProcessDrgElements mockCallback;
+    private static DMNCompilerImpl.AfterProcessDrgElements mockCallbackForModel;
 
     @BeforeAll
     static void setup() {
@@ -41,6 +57,12 @@ class DMNCompilerImplTest {
         parent = new TDefinitions();
         parent.setName(modelName);
         parent.setNamespace(nameSpace);
+
+        DMNCompilerConfiguration config = DMNFactory.newCompilerConfiguration();
+        dmnCompiler = new DMNCompilerImpl(config);
+        mockCallback = Mockito.mock(DMNCompilerImpl.AfterProcessDrgElements.class);
+        dmnCompiler.addCallback(mockCallback);
+        mockCallbackForModel = Mockito.mock(DMNCompilerImpl.AfterProcessDrgElements.class);
     }
 
     @Test
@@ -75,5 +97,28 @@ class DMNCompilerImplTest {
         informationRequirement.setParent(parent);
         retrieved = DMNCompilerImpl.getRootElement(elementReference);
         assertThat(retrieved).isNotNull().isEqualTo(parent);
+    }
+
+    @Test
+    void testCompileWithCallback() {
+        String dmnXml = """
+                <definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="definitions" name="definitions" namespace="http://www.trisotech.com/definitions/_f52ca843-504b-4c3b-a6bc-4d377bffef7a">
+                  <decision id="decision" name="Decision">
+                    <variable id="variable" name="Decision" typeRef="string"/>
+                  </decision>
+                </definitions>""";
+        DMNModel mockModel = mock(DMNModel.class);
+        dmnCompiler.addCallbackForModel(mockCallbackForModel, mockModel);
+
+
+        Definitions definitions = dmnCompiler.getMarshaller().unmarshal(new StringReader(dmnXml));
+        DMNModel model = dmnCompiler.compile(definitions, Collections.emptyList());
+        dmnCompiler.addCallbackForModel(mockCallbackForModel, model);
+        dmnCompiler.compile(definitions, Collections.emptyList());
+
+
+        assertThat(model).isNotNull();
+        verify(mockCallback, times(2)).callback(eq(dmnCompiler), any(), any(DMNModelImpl.class));
+        verify(mockCallbackForModel, never()).callback(any(), any(), any());
     }
 }

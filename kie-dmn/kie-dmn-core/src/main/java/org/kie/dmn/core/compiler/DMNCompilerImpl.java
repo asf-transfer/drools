@@ -41,9 +41,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.xml.namespace.QName;
-
 import org.drools.io.FileSystemResource;
 import org.kie.api.io.Resource;
 import org.kie.dmn.api.core.DMNCompiler;
@@ -113,8 +111,8 @@ public class DMNCompilerImpl implements DMNCompiler {
     private static final Logger logger = LoggerFactory.getLogger( DMNCompilerImpl.class );
 
     private final DMNDecisionLogicCompiler evaluatorCompiler;
-    private DMNCompilerConfiguration dmnCompilerConfig;
-    private Deque<DRGElementCompiler> drgCompilers = new LinkedList<>();
+    private final DMNCompilerConfiguration dmnCompilerConfig;
+    private final Deque<DRGElementCompiler> drgCompilers = new LinkedList<>();
     {
         drgCompilers.add( new InputDataCompiler() );
         drgCompilers.add( new BusinessKnowledgeModelCompiler() );
@@ -123,6 +121,7 @@ public class DMNCompilerImpl implements DMNCompiler {
         drgCompilers.add( new KnowledgeSourceCompiler() ); // keep last as it's a void compiler
     }
     private final List<AfterProcessDrgElements> afterDRGcallbacks = new ArrayList<>();
+    private final Map<DMNModel, List<AfterProcessDrgElements>> afterDRGcallbacksForModel = new HashMap<>();
     private final static Pattern QNAME_PAT = Pattern.compile("(\\{([^\\}]*)\\})?(([^:]*):)?(.*)");
 
     public DMNCompilerImpl() {
@@ -477,6 +476,9 @@ public class DMNCompilerImpl implements DMNCompiler {
             }
         }
         
+        afterDRGcallbacksForModel.getOrDefault(model, Collections.emptyList()).
+                forEach(processDrgElements -> processDrgElements.callback(this, ctx, model));
+
         for (AfterProcessDrgElements callback : afterDRGcallbacks) {
             logger.debug("About to invoke callback: {}", callback);
             callback.callback(this, ctx, model);
@@ -491,9 +493,30 @@ public class DMNCompilerImpl implements DMNCompiler {
     public interface AfterProcessDrgElements {
         void callback(DMNCompilerImpl compiler, DMNCompilerContext ctx, DMNModelImpl model);
     }
-    
+
+    /**
+     * Adds a callback that will be invoked after the DRG elements have been processed, for all the following models that are compiled with this compiler instance.
+     * Which may lead to the callback being called multiple times, and for unrelated models. Unless, the callback is registered to a specific model using:
+     * {@link #addCallbackForModel(AfterProcessDrgElements, DMNModel)}.
+     */
     public void addCallback(AfterProcessDrgElements callback) {
-        this.afterDRGcallbacks.add(callback);
+        afterDRGcallbacks.add(callback);
+    }
+
+
+    /**
+     * Adds a callback that will be invoked after the DRG elements have been processed, for a given model.
+     */
+    public void addCallbackForModel(AfterProcessDrgElements callback, DMNModel model) {
+        this.afterDRGcallbacksForModel.compute(model, (k, v) -> {
+            if (v == null) {
+                v = new ArrayList<>();
+            }
+            if (callback != null) {
+                v.add(callback);
+            }
+            return v;
+        });
     }
 
     private void detectCycles( DMNModelImpl model ) {
