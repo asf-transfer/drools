@@ -276,5 +276,35 @@
         <filtering>true</filtering>
       </testResource>
     </testResources>
+    <plugins>
+      <!-- Unpack DMN resources from from org.kie:kie-dmn-test-resources -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.kie</groupId>
+                  <artifactId>kie-dmn-test-resources</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <classifier>tests</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/test-classes/org/kie/dmn/core</outputDirectory>
+                  <includes>**/*.dmn</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>

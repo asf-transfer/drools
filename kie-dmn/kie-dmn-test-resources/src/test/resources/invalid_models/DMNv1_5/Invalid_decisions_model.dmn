@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+  -->
+<definitions xmlns="https://www.omg.org/spec/DMN/20230324/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:kie="https://kie.org/dmn/extensions/1.0" expressionLanguage="https://www.omg.org/spec/DMN/20230324/FEEL/" namespace="https://kie.org/dmn/_BDC29BCF-B5DC-4AD7-8A5F-43DC08780F97" id="_0CD0C230-1D15-46CC-BB7E-3E2361AF18E6" name="DMN_1A4BD262-7672-4887-9F25-986EE5277D16">
+  <inputData name="Person Age" id="_F6A568CA-B8F4-45BF-9623-B440D043BACE">
+    <description></description>
+    <variable name="Person Age" id="_ACBE2308-D316-4946-8EB9-BF58AE94E3BA" typeRef="number" />
+  </inputData>
+  <decision name="Can Drive?" id="_08F22111-2D13-468F-ACB7-786755EE6CA6">
+    <description></description>
+    <question>Can Drive
+</question>
+    <allowedAnswers>Person Age &gt;= 18</allowedAnswers>
+    <variable id="_87A4B3D7-C253-4CC6-BB55-EB688B181D58" typeRef="boolean" name="Can Drive?" />
+    <literalExpression id="_563E78C7-EFD1-4109-9F30-B14922EF68DF" typeRef="boolean" label="Can Drive?">
+      <text>Person Age &gt;= 18</text>
+    </literalExpression>
+  </decision>
+  <decision name="Can Vote?" id="_82D0845F-0EE3-4FE3-B349-0E3FEB1FB490">
+    <variable name="Can Vote?" id="_B3C46F3E-E0EA-4228-8296-F77F32781292" typeRef="boolean" />
+    <informationRequirement id="_A9394127-82DC-45B8-A2F1-A084FCD5086A">
+      <requiredInput href="#_F6A568CA-B8F4-45BF-9623-B440D043BACE" />
+    </informationRequirement>
+    <literalExpression id="_7ACCB8BC-A382-4530-B8EE-AD32D187FD8B" typeRef="boolean" label="Can Vote?">
+      <text>Person Age&gt;=18</text>
+    </literalExpression>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_F70AB66C-F5D0-4D52-B579-65BA8930ED0C" name="Default DRD" useAlternativeInputDataShape="false">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_563E78C7-EFD1-4109-9F30-B14922EF68DF">
+            <kie:width>190</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_7ACCB8BC-A382-4530-B8EE-AD32D187FD8B">
+            <kie:width>190</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_58238CF1-04F4-4BE4-B847-0882C05210F9" dmnElementRef="_F6A568CA-B8F4-45BF-9623-B440D043BACE" isCollapsed="false" isListedInputData="false">
+        <dc:Bounds x="100" y="280" width="160" height="80" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_D00B83F6-14B8-42B0-9B6C-DFB07076BC44" dmnElementRef="_08F22111-2D13-468F-ACB7-786755EE6CA6" isCollapsed="false" isListedInputData="false">
+        <dc:Bounds x="100" y="100" width="160" height="80" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_58EC937A-19FF-41BF-A859-1E41F7AD36C9" dmnElementRef="_82D0845F-0EE3-4FE3-B349-0E3FEB1FB490" isCollapsed="false" isListedInputData="false">
+        <dc:Bounds x="380" y="280" width="160" height="80" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="_B17EE969-8964-4048-BA05-EEB78FD1D360" dmnElementRef="_A9394127-82DC-45B8-A2F1-A084FCD5086A" sourceElement="_58238CF1-04F4-4BE4-B847-0882C05210F9" targetElement="_58EC937A-19FF-41BF-A859-1E41F7AD36C9">
+        <di:waypoint x="180" y="320" />
+        <di:waypoint x="380" y="320" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

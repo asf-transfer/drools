@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+  -->
+<definitions xmlns="https://www.omg.org/spec/DMN/20230324/MODEL/" expressionLanguage="https://www.omg.org/spec/DMN/20230324/FEEL/" namespace="https://kie.org/dmn/_231A34DE-33C6-4787-A51F-228C910D5EAF" id="_95E6CCE7-3816-41FD-ABEE-E2D4220D0939" name="DMN_DC99A8C4-4524-407D-B3D1-577442AED995" xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:kie="https://kie.org/dmn/extensions/1.0">
+  <inputData name="Person Age" id="_2AC06105-267D-4F5B-AF38-6BE0614330A6">
+    <variable name="Person Age" id="_C79D8F54-CCBA-47A3-97EA-F47763F07B66" typeRef="number" />
+  </inputData>
+  <decision name="Can Vote?" id="_72417AA0-7642-46EC-9123-9A695FC09065">
+    <variable id="_03A2C068-E821-4092-BF2D-F915FFA6C98D" typeRef="boolean" name="Can Vote?" />
+    <literalExpression id="_E3EF0CCA-0F1E-42B1-8C65-124D77C07E38" typeRef="boolean" label="Can Vote?">
+      <text>Person Age &gt;= 18</text>
+    </literalExpression>
+  </decision>
+  <decision name="Can Drive?" id="_F276F53B-E2DF-4483-B386-FA436309728B">
+    <variable name="Can Drive?" id="_9793274D-B353-41B7-971F-78AC0ACB6F85" typeRef="boolean" />
+    <literalExpression id="_B2F31CDD-29D1-4C20-93B8-8FB8E11E1FFC" typeRef="boolean" label="Can Drive?">
+      <text>Person Age &gt;=18</text>
+    </literalExpression>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="_C9B96284-DED3-44CE-8E07-3B7FAC1D4C75" name="Default DRD" useAlternativeInputDataShape="false">
+      <di:extension>
+        <kie:ComponentsWidthsExtension>
+          <kie:ComponentWidths dmnElementRef="_B2F31CDD-29D1-4C20-93B8-8FB8E11E1FFC">
+            <kie:width>190</kie:width>
+          </kie:ComponentWidths>
+          <kie:ComponentWidths dmnElementRef="_E3EF0CCA-0F1E-42B1-8C65-124D77C07E38">
+            <kie:width>190</kie:width>
+          </kie:ComponentWidths>
+        </kie:ComponentsWidthsExtension>
+      </di:extension>
+      <dmndi:DMNShape id="_55B0B4F9-81A4-4A65-B6D3-C484DF12677C" dmnElementRef="_2AC06105-267D-4F5B-AF38-6BE0614330A6" isCollapsed="false" isListedInputData="false">
+        <dc:Bounds x="100" y="300" width="160" height="80" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_4D782C74-F1E8-4864-8794-11A936A42DC0" dmnElementRef="_72417AA0-7642-46EC-9123-9A695FC09065" isCollapsed="false" isListedInputData="false">
+        <dc:Bounds x="100" y="100" width="160" height="80" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="_3AE15AC6-D801-42D9-8F51-3B4BCD1FAC9A" dmnElementRef="_F276F53B-E2DF-4483-B386-FA436309728B" isCollapsed="false" isListedInputData="false">
+        <dc:Bounds x="420" y="300" width="160" height="80" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>
