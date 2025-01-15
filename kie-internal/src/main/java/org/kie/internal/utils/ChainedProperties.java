@@ -43,11 +43,6 @@ import org.slf4j.LoggerFactory;
  *  <li>META-INF/ of provided classLoader</li>
  * </ul>
  * <br/>
- * To improve performance in frequent session creation cases, chained properties can be cached by it's conf file name
- * and requesting classloader. To take advantage of the case it must be enabled via system property:<br/>
- * <code>org.kie.property.cache.enabled</code> that needs to be set to <code>true</code>
- * Cache entries are by default limited to 100 to reduce memory consumption but can be fine tuned by system property:<br/>
- * <code>org.kie.property.cache.size</code> that needs to be set to valid integer value
  */
 public class ChainedProperties
     implements
