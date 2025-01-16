@@ -24,11 +24,8 @@ with the License.  You may obtain a copy of the License at
 {PRODUCT} contains a `RuleBaseConfiguration.java` object that you can use to configure exception handler settings, multithreaded execution, and sequential mode in the {RULE_ENGINE}.
 
 For the rule base configuration options,
-ifdef::DM,PAM[]
-download the *{PRODUCT} {PRODUCT_VERSION_LONG} Source Distribution* ZIP file from the https://access.redhat.com/jbossnetwork/restricted/listSoftware.html[Red Hat Customer Portal] and navigate to `~/{PRODUCT_FILE}-sources/src/drools-$VERSION/drools-core/src/main/java/org/drools/core/RuleBaseConfiguration.java`.
-endif::[]
 ifdef::DROOLS,JBPM,OP[]
-see the {PRODUCT} https://github.com/kiegroup/drools/blob/{COMMUNITY_VERSION_BRANCH}/drools-core/src/main/java/org/drools/core/RuleBaseConfiguration.java[RuleBaseConfiguration.java] page in GitHub.
+see the {PRODUCT} https://github.com/apache/incubator-kie-drools/blob/{COMMUNITY_VERSION_BRANCH}/drools-core/src/main/java/org/drools/core/RuleBaseConfiguration.java[RuleBaseConfiguration.java] page in GitHub.
 endif::[]
 
 The following rule base configuration options are available for the {RULE_ENGINE}:

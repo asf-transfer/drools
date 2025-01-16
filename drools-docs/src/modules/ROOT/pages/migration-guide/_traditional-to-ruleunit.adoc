@@ -21,7 +21,7 @@ with the License.  You may obtain a copy of the License at
 
 = Migrate to {PRODUCT} 10
 
-Firstly, migration from {PRODUCT} 8 to {PRODUCT} 10 is very simple. You just need to change the version in `pom.xml`. All APIs and DRL syntax are compatible.
+Firstly, migration from {PRODUCT} 8 to {PRODUCT} 10 is very simple. You just need to change the version in `pom.xml`. All APIs and DRL syntax are compatible. In addition, note that JDK 17+ is required for {PRODUCT} 10.
 
 This guide rather focuses on how to migrate from {PRODUCT} 7 projects to {PRODUCT} 10 projects.
 

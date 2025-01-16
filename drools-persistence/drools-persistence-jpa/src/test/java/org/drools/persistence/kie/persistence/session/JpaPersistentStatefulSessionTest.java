@@ -20,31 +20,27 @@ package org.drools.persistence.kie.persistence.session;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import javax.naming.InitialContext;
 import jakarta.transaction.UserTransaction;
 
 import org.drools.core.FlowSessionConfiguration;
-import org.drools.core.SessionConfiguration;
 import org.drools.commands.impl.CommandBasedStatefulKnowledgeSessionImpl;
 import org.drools.commands.impl.FireAllRulesInterceptor;
 import org.drools.commands.impl.LoggingInterceptor;
 import org.drools.mvel.compiler.Person;
 import org.drools.persistence.PersistableRunner;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieFileSystem;
@@ -72,44 +68,38 @@ import static org.drools.persistence.util.DroolsPersistenceUtil.OPTIMISTIC_LOCKI
 import static org.drools.persistence.util.DroolsPersistenceUtil.PESSIMISTIC_LOCKING;
 import static org.drools.persistence.util.DroolsPersistenceUtil.createEnvironment;
 
-@RunWith(Parameterized.class)
 public class JpaPersistentStatefulSessionTest {
 
     private static Logger logger = LoggerFactory.getLogger(JpaPersistentStatefulSessionTest.class);
     private Map<String, Object> context;
     private Environment env;
-    private boolean locking;
-
-    @Parameters(name="{0}")
-    public static Collection<Object[]> persistence() {
-        Object[][] locking = new Object[][] { 
-                { OPTIMISTIC_LOCKING }, 
-                { PESSIMISTIC_LOCKING } 
-                };
-        return Arrays.asList(locking);
+    
+    public static Stream<String> parameters() {
+    	return Stream.of(OPTIMISTIC_LOCKING, PESSIMISTIC_LOCKING);
     };
     
-    public JpaPersistentStatefulSessionTest(String locking) { 
-        this.locking = PESSIMISTIC_LOCKING.equals(locking);
-    }
-    
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         context = DroolsPersistenceUtil.setupWithPoolingDataSource(DROOLS_PERSISTENCE_UNIT_NAME);
         env = createEnvironment(context);
-        if( locking ) { 
+    }
+    
+    private void setUpLocking(String locking) {
+        if(PESSIMISTIC_LOCKING.equals(locking)) { 
             env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
         }
     }
         
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         DroolsPersistenceUtil.cleanUp(context);
     }
 
 
-    @Test
-    public void testFactHandleSerialization() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testFactHandleSerialization(String locking) {
+    	setUpLocking(locking);
         String str = "";
         str += "package org.kie.test\n";
         str += "import java.util.concurrent.atomic.AtomicInteger\n";
@@ -164,8 +154,10 @@ public class JpaPersistentStatefulSessionTest {
         
     }
     
-    @Test
-    public void testLocalTransactionPerStatement() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testLocalTransactionPerStatement(String locking) {
+    	setUpLocking(locking);
         String str = "";
         str += "package org.kie.test\n";
         str += "global java.util.List list\n";
@@ -200,8 +192,10 @@ public class JpaPersistentStatefulSessionTest {
 
     }
 
-    @Test
-    public void testUserTransactions() throws Exception {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testUserTransactions(String locking) throws Exception {
+    	setUpLocking(locking);
         String str = "";
         str += "package org.kie.test\n";
         str += "global java.util.List list\n";
@@ -282,8 +276,10 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(list.size()).isEqualTo(6);
     }
 
-    @Test
-    public void testInterceptor() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testInterceptor(String locking) {
+    	setUpLocking(locking);
         String str = "";
         str += "package org.kie.test\n";
         str += "global java.util.List list\n";
@@ -317,8 +313,10 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(list.size()).isEqualTo(3);
     }
 
-    @Test
-    public void testSetFocus() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testSetFocus(String locking) {
+    	setUpLocking(locking);
         String str = "";
         str += "package org.kie.test\n";
         str += "global java.util.List list\n";
@@ -354,8 +352,10 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(list.size()).isEqualTo(3);
     }
     
-    @Test
-    public void testSharedReferences() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testSharedReferences(String locking) {
+    	setUpLocking(locking);
         KieServices ks = KieServices.Factory.get();
         KieBase kbase = ks.newKieContainer(ks.getRepository().getDefaultReleaseId()).getKieBase();
         KieSession ksession = ks.getStoreServices().newKieSession( kbase, null, env );
@@ -382,9 +382,11 @@ public class JpaPersistentStatefulSessionTest {
 
     }
 
-    @Test
-    public void testMergeConfig() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testMergeConfig(String locking) {
         // JBRULES-3155
+    	setUpLocking(locking);
         String str = "";
         str += "package org.kie.test\n";
         str += "global java.util.List list\n";
@@ -413,8 +415,10 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(sessionConfig.getProcessInstanceManagerFactory()).isEqualTo("com.example.CustomJPAProcessInstanceManagerFactory");
     }
     
-    @Test
-    public void testMoreComplexRulesSerialization() throws Exception {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testMoreComplexRulesSerialization(String locking) throws Exception {
+    	setUpLocking(locking);
         KieServices ks = KieServices.Factory.get();
 
         Resource drlResource = ks.getResources().newClassPathResource("collect_rules.drl", JpaPersistentStatefulSessionTest.class);
@@ -482,8 +486,10 @@ public class JpaPersistentStatefulSessionTest {
         }
     }
 
-    @Test
-    public void testFamilyRulesSerialization() throws Exception {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testFamilyRulesSerialization(String locking) throws Exception {
+    	setUpLocking(locking);
         KieServices ks = KieServices.Factory.get();
 
         Resource drlResource = ks.getResources().newClassPathResource("family_rules.drl", JpaPersistentStatefulSessionTest.class);
@@ -712,9 +718,11 @@ public class JpaPersistentStatefulSessionTest {
         }
     }
 
-    @Test
-    public void testGetCount() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testGetCount(String locking) {
         // BZ-1022374
+    	setUpLocking(locking);
         String str = "";
         str += "package org.kie.test\n";
         str += "rule rule1\n";
@@ -793,9 +801,11 @@ public class JpaPersistentStatefulSessionTest {
         }
     }
 
-    @Test
-    public void testSessionConfigurationFromContainer() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testSessionConfigurationFromContainer(String locking) {
         // DROOLS-1002
+    	setUpLocking(locking);
         String str = "rule R when then end";
 
         KieServices ks = KieServices.Factory.get();
@@ -822,9 +832,11 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(ksession.getSessionClock() instanceof SessionPseudoClock).isTrue();
     }
 
-    @Test
-    public void testGetFactHandles() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testGetFactHandles(String locking) {
         // DROOLS-1270
+    	setUpLocking(locking);
         String str =
                 "package org.kie.test\n" +
                 "rule rule1 when\n" +

@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Stream;
+
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
@@ -31,13 +33,11 @@ import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
 import org.drools.persistence.api.PersistenceContextManager;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieBase;
 import org.kie.api.event.rule.DefaultAgendaEventListener;
 import org.kie.api.event.rule.DefaultRuleRuntimeEventListener;
@@ -59,13 +59,11 @@ import static org.drools.persistence.util.DroolsPersistenceUtil.OPTIMISTIC_LOCKI
 import static org.drools.persistence.util.DroolsPersistenceUtil.PESSIMISTIC_LOCKING;
 import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
 
-@RunWith(Parameterized.class)
 public class ReloadSessionTest {
 
     // Datasource (setup & clean up)
     private Map<String, Object> context;
     private EntityManagerFactory emf;
-    private boolean locking;
 
     private static final String ENTRY_POINT = "ep1";
 
@@ -91,34 +89,25 @@ public class ReloadSessionTest {
             + "end\n"
             + "\n";
 
-    @Parameters(name="{0}")
-    public static Collection<Object[]> persistence() {
-        Object[][] locking = new Object[][] { 
-                { OPTIMISTIC_LOCKING }, 
-                { PESSIMISTIC_LOCKING } 
-                };
-        return Arrays.asList(locking);
+    public static Stream<String> parameters() {
+        return Stream.of(OPTIMISTIC_LOCKING, PESSIMISTIC_LOCKING);
     };
     
-    public ReloadSessionTest(String locking) { 
-        this.locking = PESSIMISTIC_LOCKING.equals(locking);
-    }
-    
-    @Before
+    @BeforeEach
     public void setup() {
         context = DroolsPersistenceUtil.setupWithPoolingDataSource(DROOLS_PERSISTENCE_UNIT_NAME);
         emf = (EntityManagerFactory) context.get(ENTITY_MANAGER_FACTORY);
 
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         DroolsPersistenceUtil.cleanUp(context);
     }
 
-    private Environment createEnvironment() { 
+    private Environment createEnvironment(String locking) { 
         Environment env = DroolsPersistenceUtil.createEnvironment(context);
-        if( locking ) { 
+        if( PESSIMISTIC_LOCKING.equals(locking) ) { 
             env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
         }
         return env;
@@ -138,11 +127,12 @@ public class ReloadSessionTest {
         return kbase;
     }
     
-    @Test 
-    public void reloadKnowledgeSessionTest() { 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void reloadKnowledgeSessionTest(String locking) { 
         
         // Initialize drools environment stuff
-        Environment env = createEnvironment();
+        Environment env = createEnvironment(locking);
         KieBase kbase = initializeKnowledgeBase(simpleRule);
         StatefulKnowledgeSession commandKSession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         assertThat(commandKSession.getFactHandles().isEmpty()).as("There should be NO facts present in a new (empty) knowledge session.").isTrue();
@@ -170,7 +160,7 @@ public class ReloadSessionTest {
         // Reload session from the database
         emf = Persistence.createEntityManagerFactory(DROOLS_PERSISTENCE_UNIT_NAME);
         context.put(ENTITY_MANAGER_FACTORY, emf);
-        env = createEnvironment();
+        env = createEnvironment(locking);
        
         // Re-initialize the knowledge session:
         StatefulKnowledgeSession newCommandKSession
@@ -190,10 +180,12 @@ public class ReloadSessionTest {
         assertThat(list.size()).isEqualTo(1);
     }
 
-    @Test @Ignore
-    public void testListenersAfterSessionReload() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    @Disabled
+    public void testListenersAfterSessionReload(String locking) {
         // https://bugzilla.redhat.com/show_bug.cgi?id=826952
-        Environment env = createEnvironment();
+        Environment env = createEnvironment(locking);
         KieBase kbase = initializeKnowledgeBase(simpleRule);
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
 
@@ -209,9 +201,10 @@ public class ReloadSessionTest {
         assertThat(ksession.getAgendaEventListeners().size()).isEqualTo(1);
     }
 
-    @Test
-    public void testInsert() {
-        final Environment env = createEnvironment();
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testInsert(String locking) {
+        final Environment env = createEnvironment(locking);
         final KieBase kbase = initializeKnowledgeBase( RULE_WITH_EP );
         KieSession kieSession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         assertThat(kieSession.getFactHandles().isEmpty()).as("There should be NO facts present in a new (empty) knowledge session.").isTrue();
@@ -223,10 +216,11 @@ public class ReloadSessionTest {
         assertThat(objects.size()).as("Reloaded working memory should contain the fact.").isEqualTo(1);
     }
 
-    @Test
-    public void testInsertIntoEntryPoint() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testInsertIntoEntryPoint(String locking) {
         // RHBRMS-2815
-        final Environment env = createEnvironment();
+        final Environment env = createEnvironment(locking);
         final KieBase kbase = initializeKnowledgeBase(RULE_WITH_EP);
         KieSession kieSession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
         assertThat(kieSession.getFactHandles().isEmpty()).as("There should be NO facts present in a new (empty) knowledge session.").isTrue();

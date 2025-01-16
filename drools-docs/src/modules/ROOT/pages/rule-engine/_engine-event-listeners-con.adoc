@@ -58,7 +58,7 @@ public interface RuleRuntimeEventListener extends EventListener {
 }
 ----
 
-For the definitions of event classes, see the https://github.com/kiegroup/drools/tree/{COMMUNITY_VERSION_FINAL}/drools-core/src/main/java/org/drools/core/event[GitHub repository].
+For the definitions of event classes, see the https://github.com/apache/incubator-kie-drools/tree/{COMMUNITY_VERSION_FINAL}/drools-core/src/main/java/org/drools/core/event[GitHub repository].
 
 //ifdef::DROOLS,JBPM,OP[]
 //.WorkingMemoryEventManager

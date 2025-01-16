@@ -41,7 +41,6 @@ public class ProcessPackage implements ResourceTypePackage<Process> {
             rtp = new ProcessPackage();
             // register the same instance for all types. There is no distinction
             rtps.put(ResourceType.BPMN2, rtp);
-            rtps.put(ResourceType.DRF, rtp);
             rtps.put(ResourceType.CMMN, rtp);
         }
         return rtp;
@@ -55,7 +54,7 @@ public class ProcessPackage implements ResourceTypePackage<Process> {
 
     /**
      * The ResourceType for {@link ProcessPackage} is always BPMN2,
-     * but there is no distinction between DRF, and CMMN as they all live under
+     * but there is no distinction between CMMN as they all live under
      * the same package.
      */
     @Override

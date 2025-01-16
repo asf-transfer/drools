@@ -19,16 +19,15 @@
 package org.drools.compiler.integrationtests.incrementalcompilation;
 
 import java.io.StringReader;
-import java.util.Collection;
+import java.util.stream.Stream;
 
 import org.drools.compiler.kie.builder.impl.DrlProject;
 import org.drools.core.impl.InternalKieContainer;
 import org.drools.model.codegen.ExecutableModelProject;
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
-import org.drools.testcoverage.common.util.TestParametersUtil;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.drools.testcoverage.common.util.TestParametersUtil2;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
@@ -39,18 +38,10 @@ import org.kie.api.runtime.KieSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parameterized.class)
 public class MultipleIncrementalCompilationTest {
 
-    private final KieBaseTestConfiguration kieBaseTestConfiguration;
-
-    public MultipleIncrementalCompilationTest(final KieBaseTestConfiguration kieBaseTestConfiguration) {
-        this.kieBaseTestConfiguration = kieBaseTestConfiguration;
-    }
-
-    @Parameterized.Parameters(name = "KieBase type={0}")
-    public static Collection<Object[]> getParameters() {
-        return TestParametersUtil.getKieBaseCloudConfigurations(true);
+    public static Stream<KieBaseTestConfiguration> parameters() {
+        return TestParametersUtil2.getKieBaseCloudConfigurations(true).stream();
     }
 
     private final String PERSON_LIST_COMMON_SRC = "package org.test;\n" +
@@ -73,8 +64,9 @@ public class MultipleIncrementalCompilationTest {
                                                   "        this.persons = persons;\n" +
                                                   "    }\n";
 
-    @Test
-    public void testSnapshotUpdateWithFrom() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSnapshotUpdateWithFrom(KieBaseTestConfiguration kieBaseTestConfiguration) {
         // DROOLS-6492
         final String personListSrc1 = PERSON_LIST_COMMON_SRC +
                                       "}";
@@ -92,22 +84,22 @@ public class MultipleIncrementalCompilationTest {
         final ReleaseId releaseId = ks.newReleaseId("org.test", "myTest", "1.0.0-SNAPSHOT");
 
         // 1st run
-        buildKjar(releaseId, personListSrc1);
+        buildKjar(kieBaseTestConfiguration, releaseId, personListSrc1);
         final KieContainer kc = ks.newKieContainer(releaseId);
         runRules(kc);
 
         // 2nd run
-        buildKjar(releaseId, personListSrc2);
+        buildKjar(kieBaseTestConfiguration, releaseId, personListSrc2);
         kc.updateToVersion(releaseId);
         runRules(kc);
 
         // 3rd run
-        buildKjar(releaseId, personListSrc3);
+        buildKjar(kieBaseTestConfiguration, releaseId, personListSrc3);
         kc.updateToVersion(releaseId);
         runRules(kc);
     }
 
-    private void buildKjar(ReleaseId releaseId, String personListSrc) {
+    private void buildKjar(KieBaseTestConfiguration kieBaseTestConfiguration, ReleaseId releaseId, String personListSrc) {
         final String personSrc = "package org.test;\n" +
                                  "public class Person {\n" +
                                  "    private String name;\n" +

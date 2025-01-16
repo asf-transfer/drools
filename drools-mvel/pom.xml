@@ -38,7 +38,6 @@
     <properties>
         <java.module.name>org.drools.mvel</java.module.name>
         <surefire.forkCount>2</surefire.forkCount>
-        <excludedGroups>org.kie.test.testcategory.TurtleTestCategory</excludedGroups>
     </properties>
 
     <dependencies>

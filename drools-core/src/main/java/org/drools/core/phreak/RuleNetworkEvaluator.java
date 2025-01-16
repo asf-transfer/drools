@@ -273,7 +273,7 @@ public class RuleNetworkEvaluator {
             }
 
             boolean emptySrcTuples = srcTuples.isEmpty();
-            if ( !(NodeTypeEnums.isBetaNode(node) && ((BetaNode)node).isRightInputIsRiaNode() ) ) {
+            if ( !(NodeTypeEnums.isBetaNode(node) && node.isRightInputIsRiaNode() ) ) {
                 // The engine cannot skip a ria node, as the dirty might be several levels deep
                 if ( emptySrcTuples && smem.getDirtyNodeMask() == 0) {
                     // empty sources and segment is not dirty, skip to non empty src tuples or dirty segment.

@@ -19,10 +19,9 @@
 package org.drools.traits.compiler.factmodel.traits;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.drools.core.common.InternalFactHandle;
 import org.drools.base.factmodel.traits.CoreWrapper;
@@ -35,13 +34,11 @@ import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
 import org.drools.serialization.protobuf.SerializationHelper;
 import org.drools.traits.compiler.CommonTraitTest;
-import org.drools.traits.compiler.ReviseTraitTestWithPRAlwaysCategory;
 import org.drools.traits.core.factmodel.TraitFactoryImpl;
 import org.drools.traits.core.factmodel.VirtualPropertyMode;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieBase;
 import org.kie.api.definition.type.FactType;
 import org.kie.api.io.ResourceType;
@@ -59,25 +56,17 @@ import org.slf4j.LoggerFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-@RunWith(Parameterized.class)
 public class LogicalTraitTest extends CommonTraitTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogicalTraitTest.class);
 
-    public VirtualPropertyMode mode;
-
-    @Parameterized.Parameters
-    public static Collection<VirtualPropertyMode> modes() {
-        return List.of(VirtualPropertyMode.MAP, VirtualPropertyMode.TRIPLES);
+    public static Stream<VirtualPropertyMode> parameters() {
+        return Stream.of(VirtualPropertyMode.MAP, VirtualPropertyMode.TRIPLES);
     }
 
-    public LogicalTraitTest( VirtualPropertyMode m ) {
-        this.mode = m;
-    }
-
-
-    @Test
-    public void testShadowAlias() throws Exception {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testShadowAlias(VirtualPropertyMode mode) throws Exception {
 
         KnowledgeBuilder kbuilderImpl = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilderImpl.add( ResourceFactory.newClassPathResource( "org/drools/compiler/factmodel/traits/testTraitedAliasing.drl" ), ResourceType.DRL );
@@ -107,13 +96,9 @@ public class LogicalTraitTest extends CommonTraitTest {
         assertThat(list).hasSize(8);
     }
 
-
-
-
-
-
-    @Test
-    public void testShadowAliasTraitOnClass() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testShadowAliasTraitOnClass(VirtualPropertyMode mode) {
 
         String drl = "package org.drools.test; \n" +
                      "import org.drools.base.factmodel.traits.*; \n" +
@@ -175,9 +160,9 @@ public class LogicalTraitTest extends CommonTraitTest {
 
     }
 
-
-    @Test
-    public void testShadowAliasClassOnTrait() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testShadowAliasClassOnTrait(VirtualPropertyMode mode) {
 
         String drl = "package org.drools.test; \n" +
                      "import org.drools.base.factmodel.traits.*; \n" +
@@ -251,11 +236,9 @@ public class LogicalTraitTest extends CommonTraitTest {
 
     }
 
-
-
-
-    @Test
-    public void testShadowAliasTraitOnTrait() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testShadowAliasTraitOnTrait(VirtualPropertyMode mode) {
 
         String drl = "package org.drools.test; \n" +
                      "import org.drools.base.factmodel.traits.*; \n" +
@@ -324,11 +307,9 @@ public class LogicalTraitTest extends CommonTraitTest {
 
     }
 
-
-
-
-    @Test
-    public void initializationConflictManagement() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void initializationConflictManagement(VirtualPropertyMode mode) {
         String drl = "package org.drools.test; \n" +
                      "" +
                      "global java.util.List list; \n" +
@@ -407,11 +388,9 @@ public class LogicalTraitTest extends CommonTraitTest {
         }
     }
 
-
-
-
-    @Test
-    public void testInitializationConflictManagementPrimitiveTypes() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testInitializationConflictManagementPrimitiveTypes(VirtualPropertyMode mode) {
         String drl = "package org.drools.test; \n" +
                      "" +
                      "global java.util.List list; \n" +
@@ -509,9 +488,10 @@ public class LogicalTraitTest extends CommonTraitTest {
         }
     }
 
-    @Category(ReviseTraitTestWithPRAlwaysCategory.class)
-    @Test
-    public void testHardGetSetOnLogicallyTraitedField() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    @Disabled("check file ReviseTraitTestWithPRAlwaysCategory.java") // 
+    public void testHardGetSetOnLogicallyTraitedField(VirtualPropertyMode mode) {
         String drl = "package org.drools.test; " +
                      "import " + Qty.class.getCanonicalName() + "; " +
                      "" +
@@ -566,11 +546,9 @@ public class LogicalTraitTest extends CommonTraitTest {
         knowledgeSession.dispose();
     }
 
-
-
-
-    @Test
-    public void testFieldTypeDonMap() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testFieldTypeDonMap(VirtualPropertyMode mode) {
         String drl = "package org.drools.test; \n" +
                      "" +
                      "global java.util.List list; \n" +
@@ -640,11 +618,9 @@ public class LogicalTraitTest extends CommonTraitTest {
 
     }
 
-
-
-
-    @Test
-    public void testDataStructs() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testDataStructs(VirtualPropertyMode mode) {
         String drl = "package org.drools.test; \n" +
                      "" +
                      "global java.util.List list; \n" +
@@ -722,10 +698,9 @@ public class LogicalTraitTest extends CommonTraitTest {
 
     }
 
-
-
-    @Test
-    public void shadowAliasSelf() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void shadowAliasSelf(VirtualPropertyMode mode) {
 
         String drl = "package org.drools.test; \n" +
                      "import org.drools.base.factmodel.traits.*; \n" +
@@ -786,9 +761,9 @@ public class LogicalTraitTest extends CommonTraitTest {
 
     }
 
-
-    @Test
-    public void traitOnSet() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void traitOnSet(VirtualPropertyMode mode) {
 
         String drl = "package org.drools.test; \n" +
                      "import org.drools.base.factmodel.traits.*; \n" +
@@ -882,12 +857,9 @@ public class LogicalTraitTest extends CommonTraitTest {
         assertThat(list).isEqualTo(List.of("ok1"));
     }
 
-
-
-
-
-    @Test
-    public void testShadowAliasTraitOnClassLogicalRetract() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testShadowAliasTraitOnClassLogicalRetract(VirtualPropertyMode mode) {
 
         String drl = "package org.drools.test; \n" +
                      "import org.drools.base.factmodel.traits.*; \n" +
@@ -1019,12 +991,9 @@ public class LogicalTraitTest extends CommonTraitTest {
 
     }
 
-
-
-
-
-    @Test
-    public void testShadowAliasClassOnTraitLogicalRetract() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testShadowAliasClassOnTraitLogicalRetract(VirtualPropertyMode mode) {
 
         String drl = "package org.drools.test; \n" +
                      "import org.drools.base.factmodel.traits.*; \n" +
@@ -1124,12 +1093,9 @@ public class LogicalTraitTest extends CommonTraitTest {
 
     }
 
-
-
-
-
-    @Test
-    public void testSerial() {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testSerial(VirtualPropertyMode mode) {
 
         String drl = "package org.drools.test; \n" +
                      "import org.drools.base.factmodel.traits.*; \n" +
@@ -1185,8 +1151,9 @@ public class LogicalTraitTest extends CommonTraitTest {
         }
     }
 
-    @Test
-    public void testTraitMismatchTypes()
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testTraitMismatchTypes(VirtualPropertyMode mode)
     {
         String drl = "" +
                      "package org.drools.base.factmodel.traits.test;\n" +
@@ -1237,8 +1204,9 @@ public class LogicalTraitTest extends CommonTraitTest {
         assertThat(list).hasSize(1).containsNull();
     }
 
-    @Test
-    public void testTraitMismatchTypes2()
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testTraitMismatchTypes2(VirtualPropertyMode mode)
     {
         String drl = "" +
                      "package org.drools.base.factmodel.traits.test;\n" +
@@ -1291,9 +1259,9 @@ public class LogicalTraitTest extends CommonTraitTest {
         assertThat(list).hasSize(1).containsNull();
     }
 
-    @Test
-    public void testTraitMismatchTypes3()
-    {
+    @ParameterizedTest()
+    @MethodSource("parameters")
+    public void testTraitMismatchTypes3(VirtualPropertyMode mode) {
         String drl = "" +
                      "package org.drools.base.factmodel.traits.test;\n" +
                      "\n" +

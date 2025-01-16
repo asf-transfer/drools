@@ -37,5 +37,3 @@ include::BuildDeployUtilizeAndRun/_executable-model-upgrading-proc.adoc[leveloff
 include::BuildDeployUtilizeAndRun/_rule-unit-api.adoc[leveloffset=+1]
 include::BuildDeployUtilizeAndRun/_rule-unit-dsl.adoc[leveloffset=+1]
 include::BuildDeployUtilizeAndRun/_kie-scanner-proc.adoc[leveloffset=+1]
-
-include::Security/_SecurityManager-section.adoc[leveloffset=+1]

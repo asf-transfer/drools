@@ -23,8 +23,8 @@ import org.drools.persistence.api.TransactionManager;
 import org.drools.persistence.api.TransactionManagerFactory;
 import org.drools.persistence.jta.JtaTransactionManager;
 import org.drools.persistence.jta.JtaTransactionManagerFactory;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.kie.api.runtime.Environment;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +34,7 @@ public class TransactionManagerFactoryTest {
     TransactionManagerFactory transactionManagerFactory =
             getTransactionManagerFactory();
 
-    @After
+    @AfterEach
     public void cleanup() {
         System.clearProperty("org.kie.txm.factory.class");
         transactionManagerFactory.resetInstance();

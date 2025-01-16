@@ -31,9 +31,9 @@ import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
 import org.drools.persistence.PersistableRunner;
 import org.drools.persistence.jpa.OptimisticLockRetryInterceptor;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kie.api.event.rule.DefaultRuleRuntimeEventListener;
 import org.kie.api.event.rule.ObjectInsertedEvent;
 import org.kie.api.io.ResourceType;
@@ -65,13 +65,13 @@ public class JpaOptLockPersistentStatefulSessionTest {
     public JpaOptLockPersistentStatefulSessionTest() {
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         context = DroolsPersistenceUtil.setupWithPoolingDataSource(DROOLS_PERSISTENCE_UNIT_NAME);
         env = createEnvironment(context);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         DroolsPersistenceUtil.cleanUp(context);
     }    

@@ -18,29 +18,27 @@
  */
 package org.kie.memorycompiler.jdknative;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import javax.tools.JavaCompiler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.kie.memorycompiler.KieMemoryCompilerException;
 
 public class NativeJavaCompilerTest {
 
-	@Test(expected = KieMemoryCompilerException.class)
+	@Test
 	public void simulateJre() {
-
 		NativeJavaCompiler compiler = new NativeJavaCompiler(new NullJavaCompilerFinder());
 
-		
-		compiler.compile(null, null, null, null, null);
+		assertThatExceptionOfType(KieMemoryCompilerException.class).isThrownBy(() -> compiler.compile(null, null, null, null, null));
 	}
 
-	@Test(expected = KieMemoryCompilerException.class)
+	@Test
 	public void simulateJreWithException() {
-
 		NativeJavaCompiler compiler = new NativeJavaCompiler(new ExceptionThrowingJavaCompilerFinder());
 
-		
-		compiler.compile(null, null, null, null, null);
+		assertThatExceptionOfType(KieMemoryCompilerException.class).isThrownBy(() -> compiler.compile(null, null, null, null, null));
 	}
 	
 	private static class NullJavaCompilerFinder implements JavaCompilerFinder {

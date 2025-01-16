@@ -18,20 +18,14 @@
  */
 package org.drools.compiler.integrationtests.incrementalcompilation;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import java.util.stream.Stream;
 
-import java.util.Collection;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
-@RunWith(Parameterized.class)
+@EnabledIfSystemProperty(named = "runTurtleTests", matches = "true")
 public class AddRemoveGenerated2RulesEvalTest extends AbstractAddRemoveGenerated2RulesTest {
 
-    public AddRemoveGenerated2RulesEvalTest(final ConstraintsPair constraintsPair) {
-        super(constraintsPair);
-    }
-
-    @Parameterized.Parameters
-    public static Collection<ConstraintsPair[]> getRulesConstraints() {
+    public static Stream<ConstraintsPair> parameters() {
         // Placeholder is replaced by actual variable name during constraints generation.
         // This is needed, because when generator generates the same constraint 3-times for a rule,
         // in each constraint must be different variable name, so Drools can process it
@@ -39,6 +33,6 @@ public class AddRemoveGenerated2RulesEvalTest extends AbstractAddRemoveGenerated
         return generateRulesConstraintsCombinations(
                 " Integer() \n",
                 " ${variableNamePlaceholder}: Integer() eval(${variableNamePlaceholder} == 1) \n",
-                " exists(Integer() and exists(Integer() and Integer())) \n");
+                " exists(Integer() and exists(Integer() and Integer())) \n").stream();
     }
 }

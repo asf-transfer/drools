@@ -19,25 +19,23 @@
 package org.drools.persistence.command;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.drools.persistence.util.DroolsPersistenceUtil.OPTIMISTIC_LOCKING;
+import static org.drools.persistence.util.DroolsPersistenceUtil.PESSIMISTIC_LOCKING;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.drools.core.impl.RuleBaseFactory;
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
-import org.drools.mvel.CommonTestMethodBase;
-import org.drools.mvel.compiler.command.SimpleBatchExecutionTest;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieBase;
 import org.kie.api.command.Command;
 import org.kie.api.io.ResourceType;
@@ -54,39 +52,28 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
-@RunWith(Parameterized.class)
-public class SimpleBatchExecutionPersistenceTest extends CommonTestMethodBase {
+public class SimpleBatchExecutionPersistenceTest {
 
     private Map<String, Object> context;
-    private boolean locking;
 
-    @Parameters(name="{0}")
-    public static Collection<Object[]> persistence() {
-        Object[][] locking = new Object[][] {
-                { DroolsPersistenceUtil.OPTIMISTIC_LOCKING },
-                { DroolsPersistenceUtil.PESSIMISTIC_LOCKING }
-                };
-        return Arrays.asList(locking);
+    public static Stream<String> parameters() {
+    	return Stream.of(OPTIMISTIC_LOCKING, PESSIMISTIC_LOCKING);
     };
 
-    public SimpleBatchExecutionPersistenceTest(String locking) {
-        this.locking = DroolsPersistenceUtil.PESSIMISTIC_LOCKING.equals(locking);
-    };
-
-    @After
+    @AfterEach
     public void cleanUpPersistence() throws Exception {
         disposeKSession();
         DroolsPersistenceUtil.cleanUp(context);
         context = null;
     }
 
-    protected StatefulKnowledgeSession createKnowledgeSession(KieBase kbase) {
+    private StatefulKnowledgeSession createKnowledgeSession(String locking, KieBase kbase) {
         if( context == null ) {
             context = DroolsPersistenceUtil.setupWithPoolingDataSource(DroolsPersistenceUtil.DROOLS_PERSISTENCE_UNIT_NAME);
         }
         KieSessionConfiguration ksconf = RuleBaseFactory.newKnowledgeSessionConfiguration();
         Environment env = DroolsPersistenceUtil.createEnvironment(context);
-        if( this.locking ) {
+        if(PESSIMISTIC_LOCKING.equals(locking)) {
             env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
         }
         return JPAKnowledgeService.newStatefulKnowledgeSession(kbase, ksconf, env);
@@ -102,18 +89,17 @@ public class SimpleBatchExecutionPersistenceTest extends CommonTestMethodBase {
         + "    then\n"
         + "end\n";
 
-    @Before
-    public void createKSession() throws Exception {
+    private void createKSession(String locking) throws Exception {
         final KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( ResourceFactory.newByteArrayResource(ruleString.getBytes()), ResourceType.DRL );
         InternalKnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         assertThat(kbuilder.hasErrors()).isFalse();
         kbase.addPackages( kbuilder.getKnowledgePackages() );
 
-        ksession = createKnowledgeSession(kbase);
+        ksession = createKnowledgeSession(locking, kbase);
     }
     
-    @After
+    @AfterEach
     public void disposeKSession() throws Exception {
         if( ksession != null ) { 
             ksession.dispose();
@@ -121,10 +107,11 @@ public class SimpleBatchExecutionPersistenceTest extends CommonTestMethodBase {
         }
     }
     
-    @Test 
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void testInsertObjectCommand() throws Exception {
-        
+    public void testInsertObjectCommand(String locking) throws Exception {
+        createKSession(locking);
         String expected_1 = "expected_1";
         String expected_2 = "expected_2";
         
@@ -152,10 +139,11 @@ public class SimpleBatchExecutionPersistenceTest extends CommonTestMethodBase {
         assertThat(expectedList.isEmpty()).as("Retrieved object list did not contain expected objects.").isTrue();
     }
     
-    @Test 
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void testInsertElementsCommand() throws Exception {
-        
+    public void testInsertElementsCommand(String locking) throws Exception {
+        createKSession(locking);
         String expected_1 = "expected_1";
         String expected_2 = "expected_2";
         Object [] expectedArr = {expected_1, expected_2};
@@ -181,10 +169,11 @@ public class SimpleBatchExecutionPersistenceTest extends CommonTestMethodBase {
         assertThat(expectedList.isEmpty()).as("Retrieved object list did not contain expected objects.").isTrue();
     }
 
-    @Test 
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void testSetGlobalCommand() throws Exception {
-        
+    public void testSetGlobalCommand(String locking) throws Exception {
+        createKSession(locking);
         ksession.insert(new Integer(5));
         ksession.insert(new Integer(7));
         ksession.fireAllRules();
@@ -201,10 +190,11 @@ public class SimpleBatchExecutionPersistenceTest extends CommonTestMethodBase {
         assertThat(global).isEqualTo("France");
     }
 
-    @Test 
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void testGetGlobalCommand() throws Exception {
-        
+    public void testGetGlobalCommand(String locking) throws Exception {
+        createKSession(locking);
         ksession.insert(new Integer(5));
         ksession.insert(new Integer(7));
         ksession.fireAllRules();
@@ -221,10 +211,11 @@ public class SimpleBatchExecutionPersistenceTest extends CommonTestMethodBase {
         assertThat(global).as("Retrieved global is not equal to 'France'.").isEqualTo("France");
     }
    
-    @Test 
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void testGetObjectCommand() throws Exception {
-        
+    public void testGetObjectCommand(String locking) throws Exception {
+        createKSession(locking);
         String expected_1 = "expected_1";
         String expected_2 = "expected_2";
         FactHandle handle_1 = ksession.insert( expected_1 );
@@ -247,10 +238,11 @@ public class SimpleBatchExecutionPersistenceTest extends CommonTestMethodBase {
         assertThat(result.getValue("out_2")).isEqualTo(expected_2);
     }
     
-    @Test 
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void testGetObjectsCommand() throws Exception {
-        
+    public void testGetObjectsCommand(String locking) throws Exception {
+        createKSession(locking);
         String expected_1 = "expected_1";
         String expected_2 = "expected_2";
         FactHandle handle_1 = ksession.insert( expected_1 );

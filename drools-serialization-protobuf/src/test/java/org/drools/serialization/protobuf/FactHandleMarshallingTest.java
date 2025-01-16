@@ -41,7 +41,7 @@ import org.drools.kiesession.session.StatefulKnowledgeSessionImpl;
 import org.drools.mvel.compiler.Person;
 import org.drools.serialization.protobuf.marshalling.ObjectMarshallingStrategyStoreImpl;
 import org.drools.util.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.conf.EventProcessingOption;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;

@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.reteoo.LeftTuple;
@@ -35,11 +36,9 @@ import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
 import org.drools.testcoverage.common.util.KieUtil;
-import org.drools.testcoverage.common.util.TestParametersUtil;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.drools.testcoverage.common.util.TestParametersUtil2;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -58,18 +57,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.drools.core.util.DroolsTestUtil.rulestoMap;
 
-@RunWith(Parameterized.class)
 public class AddRemoveRulesTest {
 
-    private final KieBaseTestConfiguration kieBaseTestConfiguration;
-
-    public AddRemoveRulesTest(final KieBaseTestConfiguration kieBaseTestConfiguration) {
-        this.kieBaseTestConfiguration = kieBaseTestConfiguration;
-    }
-
-    @Parameterized.Parameters(name = "KieBase type={0}")
-    public static Collection<Object[]> getParameters() {
-        return TestParametersUtil.getKieBaseCloudConfigurations(true);
+    public static Stream<KieBaseTestConfiguration> parameters() {
+        return TestParametersUtil2.getKieBaseCloudConfigurations(true).stream();
     }
 
     private InternalKnowledgeBase base = KnowledgeBaseFactory.newKnowledgeBase();
@@ -88,8 +79,7 @@ public class AddRemoveRulesTest {
                 "end\n\n";
     }
 
-    @Before
-    public void createEmptyKnowledgeBase() {
+    public void createEmptyKnowledgeBase(KieBaseTestConfiguration kieBaseTestConfiguration) {
         final KieServices kieServices = KieServices.get();
         final ReleaseId releaseId = kieServices.newReleaseId("org.kie", "test-add-remove-rules", "1.0");
         KieUtil.getKieModuleFromDrls(releaseId, kieBaseTestConfiguration);
@@ -126,8 +116,10 @@ public class AddRemoveRulesTest {
         this.base.addPackages( pkgs );
     }
 
-    @Test
-    public void test() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void test(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final KieSession knowledgeSession = base.newKieSession();
         knowledgeSession.fireAllRules();
 
@@ -227,9 +219,11 @@ public class AddRemoveRulesTest {
         assertThat(TestUtil.getRulesCount(base)).isEqualTo(8);
     }
 
-    @Test
-    public void testAddRemoveFromKB() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRemoveFromKB(KieBaseTestConfiguration kieBaseTestConfiguration) {
         // DROOLS-328
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String drl = "\n" +
                 "rule A\n" +
                 "  when\n" +
@@ -279,9 +273,11 @@ public class AddRemoveRulesTest {
         ((InternalKnowledgeBase) kSession.getKieBase()).addPackages(kbuilder.getKnowledgePackages());
     }
 
-    @Test
-    public void testAddRemoveDeletingFact() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRemoveDeletingFact(KieBaseTestConfiguration kieBaseTestConfiguration) {
         // DROOLS-328
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String drl = "\n" +
                 "rule B\n" +
                 "  when\n" +
@@ -304,8 +300,10 @@ public class AddRemoveRulesTest {
         kSession.delete(fh);
     }
 
-    @Test
-    public void testAddRemoveWithPartialSharing() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRemoveWithPartialSharing(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String drl = "package org.drools.test; \n" +
                 "\n" +
                 "declare A end \n" +
@@ -349,8 +347,10 @@ public class AddRemoveRulesTest {
         kSession.fireAllRules();
     }
 
-    @Test
-    public void testAddRemoveWithReloadInSamePackage_4Rules() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRemoveWithReloadInSamePackage_4Rules(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String drl = "package org.drools.test;\n" +
 
                 "declare Fakt enabled : boolean end \n" +
@@ -391,8 +391,10 @@ public class AddRemoveRulesTest {
         testAddRemoveWithReloadInSamePackage(drl);
     }
 
-    @Test
-    public void testAddRemoveWithReloadInSamePackage_3Rules() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRemoveWithReloadInSamePackage_3Rules(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String drl = "package org.drools.test;\n" +
 
                 "declare Fakt enabled : boolean end \n" +
@@ -428,8 +430,10 @@ public class AddRemoveRulesTest {
     }
 
 
-    @Test
-    public void testAddRemoveWithReloadInSamePackage_EntryPoints() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRemoveWithReloadInSamePackage_EntryPoints(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String drl = "package org.drools.test; \n" +
 
                 "rule \"Input_X\"\n" +
@@ -463,8 +467,10 @@ public class AddRemoveRulesTest {
         testAddRemoveWithReloadInSamePackage(drl);
     }
 
-    @Test
-    public void testAddRemoveWithReloadInSamePackage_EntryPointsVariety() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRemoveWithReloadInSamePackage_EntryPointsVariety(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String drl = "package org.drools.test; \n" +
 
                 "rule \"Input_X\"\n" +
@@ -517,8 +523,10 @@ public class AddRemoveRulesTest {
         assertThat(list).isEqualTo(Collections.singletonList("ok"));
     }
 
-    @Test
-    public void testRemoveWithDuplicatedCondition() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithDuplicatedCondition(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String packageName = "test_same_condition_pk" ;
         final String rule = "package " + packageName + ";" +
                 "rule 'test_same_condition' \n" +
@@ -533,8 +541,10 @@ public class AddRemoveRulesTest {
         base.removeKiePackage(packageName);
     }
 
-    @Test
-    public void testFireAfterRemoveDuplicatedConditionInDifferentPackages() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testFireAfterRemoveDuplicatedConditionInDifferentPackages(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String packageName = "test_same_condition_pk" ;
         final String packageName2 = "test_same_condition_pk_2" ;
         final String rule1 = "package " + packageName + ";" +
@@ -563,8 +573,10 @@ public class AddRemoveRulesTest {
         session.fireAllRules();
     }
 
-    @Test
-    public void testAddRemoveWithExtends() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRemoveWithExtends(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String packageName = "test_same_condition_pk" ;
         final String rule1 = "package " + packageName + ";" +
                 "import java.util.Map; \n" +
@@ -599,9 +611,11 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveHasSameConElement() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveHasSameConElement(KieBaseTestConfiguration kieBaseTestConfiguration) {
         // DROOLS-891
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String packageName = "test";
         final String rule1 = "package " + packageName + ";" +
                 "import java.util.Map; \n" +
@@ -620,8 +634,9 @@ public class AddRemoveRulesTest {
         session.execute(new HashMap());
     }
 
-    @Test
-    public void testFireAfterRemoveWithSameCondition() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testFireAfterRemoveWithSameCondition(KieBaseTestConfiguration kieBaseTestConfiguration) {
         // DROOLS-893
         final String packageName = "pk1";
         final String packageName2 = "pk2";
@@ -668,9 +683,11 @@ public class AddRemoveRulesTest {
         ksession.fireAllRules();
     }
 
-    @Test
-    public void testSameEval() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSameEval(KieBaseTestConfiguration kieBaseTestConfiguration) {
         // DROOLS-893
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1Name = "rule1";
         final String rule2Name = "rule2";
 
@@ -697,9 +714,11 @@ public class AddRemoveRulesTest {
         statelessSession.execute(new Object());
     }
 
-    @Test
-    public void testFireAfterRemoveRule() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testFireAfterRemoveRule(KieBaseTestConfiguration kieBaseTestConfiguration) {
         // DROOLS-893
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1Name = "rule1";
         final String rule2Name = "rule2";
 
@@ -737,8 +756,10 @@ public class AddRemoveRulesTest {
         session.execute(fact);
     }
 
-    @Test
-    public void testRemoveWithSameRuleNameInDiffPackage() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSameRuleNameInDiffPackage(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String packageName = "pk1";
         final String packageName2 = "pk2";
         final String rule1Name = "rule1";
@@ -766,8 +787,10 @@ public class AddRemoveRulesTest {
         session.fireAllRules();
     }
 
-    @Test
-    public void testRemoveWithSplitStartAtLianAndFollowedBySubNetworkNoSharing() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartAtLianAndFollowedBySubNetworkNoSharing(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String packageName = "pk1";
 
         final String rule1 = "package " + packageName + ";" +
@@ -790,8 +813,10 @@ public class AddRemoveRulesTest {
         session.getKieBase().removeKiePackage(packageName);
     }
 
-    @Test
-    public void testRemoveExistsPopulatedByInitialFact() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveExistsPopulatedByInitialFact(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.List list\n" +
                 "rule R1 when\n" +
@@ -813,8 +838,10 @@ public class AddRemoveRulesTest {
         AddRemoveTestCases.insertFactsRemoveFire(base, rule1, rule2, null, TestUtil.getDefaultFacts());
     }
 
-    @Test
-    public void testAddSplitInSubnetwork() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddSplitInSubnetwork(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.List list\n" +
                 "rule R1 when\n" +
@@ -836,8 +863,10 @@ public class AddRemoveRulesTest {
         AddRemoveTestCases. insertFactsRemoveFire(base, rule1, rule2, null, TestUtil.getDefaultFacts());
     }
 
-    @Test
-    public void testRemoveWithSplitStartAtLianAndFollowedBySubNetworkWithSharing() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartAtLianAndFollowedBySubNetworkWithSharing(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +
                 "global java.util.List list\n" +
@@ -863,9 +892,11 @@ public class AddRemoveRulesTest {
         testRemoveWithSplitStartBasicTestSet(rule1, rule2, TestUtil.RULE1_NAME, TestUtil.RULE2_NAME);
     }
 
-    @Test
-    public void testRemoveWithSplitStartBeforeJoinAndFollowedBySubNetworkWithSharing() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartBeforeJoinAndFollowedBySubNetworkWithSharing(KieBaseTestConfiguration kieBaseTestConfiguration) {
         //  moved the split start to after the Integer
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +
                 "global java.util.List list\n" +
@@ -894,9 +925,11 @@ public class AddRemoveRulesTest {
         testRemoveWithSplitStartBasicTestSet(rule1, rule2, TestUtil.RULE1_NAME, TestUtil.RULE2_NAME);
     }
 
-    @Test
-    public void testRemoveWithSplitStartAtJoinAndFollowedBySubNetworkWithSharing() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartAtJoinAndFollowedBySubNetworkWithSharing(KieBaseTestConfiguration kieBaseTestConfiguration) {
         //  moved the split start to after the Integer
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +
                 "global java.util.List list\n" +
@@ -924,8 +957,10 @@ public class AddRemoveRulesTest {
         testRemoveWithSplitStartBasicTestSet(rule1, rule2, TestUtil.RULE1_NAME, TestUtil.RULE2_NAME);
     }
 
-    @Test
-    public void testRemoveWithSplitStartSameRules() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartSameRules(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +
                 "global java.util.List list\n" +
@@ -953,8 +988,10 @@ public class AddRemoveRulesTest {
         testRemoveWithSplitStartBasicTestSet(rule1, rule2, TestUtil.RULE1_NAME, TestUtil.RULE2_NAME);
     }
 
-    @Test //(timeout=2000)
-    public void testRemoveWithSplitStartDoubledExistsConstraint() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartDoubledExistsConstraint(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +
                 "global java.util.List list\n" +
@@ -983,8 +1020,10 @@ public class AddRemoveRulesTest {
         testRemoveWithSplitStartBasicTestSet(rule1, rule2, TestUtil.RULE1_NAME, TestUtil.RULE2_NAME);
     }
 
-    @Test
-    public void testRemoveWithSplitStartDoubledIntegerConstraint() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartDoubledIntegerConstraint(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +
                 "global java.util.List list\n" +
@@ -1013,8 +1052,10 @@ public class AddRemoveRulesTest {
         testRemoveWithSplitStartBasicTestSet(rule1, rule2, TestUtil.RULE1_NAME, TestUtil.RULE2_NAME);
     }
 
-    @Test
-    public void testRemoveWithSplitStartAfterSubnetwork() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartAfterSubnetwork(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +
                 "global java.util.List list\n" +
@@ -1043,8 +1084,10 @@ public class AddRemoveRulesTest {
         testRemoveWithSplitStartBasicTestSet(rule1, rule2, TestUtil.RULE1_NAME, TestUtil.RULE2_NAME);
     }
 
-    @Test
-    public void testRemoveWithSplitStartAfterSubnetwork3Rules() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartAfterSubnetwork3Rules(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +
                 "global java.util.List list\n" +
@@ -1100,8 +1143,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveWithSplitStartAfterSubnetwork3RulesAddOneAfterAnother() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartAfterSubnetwork3RulesAddOneAfterAnother(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +
                 "global java.util.List list\n" +
@@ -1168,8 +1213,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveWithSplitStartAfterSubnetwork3RulesReaddRule() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveWithSplitStartAfterSubnetwork3RulesReaddRule(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1268,8 +1315,10 @@ public class AddRemoveRulesTest {
         return new String[] { rule1, rule2 };
     }
 
-    @Test
-    public void testRemoveRuleChangeFHFirstLeftTuple() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveRuleChangeFHFirstLeftTuple(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String[] rules = getRules1Pattern();
 
         final KieSession kieSession = TestUtil.buildSessionInSteps(base, rules);
@@ -1290,8 +1339,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveRuleChangeFHLastLeftTuple() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveRuleChangeFHLastLeftTuple(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String[] rules = getRules1Pattern();
 
         final KieSession kieSession = TestUtil.buildSessionInSteps(base, rules);
@@ -1312,8 +1363,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveRightTupleThatWasFirst() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveRightTupleThatWasFirst(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String[] rules = getRules2Pattern();
 
         final KieSession kieSession = TestUtil.buildSessionInSteps(base, rules);
@@ -1337,8 +1390,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveRightTupleThatWasLast() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveRightTupleThatWasLast(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String[] rules = getRules2Pattern();
 
         final KieSession kieSession = TestUtil.buildSessionInSteps(base, rules);
@@ -1400,8 +1455,10 @@ public class AddRemoveRulesTest {
         return new String[] { rule1, rule2, rule3 };
     }
 
-    @Test
-    public void testRemoveChildLeftTupleThatWasFirst() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveChildLeftTupleThatWasFirst(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String[] rules = getRules3Pattern();
 
         final KieSession kieSession = TestUtil.buildSessionInSteps(base, rules[0], rules[1]);
@@ -1427,8 +1484,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveChildLeftTupleThatWasLast() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveChildLeftTupleThatWasLast(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String[] rules = getRules3Pattern();
 
         final KieSession kieSession = TestUtil.buildSessionInSteps(base, rules[0], rules[1]);
@@ -1454,8 +1513,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveChildLeftTupleThatWasMiddle() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveChildLeftTupleThatWasMiddle(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String[] rules = getRules3Pattern();
 
         final KieSession kieSession = TestUtil.buildSessionInSteps(base, rules);
@@ -1484,8 +1545,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveChildLeftTupleThatWasFirstWithMultipleData() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveChildLeftTupleThatWasFirstWithMultipleData(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String[] rules = getRules3Pattern();
 
         final KieSession kieSession = TestUtil.buildSessionInSteps(base, rules[0], rules[1]);
@@ -1559,8 +1622,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveChildLeftTupleThatWasLastWithMultipleData() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveChildLeftTupleThatWasLastWithMultipleData(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String[] rules = getRules3Pattern();
 
         final KieSession kieSession = TestUtil.buildSessionInSteps(base, rules[0], rules[1]);
@@ -1643,8 +1708,10 @@ public class AddRemoveRulesTest {
         AddRemoveTestCases.runAllTestCases(base, rule2, rule1, rule2Name, rule1Name, additionalGlobals,1, 2, "1");
     }
 
-    @Test
-    public void testMergeRTN() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testMergeRTN(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1684,8 +1751,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSubSubNetwork() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSubSubNetwork(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1725,8 +1794,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSubSubNetwork2() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSubSubNetwork2(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1762,8 +1833,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSubSubNetwork3() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSubSubNetwork3(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1802,8 +1875,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSubSubNetwork4() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSubSubNetwork4(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1839,8 +1914,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSubNetworkWithNot() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSubNetworkWithNot(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1875,8 +1952,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSubNetworkWithNot2() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSubNetworkWithNot2(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1912,8 +1991,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSubNetworkWithNot3() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSubNetworkWithNot3(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1947,8 +2028,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSubNetworkWithNot4() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSubNetworkWithNot4(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -1986,8 +2069,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testInsertFireRemoveWith2Nots() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testInsertFireRemoveWith2Nots(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                 " global java.util.List list\n" +
                 " rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2023,8 +2108,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSubSubNetwork5() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSubSubNetwork5(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                              "global java.util.List list\n" +
                              "rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2059,8 +2146,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testInsertRemoveFireWith2Nots() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testInsertRemoveFireWith2Nots(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                 " global java.util.List list\n" +
                 " rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2095,9 +2184,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSharedRian() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSharedRian(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                 " global java.util.List list\n" +
                 " rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2131,9 +2221,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSharedRianWithFire() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSharedRianWithFire(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                 " global java.util.List list\n" +
                 " rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2168,9 +2259,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testSharedRian2() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testSharedRian2(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                 " global java.util.List list\n" +
                 " rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2208,8 +2300,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testRemoveRuleWithSharedRia() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testRemoveRuleWithSharedRia(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1Name = "rule1";
         final String rule2Name = "rule2";
         final String rule1 = "rule " + rule1Name + " \n" +
@@ -2243,9 +2337,11 @@ public class AddRemoveRulesTest {
         assertThat(tuple.getPeer()).isNull();
     }
 
-    @Test
-    public void testAddRemoveFacts() {
-        final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRemoveFacts(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
+    	final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                 " global java.util.List list\n" +
                 " rule " + TestUtil.RULE1_NAME + " \n" +
                 " when \n" +
@@ -2282,9 +2378,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testReaddRulesSharedRianDoubleNots() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testReaddRulesSharedRianDoubleNots(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                              " global java.util.List list\n" +
                              " rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2322,9 +2419,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testOr() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testOr(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                              " global java.util.List list\n" +
                              " rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2363,9 +2461,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testOr2() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testOr2(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                              " global java.util.List list\n" +
                              " rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2411,9 +2510,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testEvals() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testEvals(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = " package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                              " global java.util.List list\n" +
                              " rule " + TestUtil.RULE1_NAME + " \n" +
@@ -2451,9 +2551,10 @@ public class AddRemoveRulesTest {
         }
     }
 
-    @Test
-    public void testPathMemoryInitialization() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testPathMemoryInitialization(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package com.rules;global java.util.List list\n" +
                 "rule R1 \n" +
                 " when \n" +
@@ -2499,9 +2600,10 @@ public class AddRemoveRulesTest {
         assertThat(globalList).isEmpty();
     }
 
-    @Test
-    public void testBuildKieBaseIncrementally() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testBuildKieBaseIncrementally(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package com.rules;global java.util.List list\n" +
                 "rule R1 \n" +
                 " when \n" +
@@ -2538,9 +2640,10 @@ public class AddRemoveRulesTest {
         assertThat(globalList).contains("R1", "R2");
     }
 
-    @Test
-    public void testBuildKieBaseIncrementally2() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testBuildKieBaseIncrementally2(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package com.rules;global java.util.List list\n" +
                 "rule R1 \n" +
                 " when \n" +
@@ -2582,9 +2685,10 @@ public class AddRemoveRulesTest {
         assertThat(globalList).contains("R1", "R2");
     }
 
-    @Test
-    public void testBuildKieBaseIncrementally3() {
-
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testBuildKieBaseIncrementally3(KieBaseTestConfiguration kieBaseTestConfiguration) {
+    	createEmptyKnowledgeBase(kieBaseTestConfiguration);
         final String rule1 = "package com.rules;global java.util.List list\n" +
                 "rule R1 \n" +
                 " when \n" +

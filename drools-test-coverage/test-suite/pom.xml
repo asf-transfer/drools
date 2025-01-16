@@ -37,7 +37,6 @@
 
   <properties>
     <java.module.name>org.drools.testcoverage.testsuite</java.module.name>
-    <excludedGroups>org.kie.test.testcategory.TurtleTestCategory</excludedGroups>
   </properties>
 
   <dependencyManagement>

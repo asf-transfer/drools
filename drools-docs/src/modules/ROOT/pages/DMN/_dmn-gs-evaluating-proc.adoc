@@ -143,7 +143,7 @@ The archetype also contain more advanced test cases, using the SceSim tool.
 
 The following examples assumes {KOGITO} is the chosen target deployment platform.
 
-The source code and detailed runtime instructions for the *Traffic_Violation* sample project are readily made available for {KOGITO} from the https://github.com/kiegroup/kogito-examples/tree/stable/kogito-quarkus-examples/dmn-quarkus-example[Kogito Examples GitHub repository].
+The source code and detailed runtime instructions for the *Traffic_Violation* sample project are readily made available for {KOGITO} from the https://github.com/apache/incubator-kie-kogito-examples/tree/stable/kogito-quarkus-examples/dmn-quarkus-example[Kogito Examples GitHub repository].
 
 .Procedure
 . Determine the base URL for accessing the REST API endpoints. This requires knowing the following values (with the default local deployment values as an example):

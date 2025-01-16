@@ -22,15 +22,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.testcoverage.common.model.Person;
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
 import org.drools.testcoverage.common.util.KieUtil;
-import org.drools.testcoverage.common.util.TestParametersUtil;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.drools.testcoverage.common.util.TestParametersUtil2;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.definition.KiePackage;
@@ -39,22 +39,15 @@ import org.kie.api.runtime.KieSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parameterized.class)
 public class AddRuleTest {
 
-    private final KieBaseTestConfiguration kieBaseTestConfiguration;
-
-    public AddRuleTest(final KieBaseTestConfiguration kieBaseTestConfiguration) {
-        this.kieBaseTestConfiguration = kieBaseTestConfiguration;
+    public static Stream<KieBaseTestConfiguration> parameters() {
+        return TestParametersUtil2.getKieBaseCloudConfigurations(true).stream();
     }
 
-    @Parameterized.Parameters(name = "KieBase type={0}")
-    public static Collection<Object[]> getParameters() {
-        return TestParametersUtil.getKieBaseCloudConfigurations(true);
-    }
-
-    @Test
-    public void testMemoriesCCEWhenAddRemoveAddRule() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testMemoriesCCEWhenAddRemoveAddRule(KieBaseTestConfiguration kieBaseTestConfiguration) {
         // JBRULES-3656
         final String rule1 = "import " + AddRuleTest.class.getCanonicalName() + ".*\n" +
                 "import java.util.Date\n" +
@@ -89,8 +82,9 @@ public class AddRuleTest {
         kbase.addPackages(TestUtil.createKnowledgeBuilder(null, rule2).getKnowledgePackages());
     }
 
-    @Test
-    public void testAddRuleWithFrom() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testAddRuleWithFrom(KieBaseTestConfiguration kieBaseTestConfiguration) {
         // JBRULES-3499
         final String str1 = "global java.util.List names;\n" +
                 "global java.util.List list;\n";
@@ -134,8 +128,9 @@ public class AddRuleTest {
         ksession.dispose();
     }
 
-    @Test
-    public void testDynamicallyAddInitialFactRule() {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testDynamicallyAddInitialFactRule(KieBaseTestConfiguration kieBaseTestConfiguration) {
         String rule = "package org.drools.compiler.test\n" +
                 "global java.util.List list\n" +
                 "rule xxx when\n" +

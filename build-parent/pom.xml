@@ -54,7 +54,7 @@
       - A version property must be specified in the format "version.{groupId}", optionally with a suffix to make it unique.
       - Version properties must be sorted alphabetically (other form of sorting were found to be unclear and ambiguous).
     -->
-    <version.ch.qos.logback>1.4.14</version.ch.qos.logback>
+    <version.ch.qos.logback>1.5.13</version.ch.qos.logback>
     <version.commons-codec>1.16.1</version.commons-codec>
     <version.commons-collections>3.2.2</version.commons-collections>
     <version.commons-logging>1.1.1</version.commons-logging>

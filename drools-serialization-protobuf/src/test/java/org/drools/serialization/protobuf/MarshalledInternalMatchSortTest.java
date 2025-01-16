@@ -29,8 +29,7 @@ import org.drools.core.common.InternalFactHandle;
 import org.drools.base.definitions.rule.impl.RuleImpl;
 import org.drools.core.reteoo.TupleImpl;
 import org.drools.core.rule.consequence.InternalMatch;
-import org.drools.core.reteoo.Tuple;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

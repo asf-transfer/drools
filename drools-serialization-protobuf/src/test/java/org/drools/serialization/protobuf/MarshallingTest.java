@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 
 import org.drools.base.base.ClassObjectType;
 import org.drools.base.base.ValueResolver;
@@ -41,7 +39,6 @@ import org.drools.base.common.DroolsObjectInputStream;
 import org.drools.base.common.DroolsObjectOutputStream;
 import org.drools.base.definitions.InternalKnowledgePackage;
 import org.drools.base.definitions.rule.impl.RuleImpl;
-import org.drools.base.rule.MapBackedClassLoader;
 import org.drools.base.rule.consequence.Consequence;
 import org.drools.base.rule.consequence.ConsequenceContext;
 import org.drools.core.ClockType;
@@ -77,8 +74,9 @@ import org.drools.mvel.compiler.Primitives;
 import org.drools.mvel.integrationtests.IteratorToList;
 import org.drools.serialization.protobuf.marshalling.IdentityPlaceholderResolverStrategy;
 import org.drools.serialization.protobuf.marshalling.RuleBaseNodes;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.kie.api.KieBase;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.KieServices;
@@ -101,8 +99,6 @@ import org.kie.api.runtime.conf.TimedRuleExecutionOption;
 import org.kie.api.runtime.conf.TimerJobFactoryOption;
 import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.time.SessionPseudoClock;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.marshalling.MarshallerFactory;
 import org.kie.internal.utils.KieHelper;
 
@@ -1843,7 +1839,8 @@ public class MarshallingTest extends CommonTestMethodBase {
      *
      * @throws Exception
      */
-    @Test @Ignore
+    @Test 
+    @Disabled
     public void testDroolsObjectOutputInputStream() throws Exception {
         KieBase kbase = loadKnowledgeBase("org/drools/compiler/integrationtests/test_Serializable.drl"  );
         KieSession session = kbase.newKieSession();
@@ -1992,7 +1989,8 @@ public class MarshallingTest extends CommonTestMethodBase {
         assertThat(ksession.getObjects().size()).isEqualTo(2);
     }
 
-    @Test @Ignore("This test is suspicious to say the least...")
+    @Test 
+    @Disabled("This test is suspicious to say the least...")
     public void testScheduledActivation() {
         InternalKnowledgeBase knowledgeBase = KnowledgeBaseFactory.newKnowledgeBase();
         InternalKnowledgePackage impl = CoreComponentFactory.get().createKnowledgePackage( "test" );
@@ -2223,7 +2221,8 @@ public class MarshallingTest extends CommonTestMethodBase {
         assertThat(list.size()).isEqualTo(0);
     }
 
-    @Test @Ignore("beta4 phreak")
+    @Test 
+    @Disabled("beta4 phreak")
     public void testMarshallEntryPointsWithSlidingTimeWindow() throws Exception {
         String str =
                 "package org.domain.test \n" +
@@ -2515,7 +2514,7 @@ public class MarshallingTest extends CommonTestMethodBase {
     }
 
     @Test
-    @Ignore("Reproduces with pseudoclock. It takes too long with system clock")
+    @Disabled("Reproduces with pseudoclock. It takes too long with system clock")
     public void testMarshallWithTimedRuleRealClock() {
         // DROOLS-795
         String drl = "rule \"Rule A Timeout\"\n" +
@@ -2765,7 +2764,8 @@ public class MarshallingTest extends CommonTestMethodBase {
         }
     }
 
-    @Test(timeout = 10_000L)
+    @Test
+    @Timeout(10000)
     public void testDisposeAfterMarshall() throws InterruptedException, IOException {
         // DROOLS-4413
 

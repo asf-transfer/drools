@@ -133,7 +133,7 @@ In this example, the rule is scheduled for every hour, after a delay of 30 secon
 
 If the system is paused (for example, the session is serialized and then later deserialized), the rule is scheduled only one time to recover from missing activations regardless of how many activations were missed during the pause, and then the rule is subsequently scheduled again to continue in sync with the timer setting.
 
-The `calendar` attribute in DRL rules is a http://www.quartz-scheduler.org/[Quartz] calendar definition for scheduling a rule and supports the following format:
+The `calendar` attribute in DRL rules is a http://www.quartz-scheduler.org/[Quartz] style cron expression for scheduling a rule and supports the following format:
 
 .Calendar attribute format
 [source]
@@ -151,18 +151,24 @@ calendars "* * 0-7,18-23 ? * *"
 calendars "weekday"
 ----
 
-You can adapt a Quartz calendar based on the Quartz calendar API and then register the calendar in the KIE session, as shown in the following example:
+You can define a custom calendar and then register it in the KIE session, as shown in the following example:
 
-.Adapting a Quartz Calendar
+.Defining a Calendar
 [source,java]
 ----
-Calendar weekDayCal = QuartzHelper.quartzCalendarAdapter(org.quartz.Calendar quartzCal)
+private static final org.kie.api.time.Calendar WEEKDAY = timestamp -> {
+    final Calendar c = Calendar.getInstance();
+    c.setTimeInMillis(timestamp);
+
+    final int day = c.get(Calendar.DAY_OF_WEEK);
+    return day != Calendar.SATURDAY && day != Calendar.SUNDAY;
+};
 ----
 
 .Registering the calendar in the KIE session
 [source,java]
 ----
-ksession.getCalendars().set( "weekday", weekDayCal );
+ksession.getCalendars().set( "weekday", WEEKDAY );
 ----
 
 You can use calendars with standard rules and with rules that use timers. The calendar attribute can contain one or more comma-separated calendar names written as `String` literals.

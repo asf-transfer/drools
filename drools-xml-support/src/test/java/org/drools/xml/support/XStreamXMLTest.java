@@ -42,10 +42,10 @@ import org.drools.commands.runtime.rule.GetFactHandlesCommand;
 import org.drools.commands.runtime.rule.ModifyCommand;
 import org.drools.commands.runtime.rule.UpdateCommand;
 import org.drools.core.common.DefaultFactHandle;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.drools.commands.runtime.ExecutionResultImpl;
 import org.drools.commands.runtime.FlatQueryResults;
-import org.junit.Before;
-import org.junit.Test;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.api.runtime.rule.QueryResults;
 
@@ -56,7 +56,7 @@ public class XStreamXMLTest {
 
     private XStream xstream;
 
-    @Before
+    @BeforeEach
     public void setup() {
         xstream = createTrustingXStream();
         xstream = XStreamXML.newXStreamMarshaller(xstream);

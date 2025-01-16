@@ -81,7 +81,7 @@ Example: `TIMER "*/5 * * * *"`  (every 5 minutes)
 
 |`CALENDAR`
 |E
-|A Quartz calendar definition for scheduling the rule.
+|A calendar definition for scheduling the rule.
 
 Example: `CALENDAR "* * 0-7,18-23 ? * *"`  (exclude non-business hours)
 

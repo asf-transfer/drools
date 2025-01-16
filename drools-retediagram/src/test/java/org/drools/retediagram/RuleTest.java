@@ -29,8 +29,8 @@ import org.drools.core.reteoo.ReteDumper;
 import org.drools.mvel.CommonTestMethodBase;
 import org.drools.retediagram.ReteDiagram.Layout;
 import org.drools.retediagram.model.Measurement;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.kie.api.KieBase;
 import org.kie.api.event.rule.DebugAgendaEventListener;
 import org.kie.api.io.ResourceType;
@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RuleTest extends CommonTestMethodBase {
 	static final Logger LOG = LoggerFactory.getLogger(RuleTest.class);
 
-    @BeforeClass
+    @BeforeAll
     public static void init() { // route dependencies using java util Logging to slf4j 
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();

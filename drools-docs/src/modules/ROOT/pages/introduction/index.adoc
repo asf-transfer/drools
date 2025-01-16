@@ -36,7 +36,7 @@ link:https://www.drools.org/[{PRODUCT}] is a set of projects focusing on intelli
 3. link:https://www.jbpm.org/[jBPM] is a toolkit for building business applications to help automate business processes and decisions.
 
 == Additional resources
-link:https://github.com/kiegroup/drools/[{PRODUCT} source code]
+link:https://github.com/apache/incubator-kie-drools/[{PRODUCT} source code]
 
 include::_intro-getting-involved.adoc[leveloffset=+1]
 include::_intro-building-the-source.adoc[leveloffset=+1]

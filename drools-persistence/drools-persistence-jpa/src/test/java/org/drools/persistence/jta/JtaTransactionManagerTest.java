@@ -35,9 +35,9 @@ import org.drools.persistence.PersistableRunner;
 import org.drools.persistence.api.TransactionManager;
 import org.drools.persistence.jpa.JpaPersistenceContextManager;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
@@ -75,7 +75,7 @@ public class JtaTransactionManagerTest {
             + "end\n" 
             + "\n";
 
-    @Before
+    @BeforeEach
     public void setup() {
         // This test does only plays with tx's, it doesn't actually persist
         // any interersting (wrt marshalling) SessionInfo objects
@@ -85,7 +85,7 @@ public class JtaTransactionManagerTest {
         emf = (EntityManagerFactory) context.get(PersistenceUtil.ENTITY_MANAGER_FACTORY);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         DroolsPersistenceUtil.cleanUp(context);
     }

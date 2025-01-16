@@ -30,14 +30,14 @@ import jakarta.transaction.UserTransaction;
 import org.drools.core.impl.EnvironmentFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 
 public class JtaTransactionManagerFactoryTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void setupOnce() throws NamingException {
         InitialContext initContext = new InitialContext();
         initContext.rebind("java:comp/UserTransaction", com.arjuna.ats.jta.UserTransaction.userTransaction());

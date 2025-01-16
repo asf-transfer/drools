@@ -23,18 +23,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.drools.core.impl.RuleBaseFactory;
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
-import org.drools.mvel.CommonTestMethodBase;
 import org.drools.mvel.compiler.Cheese;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieBase;
 import org.kie.api.command.Command;
 import org.kie.api.io.ResourceType;
@@ -59,29 +57,18 @@ import static org.drools.persistence.util.DroolsPersistenceUtil.PESSIMISTIC_LOCK
 import static org.drools.persistence.util.DroolsPersistenceUtil.cleanUp;
 import static org.drools.persistence.util.DroolsPersistenceUtil.createEnvironment;
 
-@RunWith(Parameterized.class)
-public class MoreBatchExecutionPersistenceTest extends CommonTestMethodBase {
+public class MoreBatchExecutionPersistenceTest {
 	
 
     private KieSession ksession = null;
 
     private Map<String, Object> context;
-    private boolean locking;
     
-    @Parameters(name="{0}")
-    public static Collection<Object[]> persistence() {
-        Object[][] locking = new Object[][] { 
-                { OPTIMISTIC_LOCKING }, 
-                { PESSIMISTIC_LOCKING } 
-                };
-        return Arrays.asList(locking);
+    public static Stream<String> parameters() {
+    	return Stream.of(OPTIMISTIC_LOCKING, PESSIMISTIC_LOCKING);
     };
     
-    public MoreBatchExecutionPersistenceTest(String locking) { 
-        this.locking = PESSIMISTIC_LOCKING.equals(locking);
-    }
-    
-    @After
+    @AfterEach
     public void cleanUpPersistence() throws Exception {
         disposeKSession();
         cleanUp(context);
@@ -95,21 +82,22 @@ public class MoreBatchExecutionPersistenceTest extends CommonTestMethodBase {
         }
     }
 
-    protected StatefulKnowledgeSession createKnowledgeSession(KieBase kbase) {
+    private StatefulKnowledgeSession createKnowledgeSession(String locking, KieBase kbase) {
         if( context == null ) { 
             context = DroolsPersistenceUtil.setupWithPoolingDataSource(DROOLS_PERSISTENCE_UNIT_NAME);
         }
         KieSessionConfiguration ksconf = RuleBaseFactory.newKnowledgeSessionConfiguration();
         Environment env = createEnvironment(context);
-        if( this.locking ) { 
+        if(PESSIMISTIC_LOCKING.equals(locking)) { 
             env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
         }
         return JPAKnowledgeService.newStatefulKnowledgeSession(kbase, ksconf, env);    
         
     }  
     
-    @Test
-    public void testFireAllRules() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testFireAllRules(String locking) {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newClassPathResource("org/drools/mvel/integrationtests/drl/test_ImportFunctions.drl"), ResourceType.DRL);
         if (kbuilder.hasErrors()) {
@@ -117,7 +105,7 @@ public class MoreBatchExecutionPersistenceTest extends CommonTestMethodBase {
         }
         InternalKnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addPackages(kbuilder.getKnowledgePackages());
-        ksession = createKnowledgeSession(kbase);
+        ksession = createKnowledgeSession(locking, kbase);
 
         final Cheese cheese = new Cheese("stilton", 15);
         ksession.insert(cheese);
@@ -143,8 +131,9 @@ public class MoreBatchExecutionPersistenceTest extends CommonTestMethodBase {
         assertThat(list.get(3)).isEqualTo("rule4");
     }
     
-    @Test
-    public void testQuery() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testQuery(String locking) {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newClassPathResource("org/drools/mvel/integrationtests/simple_query_test.drl"), ResourceType.DRL);
         if (kbuilder.hasErrors()) {
@@ -152,7 +141,7 @@ public class MoreBatchExecutionPersistenceTest extends CommonTestMethodBase {
         }
         InternalKnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addPackages(kbuilder.getKnowledgePackages());
-        ksession = createKnowledgeSession(kbase);
+        ksession = createKnowledgeSession(locking, kbase);
         
         ksession.insert( new Cheese( "stinky", 5 ) );
         ksession.insert( new Cheese( "smelly", 7 ) );

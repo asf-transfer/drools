@@ -19,6 +19,25 @@ with the License.  You may obtain a copy of the License at
 
 == 10.0.0 release notes
 
-=== PLACE_HOLDER
+=== DMN 1.5 support
+The DMN engine now supports DMN 1.5 specification. You can refer to the OMG official documentation to learn about the introduced features, like:
 
-PLACE_HOLDER
+* Import into the Default Namespace
+* New list replace() function
+* Alternative image for input Data
+* New type restriction attribute typeConstraint
+* Possibility to negate a duration
+* Possibility to iterate time ranges
+* Date type to date and time type coercion
+
+=== Drools Quarkus Extension
+
+Quarkus Extension for Drools has been introduced. You can refer link:https://github.com/apache/incubator-kie-drools/blob/main/drools-quarkus-extension/drools-quarkus-quickstart-test/guide.adoc[Drools Quarkus extension Guide] for details.
+
+=== DRL on YAML
+
+As an experimental feature, DRL on YAML has been introduced, where you can write DRL in YAML format. You can refer link:https://github.com/apache/incubator-kie-drools/tree/main/drools-drlonyaml-parent[DRL on YAML] for details.
+
+=== Drools Reliability
+
+As an experimental feature, Drools Reliability has been introduced, which supports stateful KieSession persistence. You can refer link:https://github.com/apache/incubator-kie-drools/tree/main/drools-reliability[Drools Reliability] for details.

@@ -30,9 +30,7 @@ import org.drools.core.common.InternalFactHandle;
 import org.drools.core.runtime.rule.impl.FlatQueryResultRow;
 import org.drools.mvel.CommonTestMethodBase;
 import org.drools.mvel.compiler.Cheese;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.Test;
 import org.kie.api.KieBase;
 import org.kie.api.definition.rule.Rule;
 import org.kie.api.runtime.KieSession;
@@ -44,13 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryTest extends CommonTestMethodBase {
 
-    @org.junit.Rule
-    public TestName testName = new TestName();
-
-    @Before
-    public void before() {
-       System.out.println( "] " + testName.getMethodName());
-    }
 
     private static QueryResults getQueryResults(KieSession session, String queryName, Object... arguments ) throws Exception {
         QueryResultsImpl results = (QueryResultsImpl) session.getQueryResults( queryName, arguments );

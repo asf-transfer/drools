@@ -18,15 +18,14 @@
  */
 package org.drools.compiler.integrationtests.incrementalcompilation;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
 import org.drools.testcoverage.common.model.Message;
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
 import org.drools.testcoverage.common.util.KieUtil;
-import org.drools.testcoverage.common.util.TestParametersUtil;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.drools.testcoverage.common.util.TestParametersUtil2;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
@@ -42,18 +41,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Incremental compilation tests which don't work with exec-model. Each test should be fixed by JIRA one-by-one
  */
-@RunWith(Parameterized.class)
 public class IncrementalCompilationNonExecModelTest {
 
-    private final KieBaseTestConfiguration kieBaseTestConfiguration;
-
-    public IncrementalCompilationNonExecModelTest(final KieBaseTestConfiguration kieBaseTestConfiguration) {
-        this.kieBaseTestConfiguration = kieBaseTestConfiguration;
-    }
-
-    @Parameterized.Parameters(name = "KieBase type={0}")
-    public static Collection<Object[]> getParameters() {
-        return TestParametersUtil.getKieBaseCloudConfigurations(false);
+    public static Stream<KieBaseTestConfiguration> parameters() {
+        return TestParametersUtil2.getKieBaseCloudConfigurations(false).stream();
     }
 
     private static final String DRL2_COMMON_SRC = "package myPkg\n" +
@@ -77,8 +68,9 @@ public class IncrementalCompilationNonExecModelTest {
                                                   "then\n" +
                                                   "end\n";
 
-    @Test
-    public void testCreateFileSetWithDeclaredModel() throws InstantiationException, IllegalAccessException {
+    @ParameterizedTest(name = "KieBase type={0}")
+	@MethodSource("parameters")
+    public void testCreateFileSetWithDeclaredModel(KieBaseTestConfiguration kieBaseTestConfiguration) throws InstantiationException, IllegalAccessException {
 
         final String drl1 = "package myPkg\n" +
                             "declare StringWrapper\n" +

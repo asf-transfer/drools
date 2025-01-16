@@ -22,12 +22,11 @@ import java.util.stream.Stream;
 
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
 import org.drools.testcoverage.common.util.TestParametersUtil2;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.KieSession;
-import org.kie.test.testcategory.TurtleTestCategory;
 
-@Category(TurtleTestCategory.class)
+@EnabledIfSystemProperty(named = "runTurtleTests", matches = "true")
 public class ConstraintWithAndOrJittingConcurrencyTest extends BaseConcurrencyTest {
 
     public static Stream<KieBaseTestConfiguration> parameters() {

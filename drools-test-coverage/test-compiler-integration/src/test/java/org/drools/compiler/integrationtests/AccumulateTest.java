@@ -22,6 +22,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +38,7 @@ import org.drools.compiler.integrationtests.incrementalcompilation.TestUtil;
 import org.drools.core.RuleSessionConfiguration;
 import org.drools.commands.runtime.rule.InsertElementsCommand;
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
+import org.drools.mvel.compiler.Primitives;
 import org.drools.testcoverage.common.model.Cheese;
 import org.drools.testcoverage.common.model.Cheesery;
 import org.drools.testcoverage.common.model.Order;
@@ -3937,6 +3939,160 @@ public class AccumulateTest {
         try {
             kieSession.insert(new PersonsContainer());
             assertThat(kieSession.fireAllRules()).isEqualTo(1);
+        } finally {
+            kieSession.dispose();
+        }
+    }
+
+    @ParameterizedTest(name = "KieBase type={0}")
+    @MethodSource("parameters")
+    void minWithBigDecimalHighAccuracy(KieBaseTestConfiguration kieBaseTestConfiguration) {
+        final String drl =
+                "import " + Primitives.class.getCanonicalName() + ";\n" +
+                        "global java.util.List results;\n" +
+                        "rule R1 when\n" +
+                        "    accumulate(Primitives($bd : bigDecimal), $min : min($bd))\n" +
+                        "then\n" +
+                        "    results.add($min);\n" +
+                        "    results.add($min.scale());\n" + // BigDecimal method
+                        "end";
+
+        final KieBase kieBase = KieBaseUtil.getKieBaseFromKieModuleFromDrl("accumulate-test", kieBaseTestConfiguration, drl);
+        final KieSession kieSession = kieBase.newKieSession();
+        try {
+            List<Number> results = new ArrayList<>();
+            kieSession.setGlobal("results", results);
+            Primitives p1 = new Primitives();
+            p1.setBigDecimal(new BigDecimal("2024043020240501130000"));
+            Primitives p2_smallest = new Primitives();
+            p2_smallest.setBigDecimal(new BigDecimal("2024043020240501120000"));
+            Primitives p3 = new Primitives();
+            p3.setBigDecimal(new BigDecimal("2024043020240501150000"));
+
+            kieSession.insert(p1);
+            kieSession.insert(p2_smallest);
+            kieSession.insert(p3);
+            kieSession.fireAllRules();
+            assertThat(results).hasSize(2);
+            assertThat(results.get(0)).isEqualTo(p2_smallest.getBigDecimal());
+            assertThat(results.get(1)).isEqualTo(0);
+        } finally {
+            kieSession.dispose();
+        }
+    }
+
+    @ParameterizedTest(name = "KieBase type={0}")
+    @MethodSource("parameters")
+    void minWithBigIntegerHighAccuracy(KieBaseTestConfiguration kieBaseTestConfiguration) {
+        final String drl =
+                "import " + Primitives.class.getCanonicalName() + ";\n" +
+                        "global java.util.List results;\n" +
+                        "rule R1 when\n" +
+                        "    accumulate(Primitives($bi : bigInteger), $min : min($bi))\n" +
+                        "then\n" +
+                        "    results.add($min);\n" +
+                        "    results.add($min.nextProbablePrime());\n" + // BigInteger method
+                        "end";
+
+        final KieBase kieBase = KieBaseUtil.getKieBaseFromKieModuleFromDrl("accumulate-test", kieBaseTestConfiguration, drl);
+        final KieSession kieSession = kieBase.newKieSession();
+        try {
+            List<Number> results = new ArrayList<>();
+            kieSession.setGlobal("results", results);
+            Primitives p1 = new Primitives();
+            p1.setBigInteger(new BigInteger("2024043020240501130000"));
+            Primitives p2_smallest = new Primitives();
+            p2_smallest.setBigInteger(new BigInteger("2024043020240501120000"));
+            Primitives p3 = new Primitives();
+            p3.setBigInteger(new BigInteger("2024043020240501150000"));
+
+            kieSession.insert(p1);
+            kieSession.insert(p2_smallest);
+            kieSession.insert(p3);
+            kieSession.fireAllRules();
+            assertThat(results).hasSize(2);
+            assertThat(results.get(0)).isEqualTo(p2_smallest.getBigInteger());
+
+            // nextProbablePrime value is not important.
+            // Just to make sure it doesn't raise a compilation error.
+            assertThat(results.get(1)).isNotNull();
+        } finally {
+            kieSession.dispose();
+        }
+    }
+
+    @ParameterizedTest(name = "KieBase type={0}")
+    @MethodSource("parameters")
+    void maxWithBigDecimalHighAccuracy(KieBaseTestConfiguration kieBaseTestConfiguration) {
+        final String drl =
+                "import " + Primitives.class.getCanonicalName() + ";\n" +
+                        "global java.util.List results;\n" +
+                        "rule R1 when\n" +
+                        "    accumulate(Primitives($bd : bigDecimal), $max : max($bd))\n" +
+                        "then\n" +
+                        "    results.add($max);\n" +
+                        "    results.add($max.scale());\n" + // BigDecimal method
+                        "end";
+
+        final KieBase kieBase = KieBaseUtil.getKieBaseFromKieModuleFromDrl("accumulate-test", kieBaseTestConfiguration, drl);
+        final KieSession kieSession = kieBase.newKieSession();
+        try {
+            List<Number> results = new ArrayList<>();
+            kieSession.setGlobal("results", results);
+            Primitives p1 = new Primitives();
+            p1.setBigDecimal(new BigDecimal("2024043020240501130000"));
+            Primitives p2_largest = new Primitives();
+            p2_largest.setBigDecimal(new BigDecimal("2024043020240501150000"));
+            Primitives p3 = new Primitives();
+            p3.setBigDecimal(new BigDecimal("2024043020240501120000"));
+
+            kieSession.insert(p1);
+            kieSession.insert(p2_largest);
+            kieSession.insert(p3);
+            kieSession.fireAllRules();
+            assertThat(results).hasSize(2);
+            assertThat(results.get(0)).isEqualTo(p2_largest.getBigDecimal());
+            assertThat(results.get(1)).isEqualTo(0);
+        } finally {
+            kieSession.dispose();
+        }
+    }
+
+    @ParameterizedTest(name = "KieBase type={0}")
+    @MethodSource("parameters")
+    void maxWithBigIntegerHighAccuracy(KieBaseTestConfiguration kieBaseTestConfiguration) {
+        final String drl =
+                "import " + Primitives.class.getCanonicalName() + ";\n" +
+                        "global java.util.List results;\n" +
+                        "rule R1 when\n" +
+                        "    accumulate(Primitives($bi : bigInteger), $max : max($bi))\n" +
+                        "then\n" +
+                        "    results.add($max);\n" +
+                        "    results.add($max.nextProbablePrime());\n" + // BigInteger method
+                        "end";
+
+        final KieBase kieBase = KieBaseUtil.getKieBaseFromKieModuleFromDrl("accumulate-test", kieBaseTestConfiguration, drl);
+        final KieSession kieSession = kieBase.newKieSession();
+        try {
+            List<Number> results = new ArrayList<>();
+            kieSession.setGlobal("results", results);
+            Primitives p1 = new Primitives();
+            p1.setBigInteger(new BigInteger("2024043020240501130000"));
+            Primitives p2_largest = new Primitives();
+            p2_largest.setBigInteger(new BigInteger("2024043020240501150000"));
+            Primitives p3 = new Primitives();
+            p3.setBigInteger(new BigInteger("2024043020240501120000"));
+
+            kieSession.insert(p1);
+            kieSession.insert(p2_largest);
+            kieSession.insert(p3);
+            kieSession.fireAllRules();
+            assertThat(results).hasSize(2);
+            assertThat(results.get(0)).isEqualTo(p2_largest.getBigInteger());
+
+            // nextProbablePrime value is not important.
+            // Just to make sure it doesn't raise a compilation error.
+            assertThat(results.get(1)).isNotNull();
         } finally {
             kieSession.dispose();
         }

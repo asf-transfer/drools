@@ -18,9 +18,9 @@
  */
 package org.kie.api.internal.utils;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.kie.api.internal.utils.KieService.UNDEFINED;
 
@@ -28,7 +28,9 @@ public class KieServiceLoader {
 
     static final KieServiceLoader INSTANCE = new KieServiceLoader();
 
-    private final Map<String, KieService> serviceCache = new HashMap<>();
+    private static final KieService DUMMY_SERIVCE = new KieService() {};
+
+    private final Map<String, KieService> serviceCache = new ConcurrentHashMap<>();
 
     private KieServiceLoader() {}
 
@@ -38,11 +40,14 @@ public class KieServiceLoader {
 
     <T extends KieService> T lookup(Class<T> serviceClass, String tag) {
         String serviceKey = serviceClass.getName() + ":" + tag;
-        if (serviceCache.containsKey(serviceKey)) {
-            return (T) serviceCache.get(serviceKey);
+
+        T cachedService = (T) serviceCache.get(serviceKey);
+        if (cachedService != null) {
+            return cachedService == DUMMY_SERIVCE ? null : cachedService;
         }
+
         T loadedService = load(serviceClass, tag);
-        serviceCache.put(serviceKey, load(serviceClass, tag));
+        serviceCache.put(serviceKey, loadedService == null ? DUMMY_SERIVCE : loadedService);
         return loadedService;
     }
 

@@ -19,10 +19,9 @@
 package org.drools.persistence.session;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.drools.commands.impl.CommandBasedStatefulKnowledgeSessionImpl;
 import org.drools.core.common.InternalAgenda;
@@ -30,13 +29,11 @@ import org.drools.core.common.InternalAgendaGroup;
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
 import org.drools.persistence.util.DroolsPersistenceUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.drools.io.ClassPathResource;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.builder.Message;
 import org.kie.api.builder.Results;
 import org.kie.api.command.ExecutableCommand;
@@ -56,36 +53,30 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.drools.persistence.util.DroolsPersistenceUtil.DROOLS_PERSISTENCE_UNIT_NAME;
 import static org.drools.persistence.util.DroolsPersistenceUtil.createEnvironment;
 
-@RunWith(Parameterized.class)
 public class AgendaRuleFlowGroupsTest {
     
     private Map<String, Object> context;
-    private boolean locking;
 
-    @Parameters
-    public static Collection<Object[]> persistence() {
-        Object[][] locking = new Object[][] { { false }, { true } };
-        return Arrays.asList(locking);
+    public static Stream<Boolean> parameters() {
+    	return Stream.of(true);
     };
     
-    public AgendaRuleFlowGroupsTest(boolean locking) { 
-        this.locking = true;
-    }
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         context = DroolsPersistenceUtil.setupWithPoolingDataSource(DROOLS_PERSISTENCE_UNIT_NAME);
     }
 	
-	@After
+	@AfterEach
 	public void tearDown() {
 		DroolsPersistenceUtil.cleanUp(context);
 	}
 
-    @Test	
-	public void testRuleFlowGroupOnly() throws Exception {
+    @ParameterizedTest
+    @MethodSource("parameters")
+	public void testRuleFlowGroupOnly(boolean locking) throws Exception {
 		
-		CommandBasedStatefulKnowledgeSessionImpl ksession = createSession(-1, "ruleflow-groups.drl");
+		CommandBasedStatefulKnowledgeSessionImpl ksession = createSession(locking, -1, "ruleflow-groups.drl");
 
         InternalAgendaGroup[] groups = ((InternalAgenda)stripSession(ksession).getAgenda()).getAgendaGroupsManager().getAgendaGroups();
         // only main is available
@@ -99,7 +90,7 @@ public class AgendaRuleFlowGroupsTest {
 		ksession.execute(new ActivateRuleFlowCommand("ruleflow-group"));
 		
 		ksession.dispose();        
-        ksession = createSession(id, "ruleflow-groups.drl");
+        ksession = createSession(locking, id, "ruleflow-groups.drl");
         
         groups = ((InternalAgenda)stripSession(ksession).getAgenda()).getAgendaGroupsManager().getAgendaGroups();
         // main and rule flow is now on the agenda
@@ -108,10 +99,11 @@ public class AgendaRuleFlowGroupsTest {
         assertThat(groups[1].getName()).isEqualTo("ruleflow-group");
 	}
     
-    @Test   
-    public void testAgendaGroupOnly() throws Exception {
+    @ParameterizedTest
+    @MethodSource("parameters")
+    public void testAgendaGroupOnly(boolean locking) throws Exception {
         
-        CommandBasedStatefulKnowledgeSessionImpl ksession = createSession(-1, "agenda-groups.drl");
+        CommandBasedStatefulKnowledgeSessionImpl ksession = createSession(locking, -1, "agenda-groups.drl");
 
         InternalAgendaGroup[] groups = ((InternalAgenda)stripSession(ksession).getAgenda()).getAgendaGroupsManager().getAgendaGroups();
         // only main is available
@@ -125,7 +117,7 @@ public class AgendaRuleFlowGroupsTest {
         ksession.execute(new ActivateAgendaGroupCommand("agenda-group"));
         
         ksession.dispose();        
-        ksession = createSession(id, "agenda-groups.drl");
+        ksession = createSession(locking, id, "agenda-groups.drl");
         
         groups = ((InternalAgenda)stripSession(ksession).getAgenda()).getAgendaGroupsManager().getAgendaGroups();
         // main and agenda group is now on the agenda
@@ -135,10 +127,11 @@ public class AgendaRuleFlowGroupsTest {
         
     }
     
-    @Test   
-    public void testAgendaGroupAndRuleFlowGroup() throws Exception {
+    @ParameterizedTest
+    @MethodSource("parameters")
+    public void testAgendaGroupAndRuleFlowGroup(boolean locking) throws Exception {
         
-        CommandBasedStatefulKnowledgeSessionImpl ksession = createSession(-1, "agenda-groups.drl", "ruleflow-groups.drl");
+        CommandBasedStatefulKnowledgeSessionImpl ksession = createSession(locking, -1, "agenda-groups.drl", "ruleflow-groups.drl");
 
         InternalAgendaGroup[] groups = ((InternalAgenda)stripSession(ksession).getAgenda()).getAgendaGroupsManager().getAgendaGroups();
         // only main is available
@@ -153,7 +146,7 @@ public class AgendaRuleFlowGroupsTest {
         ksession.execute(new ActivateRuleFlowCommand("ruleflow-group"));
         
         ksession.dispose();        
-        ksession = createSession(id, "agenda-groups.drl", "ruleflow-groups.drl");
+        ksession = createSession(locking, id, "agenda-groups.drl", "ruleflow-groups.drl");
         
         groups = ((InternalAgenda)stripSession(ksession).getAgenda()).getAgendaGroupsManager().getAgendaGroups();
         // main and agenda group is now on the agenda
@@ -173,7 +166,7 @@ public class AgendaRuleFlowGroupsTest {
         return ksession;
     }
 	
-	private CommandBasedStatefulKnowledgeSessionImpl createSession(long id, String...rules) {
+	private CommandBasedStatefulKnowledgeSessionImpl createSession(boolean locking, long id, String...rules) {
 		
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 		for (String rule : rules) {
@@ -241,7 +234,8 @@ public class AgendaRuleFlowGroupsTest {
 
 	}
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("parameters")
     public void testConflictingAgendaAndRuleflowGroups() throws Exception {
 
         String drl = "package org.drools.test; " +

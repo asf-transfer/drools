@@ -23,11 +23,8 @@ with the License.  You may obtain a copy of the License at
 DRL supports the following rule action methods that you can use in DRL rule actions. You can use these methods to modify the working memory of the {RULE_ENGINE} without having to first reference a working memory instance. These methods act as shortcuts to the methods provided by the `RuleContext` class in your {PRODUCT} distribution.
 
 For all rule action methods,
-ifdef::DM,PAM[]
-download the *{PRODUCT_PAM} {PRODUCT_VERSION_LONG} Source Distribution* ZIP file from the https://access.redhat.com/jbossnetwork/restricted/listSoftware.html[Red Hat Customer Portal] and navigate to `~/{PRODUCT_FILE}-sources/src/kie-api-parent-$VERSION/kie-api/src/main/java/org/kie/api/runtime/rule/RuleContext.java`.
-endif::[]
 ifdef::DROOLS,JBPM,OP[]
-see the {PRODUCT} https://github.com/kiegroup/droolsjbpm-knowledge/blob/{COMMUNITY_VERSION_BRANCH}/kie-api/src/main/java/org/kie/api/runtime/rule/RuleContext.java[RuleContext.java] page in GitHub.
+see the {PRODUCT} https://github.com/apache/incubator-kie-drools/blob/{COMMUNITY_VERSION_BRANCH}/kie-api/src/main/java/org/kie/api/runtime/rule/RuleContext.java[RuleContext.java] page in GitHub.
 endif::[]
 
 `set`::

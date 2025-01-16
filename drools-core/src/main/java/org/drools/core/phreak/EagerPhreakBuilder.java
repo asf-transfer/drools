@@ -151,8 +151,6 @@ public class EagerPhreakBuilder implements PhreakBuilder {
             }
         }
 
-        Set<SegmentMemoryPair> smemsToNotify = new HashSet<>();
-
         if (exclBranchRoots.isEmpty()) {
             LeftTupleNode lian = tn.getPathNodes()[0];
             processLeftTuples(lian, false, tn, wms);
@@ -163,7 +161,7 @@ public class EagerPhreakBuilder implements PhreakBuilder {
 
             // Process existing branches from the split  points
             Set<Integer> visited = new HashSet<>();
-            exclBranchRoots.forEach(pair -> Remove.processMerges(pair.parent, tn, kBase, wms, visited, smemsToNotify));
+            exclBranchRoots.forEach(pair -> Remove.processMerges(pair.parent, tn, kBase, wms, visited));
         }
 
         for (InternalWorkingMemory wm : wms) {
@@ -174,8 +172,6 @@ public class EagerPhreakBuilder implements PhreakBuilder {
                 pmem.getRuleAgendaItem().dequeue();
             }
         }
-
-        smemsToNotify.forEach(pair -> pair.sm.notifyRuleLinkSegment(pair.wm));
     }
 
     public static void notifyImpactedSegments(SegmentMemory smem, InternalWorkingMemory wm, Set<SegmentMemoryPair> segmentsToNotify) {
@@ -736,8 +732,7 @@ public class EagerPhreakBuilder implements PhreakBuilder {
             }
         }
 
-
-        private static void processMerges(LeftTupleNode splitNode, TerminalNode tn, InternalRuleBase kBase, Collection<InternalWorkingMemory> wms, Set<Integer> visited, Set<SegmentMemoryPair> smemsToNotify) {
+        private static void processMerges(LeftTupleNode splitNode, TerminalNode tn, InternalRuleBase kBase, Collection<InternalWorkingMemory> wms, Set<Integer> visited) {
             // it's possible for a rule to have multiple exclBranches, pointing to the same parent. So need to ensure it's processed once.
             if ( !visited.add(splitNode.getId())) {
                 return;
@@ -766,10 +761,7 @@ public class EagerPhreakBuilder implements PhreakBuilder {
                 }
 
                 SegmentPrototype proto2 = kBase.getSegmentPrototype(ltn);
-
                 mergeSegments(proto1, proto2, kBase, wms);
-
-                notifyImpactedSegments(wms, proto1, smemsToNotify);
             }
         }
 
@@ -1369,7 +1361,7 @@ public class EagerPhreakBuilder implements PhreakBuilder {
             } else {
                 // is the LT for the LIAN, if so we need to process the FH too
                 fh.removeLeftTuple(removingLt);
-                if (leftPrevious == null) {
+                if (leftPrevious == null && nextPeerLt.getSink().getAssociatedTerminalsSize() > 0) {
                     // The removed tuple was first in linked list, add the peer at its original position
                     fh.addFirstLeftTuple( nextPeerLt );
                 }
@@ -1439,17 +1431,6 @@ public class EagerPhreakBuilder implements PhreakBuilder {
                     }
                 }
                 pmem.setSegmentMemories(newSmems);
-            }
-        }
-    }
-
-    private static void notifyImpactedSegments(Collection<InternalWorkingMemory> wms, SegmentPrototype proto1, Set<SegmentMemoryPair> smemsToNotify) {
-        // any impacted segments must be notified for potential linking
-        for (InternalWorkingMemory wm : wms) {
-            Memory mem1 = wm.getNodeMemories().peekNodeMemory(proto1.getRootNode());
-            if (mem1 != null && mem1.getSegmentMemory() != null) {
-                // there was a split segment, both need notifying.
-                notifyImpactedSegments(mem1.getSegmentMemory(), wm, smemsToNotify);
             }
         }
     }

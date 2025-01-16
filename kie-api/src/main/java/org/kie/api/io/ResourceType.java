@@ -135,12 +135,6 @@ public class ResourceType implements Serializable {
                                                                        "src/main/resources",
                                                                        "rdslr");
 
-    /** Drools Rule Flow Language */
-    public static final ResourceType DRF = addResourceTypeToRegistry("DRF",
-                                                                     "Drools Rule Flow Language",
-                                                                     "src/main/resources",
-                                                                     "rf");
-
     /** jBPM BPMN2 Language */
     public static final ResourceType BPMN2 = addResourceTypeToRegistry("BPMN2",
                                                                        "jBPM BPMN2 Language",

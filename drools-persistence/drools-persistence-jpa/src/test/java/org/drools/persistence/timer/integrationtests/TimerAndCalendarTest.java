@@ -25,18 +25,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.drools.core.ClockType;
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.core.impl.RuleBaseFactory;
 import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieBase;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.conf.EventProcessingOption;
@@ -67,39 +66,30 @@ import static org.drools.persistence.util.DroolsPersistenceUtil.cleanUp;
 import static org.drools.persistence.util.DroolsPersistenceUtil.createEnvironment;
 import static org.drools.persistence.util.DroolsPersistenceUtil.setupWithPoolingDataSource;
 
-@RunWith(Parameterized.class)
 public class TimerAndCalendarTest {
     
     private Map<String, Object> context;
-    private boolean locking;
 
-    @Parameters(name="{0}")
-    public static Collection<Object[]> persistence() {
-        Object[][] locking = new Object[][] { 
-                { OPTIMISTIC_LOCKING }, 
-                { PESSIMISTIC_LOCKING } 
-                };
-        return Arrays.asList(locking);
+    public static Stream<String> parameters() {
+    	return Stream.of(OPTIMISTIC_LOCKING, PESSIMISTIC_LOCKING);
     };
     
-    public TimerAndCalendarTest(String locking) { 
-        this.locking = PESSIMISTIC_LOCKING.equals(locking);
-    }
-    
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         context = setupWithPoolingDataSource(DROOLS_PERSISTENCE_UNIT_NAME);
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception {
         cleanUp(context);
     }
 
-    @Test @Ignore("beta4 phreak")
-    public void testTimerRuleAfterIntReloadSession() throws Exception {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    @Disabled("beta4 phreak")
+    public void testTimerRuleAfterIntReloadSession(String locking) throws Exception {
         InternalKnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        KieSession ksession = createSession( kbase );
+        KieSession ksession = createSession(locking, kbase);
 
         // must advance time or it won't save.
         SessionPseudoClock clock = (SessionPseudoClock) ksession.getSessionClock();
@@ -172,10 +162,12 @@ public class TimerAndCalendarTest {
         assertThat(list.size()).isEqualTo(4);
     }
 
-    @Test @Ignore("beta4 phreak")
-    public void testTimerRuleAfterCronReloadSession() throws Exception {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    @Disabled("beta4 phreak")
+    public void testTimerRuleAfterCronReloadSession(String locking) throws Exception {
         InternalKnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        KieSession ksession = createSession( kbase );
+        KieSession ksession = createSession(locking, kbase);
 
         // must advance time or it won't save.
         SessionPseudoClock clock = (SessionPseudoClock) ksession.getSessionClock();
@@ -252,8 +244,9 @@ public class TimerAndCalendarTest {
         assertThat(list.size()).isEqualTo(6);
     }
 
-    @Test
-    public void testEventExpires() throws Exception {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testEventExpires(String locking) throws Exception {
         String timerRule = "package org.drools.test\n" +
                            "declare TestEvent \n" +
                            "    @role( event )\n" +
@@ -272,7 +265,7 @@ public class TimerAndCalendarTest {
         Collection<KiePackage> kpackages = buildKnowledgePackage( resource,
                                                                         ResourceType.DRL );
         kbase.addPackages( kpackages );
-        KieSession ksession = createSession( kbase );
+        KieSession ksession = createSession(locking, kbase);
 
         FactType type = kbase.getFactType( "org.drools.test",
                                            "TestEvent" );
@@ -289,7 +282,8 @@ public class TimerAndCalendarTest {
                                             kbase );
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testTimerWithRemovingRule() throws Exception {
         // DROOLS-576
         // Only reproducible with RETEOO
@@ -361,11 +355,11 @@ public class TimerAndCalendarTest {
         assertThat(list.size()).isEqualTo(0);
     }
 
-    private KieSession createSession(KieBase kbase) {
+    private KieSession createSession(String locking, KieBase kbase) {
         final KieSessionConfiguration conf = RuleBaseFactory.newKnowledgeSessionConfiguration();
         conf.setOption( ClockTypeOption.get( ClockType.PSEUDO_CLOCK.getId() ) );
         Environment env = createEnvironment(context);
-        if( locking ) { 
+        if(PESSIMISTIC_LOCKING.equals(locking)) { 
             env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
         }
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase,

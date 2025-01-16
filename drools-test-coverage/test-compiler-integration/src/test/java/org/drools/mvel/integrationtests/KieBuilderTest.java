@@ -497,7 +497,7 @@ public class KieBuilderTest {
     public void testAddMissingResourceToPackageBuilder(KieBaseTestConfiguration kieBaseTestConfiguration) throws Exception {
         final KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 
-        assertThatThrownBy(() -> kbuilder.add(ResourceFactory.newClassPathResource("some.rf"), ResourceType.DRL))
+        assertThatThrownBy(() -> kbuilder.add(ResourceFactory.newClassPathResource("some.drl"), ResourceType.DRL))
                 .isInstanceOf(RuntimeException.class);
 
         assertThatThrownBy(() -> kbuilder.add(ResourceFactory.newClassPathResource("some.bpmn"), ResourceType.BPMN2))

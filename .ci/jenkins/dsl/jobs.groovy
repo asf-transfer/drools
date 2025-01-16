@@ -104,7 +104,7 @@ void setupProjectNightlyJob() {
 
 void setupProjectWeeklyJob() {
     def jobParams = JobParamsUtils.getBasicJobParams(this, '0-weekly', JobType.OTHER, "${jenkins_path_project}/Jenkinsfile.weekly", 'Drools Weekly')
-    jobParams.triggers = [cron : '0 3 * * 0']
+    jobParams.triggers = [cron : '0 2 * * 0']
     jobParams.env.putAll([
         JENKINS_EMAIL_CREDS_ID: "${JENKINS_EMAIL_CREDS_ID}",
 

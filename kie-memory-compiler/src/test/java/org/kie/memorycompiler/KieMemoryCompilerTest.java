@@ -21,10 +21,11 @@ package org.kie.memorycompiler;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class KieMemoryCompilerTest {
 
@@ -52,10 +53,11 @@ public class KieMemoryCompilerTest {
         assertThat(result).isEqualTo(5);
     }
 
-    @Test(expected = KieMemoryCompilerException.class)
+    @Test
     public void invalidClass() {
         Map<String, String> source = singletonMap("org.kie.memorycompiler.InvalidJavaClass", "Invalid Java Code");
-        KieMemoryCompiler.compile(source, this.getClass().getClassLoader());
+		assertThatExceptionOfType(KieMemoryCompilerException.class).isThrownBy(
+				() -> KieMemoryCompiler.compile(source, this.getClass().getClassLoader()));
     }
 
     private final static String WARNING_CLASS =

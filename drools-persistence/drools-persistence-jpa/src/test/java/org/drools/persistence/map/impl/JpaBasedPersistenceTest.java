@@ -18,19 +18,15 @@
  */
 package org.drools.persistence.map.impl;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy;
 import org.drools.persistence.jta.JtaTransactionManager;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
@@ -47,7 +43,6 @@ import static org.drools.persistence.util.DroolsPersistenceUtil.useTransactions;
 import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
 import static org.kie.api.runtime.EnvironmentName.USE_PESSIMISTIC_LOCKING;
 
-@RunWith(Parameterized.class)
 public class JpaBasedPersistenceTest extends MapPersistenceTest {
 
     private static Logger logger = LoggerFactory.getLogger(JPAPlaceholderResolverStrategy.class);
@@ -56,22 +51,13 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
     private EntityManagerFactory emf;
     private JtaTransactionManager txm;
     private boolean useTransactions = false;
-    private boolean locking;
     
-    @Parameters(name="{0}")
-    public static Collection<Object[]> persistence() {
-        Object[][] locking = new Object[][] { 
-                { OPTIMISTIC_LOCKING }, 
-                { PESSIMISTIC_LOCKING } 
-                };
-        return Arrays.asList(locking);
+    public static Stream<String> parameters() {
+        return Stream.of(OPTIMISTIC_LOCKING, PESSIMISTIC_LOCKING);
     };
     
-    public JpaBasedPersistenceTest(String locking) { 
-        this.locking = PESSIMISTIC_LOCKING.equals(locking);
-    }
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         context = DroolsPersistenceUtil.setupWithPoolingDataSource(DROOLS_PERSISTENCE_UNIT_NAME);
         emf = (EntityManagerFactory) context.get(ENTITY_MANAGER_FACTORY);
@@ -86,16 +72,16 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
         }
     }
     
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         DroolsPersistenceUtil.cleanUp(context);
     }
     
 
     @Override
-    protected KieSession createSession(KieBase kbase) {
+    protected KieSession createSession(String locking, KieBase kbase) {
         Environment env = createEnvironment(context);
-        if( this.locking ) { 
+        if(PESSIMISTIC_LOCKING.equals(locking)) { 
             env.set(USE_PESSIMISTIC_LOCKING, true);
         }
         return JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env);

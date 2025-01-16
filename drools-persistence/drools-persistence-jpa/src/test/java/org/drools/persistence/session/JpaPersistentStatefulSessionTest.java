@@ -19,14 +19,13 @@
 package org.drools.persistence.session;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.naming.InitialContext;
 import jakarta.transaction.UserTransaction;
@@ -42,12 +41,10 @@ import org.drools.mvel.compiler.Address;
 import org.drools.mvel.compiler.Person;
 import org.drools.persistence.PersistableRunner;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
@@ -63,54 +60,51 @@ import org.kie.internal.utils.ChainedProperties;
 import org.kie.internal.utils.KieHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.drools.persistence.util.DroolsPersistenceUtil.DROOLS_PERSISTENCE_UNIT_NAME;
 import static org.drools.persistence.util.DroolsPersistenceUtil.OPTIMISTIC_LOCKING;
 import static org.drools.persistence.util.DroolsPersistenceUtil.PESSIMISTIC_LOCKING;
 import static org.drools.persistence.util.DroolsPersistenceUtil.createEnvironment;
 
-@RunWith(Parameterized.class)
 public class JpaPersistentStatefulSessionTest {
 
     private Map<String, Object> context;
     private Environment env;
-    private final boolean locking;
 
-    @Parameters(name = "{0}")
-    public static Collection<Object[]> persistence() {
-        final Object[][] locking = new Object[][]{
-                {OPTIMISTIC_LOCKING},
-                {PESSIMISTIC_LOCKING}
-        };
-        return Arrays.asList(locking);
-    }
+    public static Stream<String> parameters() {
+    	return Stream.of(OPTIMISTIC_LOCKING, PESSIMISTIC_LOCKING);
+    };
 
-    public JpaPersistentStatefulSessionTest(final String locking) {
-        this.locking = PESSIMISTIC_LOCKING.equals(locking);
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         context = DroolsPersistenceUtil.setupWithPoolingDataSource(DROOLS_PERSISTENCE_UNIT_NAME);
         env = createEnvironment(context);
-        if (locking) {
-            env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
-        }
     }
 
-    @After
+    private void setLocking(String locking) {
+        if (PESSIMISTIC_LOCKING.equals(locking)) {
+            env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
+        }
+    	
+    }
+    
+    @AfterEach
     public void tearDown() throws Exception {
         DroolsPersistenceUtil.cleanUp(context);
     }
 
-
-    @Test
-    public void testFactHandleSerialization() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testFactHandleSerialization(String locking) {
+    	setLocking(locking);
         factHandleSerialization(false);
     }
 
-    @Test
-    public void testFactHandleSerializationWithOOPath() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testFactHandleSerializationWithOOPath(String locking) {
+    	setLocking(locking);
         factHandleSerialization(true);
     }
 
@@ -161,13 +155,17 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(list).hasSize(3);
     }
 
-    @Test
-    public void testLocalTransactionPerStatement() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testLocalTransactionPerStatement(String locking) {
+    	setLocking(locking);
         localTransactionPerStatement(false);
     }
 
-    @Test
-    public void testLocalTransactionPerStatementWithOOPath() {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testLocalTransactionPerStatementWithOOPath(String locking) {
+    	setLocking(locking);
         localTransactionPerStatement(true);
     }
 
@@ -188,12 +186,15 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(list).hasSize(3);
     }
 
-    @Test
-    public void testUserTransactions() throws Exception {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+    public void testUserTransactions(String locking) throws Exception {
+    	setLocking(locking);
         userTransactions(false);
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testUserTransactionsWithOOPath() throws Exception {
         userTransactions(true);
     }
@@ -268,12 +269,14 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(list).hasSize(6);
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testInterceptor() {
         interceptor(false);
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testInterceptorWithOOPath() {
         interceptor(true);
     }
@@ -295,12 +298,14 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(list).hasSize(3);
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testInterceptorOnRollback() throws Exception {
         interceptorOnRollback(false);
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testInterceptorOnRollbackWithOOPAth() throws Exception {
         interceptorOnRollback(true);
     }
@@ -343,12 +348,14 @@ public class JpaPersistentStatefulSessionTest {
 
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testSetFocus() {
         testFocus(false);
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testSetFocusWithOOPath() {
         testFocus(true);
     }
@@ -380,7 +387,8 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(list).hasSize(3);
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testSharedReferences() {
         final KieBase kbase = new KieHelper().getKieContainer().getKieBase();
 
@@ -408,7 +416,8 @@ public class JpaPersistentStatefulSessionTest {
 
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testMergeConfig() {
         // JBRULES-3155
         final KieBase kbase = new KieHelper().getKieContainer().getKieBase();
@@ -423,14 +432,16 @@ public class JpaPersistentStatefulSessionTest {
         assertThat(sessionConfig.as(FlowSessionConfiguration.KEY).getProcessInstanceManagerFactory()).isEqualTo("com.example.CustomJPAProcessInstanceManagerFactory");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testCreateAndDestroySession() {
-        createAndDestroySession(false);
+        assertThatIllegalStateException().isThrownBy(() -> createAndDestroySession(false));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testCreateAndDestroySessionWithOOPath() {
-        createAndDestroySession(true);
+        assertThatIllegalStateException().isThrownBy(() -> createAndDestroySession(true));
     }
 
     public void createAndDestroySession(final boolean withOOPath) {
@@ -457,14 +468,16 @@ public class JpaPersistentStatefulSessionTest {
 
     }
 
-    @Test(expected = IllegalStateException.class)
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testCreateAndDestroyNonPersistentSession() {
-        createAndDestroyNonPersistentSession(false);
+        assertThatIllegalStateException().isThrownBy(() -> createAndDestroyNonPersistentSession(true));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testCreateAndDestroyNonPersistentSessionWithOOPath() {
-        createAndDestroyNonPersistentSession(true);
+        assertThatIllegalStateException().isThrownBy(() -> createAndDestroyNonPersistentSession(true));
     }
 
     private void createAndDestroyNonPersistentSession(final boolean withOOPath) {
@@ -491,12 +504,14 @@ public class JpaPersistentStatefulSessionTest {
         fail("Session should already be disposed " + ksessionId);
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testFromNodeWithModifiedCollection() {
         fromNodeWithModifiedCollection(false);
     }
 
-    @Test
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
     public void testFromNodeWithModifiedCollectionWithOOPath() {
         fromNodeWithModifiedCollection(true);
     }

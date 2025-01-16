@@ -30,18 +30,17 @@ import org.drools.testcoverage.common.model.Person;
 import org.drools.testcoverage.common.model.Result;
 import org.drools.testcoverage.common.util.KieBaseTestConfiguration;
 import org.drools.testcoverage.common.util.KieBaseUtil;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.KieSession;
-import org.kie.test.testcategory.TurtleTestCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category(TurtleTestCategory.class)
+@EnabledIfSystemProperty(named = "runTurtleTests", matches = "true")
 public class GlobalConcurrencyTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalConcurrencyTest.class);

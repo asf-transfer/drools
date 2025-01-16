@@ -24,18 +24,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.kie.api.runtime.KieSession;
-import org.kie.test.testcategory.TurtleTestCategory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests adding and removing rules with advanced operators.
  */
-@Category(TurtleTestCategory.class)
+@EnabledIfSystemProperty(named = "runTurtleTests", matches = "true")
 public class AddRemoveRulesAdvOperatorsTest {
 
     @Test
@@ -551,7 +551,8 @@ public class AddRemoveRulesAdvOperatorsTest {
         AddRemoveTestCases.runAllTestCases(rule2, rule1, TestUtil.RULE2_NAME, TestUtil.RULE1_NAME, getGlobalsMemberOf(memberString), memberString, "fact");
     }
 
-    @Test @Ignore
+    @Test 
+    @Disabled
     public void testAddRemoveRuleWithContainsMatchesExists() {
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";\n" +
                 " global java.util.List memberList\n" +
@@ -656,7 +657,8 @@ public class AddRemoveRulesAdvOperatorsTest {
         }
     }
 
-    @Test(timeout = 10000L)
+    @Test
+    @Timeout(10000L)
     public void testAddRemoveRuleContainsExists3RulesDoubledExists() {
         final String rule1 = "package " + TestUtil.RULES_PACKAGE_NAME + ";" +
                 "global java.util.concurrent.atomic.AtomicInteger globalInt\n" +

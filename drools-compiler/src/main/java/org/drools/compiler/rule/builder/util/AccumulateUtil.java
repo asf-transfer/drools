@@ -55,6 +55,10 @@ public class AccumulateUtil {
                 functionName = "maxI";
             } else if (exprClass == Long.class) {
                 functionName = "maxL";
+            } else if (exprClass == BigInteger.class) {
+                functionName = "maxBI";
+            } else if (exprClass == BigDecimal.class) {
+                functionName = "maxBD";
             } else if (Number.class.isAssignableFrom( exprClass )) {
                 functionName = "maxN";
             }
@@ -64,6 +68,10 @@ public class AccumulateUtil {
                 functionName = "minI";
             } else if (exprClass == Long.class) {
                 functionName = "minL";
+            } else if (exprClass == BigInteger.class) {
+                functionName = "minBI";
+            } else if (exprClass == BigDecimal.class) {
+                functionName = "minBD";
             } else if (Number.class.isAssignableFrom( exprClass )) {
                 functionName = "minN";
             }

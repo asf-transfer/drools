@@ -25,26 +25,23 @@ We are often asked - "How do I get involved?" The answer is simple, just write s
 
 == Requirements
 
-To contribute, you need to have:
-
-1. A link:https://issues.redhat.com/[JIRA] account. If you are not registered, please create an account in link:https://issues.redhat.com/[JIRA].
-2. A link:https://github.com/[GitHub] account. link:https://github.com/kiegroup/drools/[{PRODUCT} source code] is on GitHub. To submit code contributions, you need to have a GitHub account.
+To contribute, you need to have a link:https://github.com/[GitHub] account. link:https://github.com/apache/incubator-kie-drools/[{PRODUCT} source code] is on GitHub. To submit code contributions, you need to have a GitHub account.
 
 == Submitting an issue or enhancement request
 
-We use link:https://issues.redhat.com/[JIRA] to track new feature requests, bugs etc. If you find a problem in {PRODUCT}, please file a ticket in JIRA under the link:https://issues.redhat.com/projects/DROOLS/[DROOLS] JIRA project. For code contributions, you could create a JIRA ticket for yourself, so your contribution gets tracked. This ensures that all requests are logged and allocated to a release schedule and all discussions are captured in one place. Bug reports, bug fixes, feature requests and feature submissions should all go here. General questions should be undertaken at the link:https://groups.google.com/g/drools-development[mailing lists]. Minor code submissions, like format or documentation fixes do not need an associated JIRA issue created.
+We use link:https://github.com/apache/incubator-kie-drools/issues[GitHub Issues] to track new feature requests, bugs etc. If you find a problem in {PRODUCT}, please file a ticket in link:https://github.com/apache/incubator-kie-drools/issues[GitHub Issues]. For code contributions, you could create a GitHub issue for yourself, so your contribution gets tracked. This ensures that all requests are logged and allocated to a release schedule and all discussions are captured in one place. Bug reports, bug fixes, feature requests and feature submissions should all go here. Minor code submissions, like format or documentation fixes do not need an associated GitHub issue created.
 
 == Submitting a source code contribution
 
 We accept source code contributions in the form of link:https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests[GitHub pull requests]. Steps to create a pull request with your contribution are:
 
-1. link:https://docs.github.com/en/get-started/quickstart/fork-a-repo[Fork] the link:https://github.com/kiegroup/drools/[{PRODUCT} source code] repository.
+1. link:https://docs.github.com/en/get-started/quickstart/fork-a-repo[Fork] the link:https://github.com/apache/incubator-kie-drools/[{PRODUCT} source code] repository.
 2. Clone your forked repository.
 3. Create a new git branch on your forked repository.
-4. Create a new JIRA to track your work in the link:https://issues.redhat.com/projects/DROOLS/[DROOLS] JIRA project.
+4. Create a new GitHub issue to track your work in the link:https://github.com/apache/incubator-kie-drools/issues[GitHub Issues].
 5. Do and commit the code changes on the new branch.
 * Please don't forget to cover your changes with tests. We require each code change to be covered by tests.
-* The commit(s) need to start with the JIRA issue ID, such as DROOLS-1946. This ensures the commits are cross-referenced in JIRA, so we can see all commits for a given issue there.
+* The commit(s) need to start with the GitHub issue ID, such as [incubator-kie-drools-6136]. This ensures the commits are cross-referenced in GitHub Issues, so we can see all commits for a given issue there.
 * In general, please try to avoid combining unrelated issues or changes into the same commit or pull request. If you want to contribute multiple contributions, please split them into separate pull requests.
 * Please make sure your changes don't break other parts of the project or tests. To run all tests, please refer to <<intro-building-the-source_{context},Building the {PRODUCT} source code>>.
 6. Push the new branch to your GitHub forked repository. It is usually a good thing to link:https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork[sync your local branch] with the latest changes from the main {PRODUCT} source code repository before pushing your new branch.

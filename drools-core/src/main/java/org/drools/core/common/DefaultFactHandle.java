@@ -507,30 +507,6 @@ public class DefaultFactHandle extends AbstractLinkedListNode<DefaultFactHandle>
             lastLeftTuple = leftTuple;
         }
 
-        private void addLastTuple(TupleImpl tuple, boolean left) {
-            if (left) {
-                addLastLeftTuple(tuple);
-            } else {
-                addLastRightTuple(tuple);
-            }
-        }
-
-        private void setFirstTuple(TupleImpl tuple, boolean left) {
-            if (left) {
-                firstLeftTuple = tuple;
-            } else {
-                firstRightTuple = tuple;
-            }
-        }
-
-        private void setLastTuple(TupleImpl tuple, boolean left) {
-            if (left) {
-                lastLeftTuple = tuple;
-            } else {
-                lastRightTuple = tuple;
-            }
-        }
-
         @Override
         public void removeLeftTuple( TupleImpl leftTuple ) {
             TupleImpl previous = leftTuple.getHandlePrevious();
@@ -683,6 +659,7 @@ public class DefaultFactHandle extends AbstractLinkedListNode<DefaultFactHandle>
             if (detached != null) {
                 if (firstLeftTuple == detached) {
                     firstLeftTuple = null;
+                    lastLeftTuple = null;
                 }
 
                 if (lastLeftTuple == detached) {
@@ -695,7 +672,6 @@ public class DefaultFactHandle extends AbstractLinkedListNode<DefaultFactHandle>
                     lastLeftTuple.setHandleNext(null);
                 }
             }
-
             return detached;
         }
 
@@ -711,6 +687,7 @@ public class DefaultFactHandle extends AbstractLinkedListNode<DefaultFactHandle>
             if (detached != null) {
                 if (firstRightTuple == detached) {
                     firstRightTuple = null;
+                    lastRightTuple = null;
                 }
 
                 if (lastRightTuple == detached) {
@@ -723,7 +700,6 @@ public class DefaultFactHandle extends AbstractLinkedListNode<DefaultFactHandle>
                     lastRightTuple.setHandleNext(null);
                 }
             }
-
             return detached;
         }
 

@@ -24,7 +24,7 @@ with the License.  You may obtain a copy of the License at
 The best way to learn the new build system is by example.
 The source project "drools-examples-api" contains a number of examples, and can be found at GitHub:
 
-https://github.com/kiegroup/drools/tree/main/drools-examples-api
+https://github.com/apache/incubator-kie-drools/tree/main/drools-examples-api
 
 Each example is described below, the order starts with the simplest (most of the options are defaulted) and working its way up to more complex use cases.
 

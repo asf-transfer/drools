@@ -23,9 +23,9 @@ with the License.  You may obtain a copy of the License at
 
 {PRODUCT} is mainly a Java based set of projects that uses link:https://maven.apache.org/[Maven] as a build system. To build the {PRODUCT} repository:
 
-1. Install Java JDK, at least version 11.
+1. Install Java JDK, at least version `{java-version}`.
 2. Install Maven, at least version `{maven-version}`. There are rules during the build, that enforce the version of Maven, so please try to use the most current Maven version possible.
-3. Clone the link:https://github.com/kiegroup/drools/[{PRODUCT} source code] repository.
+3. Clone the link:https://github.com/apache/incubator-kie-drools/[{PRODUCT} source code] repository.
 4. Run the Maven build on command line.
 
 Maven build executed with tests:

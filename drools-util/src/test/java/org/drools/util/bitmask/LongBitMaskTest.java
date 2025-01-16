@@ -19,15 +19,12 @@
 
 package org.drools.util.bitmask;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 
 public class LongBitMaskTest {
-
-  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testSet() {
@@ -62,8 +59,7 @@ public class LongBitMaskTest {
       assertThat(new LongBitMask().resetAll(EmptyButLastBitMask.get()).toString()).isEqualTo("0");
       assertThat(new LongBitMask().resetAll(EmptyBitMask.get()).toString()).isEqualTo("0");
       
-      thrown.expect(RuntimeException.class);
-      new LongBitMask().resetAll(new OpenBitSet()).toString();
+      assertThatRuntimeException().isThrownBy(() -> new LongBitMask().resetAll(new OpenBitSet()).toString());
   }
 
   @Test

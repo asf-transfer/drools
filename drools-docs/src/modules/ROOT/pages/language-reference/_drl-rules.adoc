@@ -953,7 +953,7 @@ Example: `timer ( int: 30s 5m )`  (every 5 minutes after a 30-second delay)
          `timer ( cron:* 0/15 * * * ? )`  (every 15 minutes)
 
 |`calendar`
-|A http://www.quartz-scheduler.org/[Quartz] calendar definition for scheduling the rule.
+|A calendar definition for scheduling the rule.
 
 Example: `calendars "* * 0-7,18-23 ? * *"`  (exclude non-business hours)
 
@@ -1090,7 +1090,7 @@ In this example, the rule is scheduled for every hour, after a delay of 30 secon
 
 If the system is paused (for example, the session is serialized and then later deserialized), the rule is scheduled only one time to recover from missing internalMatches regardless of how many internalMatches were missed during the pause, and then the rule is subsequently scheduled again to continue in sync with the timer setting.
 
-The `calendar` attribute in DRL rules is a http://www.quartz-scheduler.org/[Quartz] calendar definition for scheduling a rule and supports the following format:
+The `calendar` attribute in DRL rules is a http://www.quartz-scheduler.org/[Quartz] style cron expression for scheduling a rule and supports the following format:
 
 .Calendar attribute format
 [source,subs="+quotes"]
@@ -1108,18 +1108,24 @@ calendars "* * 0-7,18-23 ? * *"
 calendars "weekday"
 ----
 
-You can adapt a Quartz calendar based on the Quartz calendar API and then register the calendar in the KIE session, as shown in the following example:
+You can define a custom calendar and then register it in the KIE session, as shown in the following example:
 
-.Adapting a Quartz Calendar
+.Defining a Calendar
 [source,java]
 ----
-Calendar weekDayCal = QuartzHelper.quartzCalendarAdapter(org.quartz.Calendar quartzCal)
+private static final org.kie.api.time.Calendar WEEKDAY = timestamp -> {
+    final Calendar c = Calendar.getInstance();
+    c.setTimeInMillis(timestamp);
+
+    final int day = c.get(Calendar.DAY_OF_WEEK);
+    return day != Calendar.SATURDAY && day != Calendar.SUNDAY;
+};
 ----
 
 .Registering the calendar in the KIE session
 [source,java]
 ----
-ksession.getCalendars().set( "weekday", weekDayCal );
+ksession.getCalendars().set( "weekday", WEEKDAY );
 ----
 
 You can use calendars with standard rules and with rules that use timers. The calendar attribute can contain one or more comma-separated calendar names written as `String` literals.
@@ -2717,7 +2723,7 @@ In addition to the standard rule action methods, the {RULE_ENGINE} supports meth
 
 You can use the `drools` variable to call methods from the `org.kie.api.runtime.rule.RuleContext` class in your {PRODUCT} distribution, which is also the class that the standard rule action methods are based on. For all `drools` rule action options,
 
-see the {PRODUCT} https://github.com/kiegroup/drools/blob/main/kie-api/src/main/java/org/kie/api/runtime/rule/RuleContext.java[RuleContext.java] page in GitHub.
+see the {PRODUCT} https://github.com/apache/incubator-kie-drools/blob/main/kie-api/src/main/java/org/kie/api/runtime/rule/RuleContext.java[RuleContext.java] page in GitHub.
 
 The `drools` variable contains methods that provide information about the firing rule and the set of facts that activated the firing rule:
 

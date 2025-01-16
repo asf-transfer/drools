@@ -193,9 +193,7 @@ public class ReteooBuilder
 
         tn.visitLeftTupleNodes(n -> n.removeAssociatedTerminal(tn));
 
-        BaseNode node = (BaseNode) tn;
-        removeNodeAssociation(node, context.getRule(), new HashSet<>(), context);
-
+        removeNodeAssociation((BaseNode) tn, context.getRule(), new HashSet<>(), context);
         resetMasks(removeNodes((AbstractTerminalNode)tn, workingMemories, context));
     }
 

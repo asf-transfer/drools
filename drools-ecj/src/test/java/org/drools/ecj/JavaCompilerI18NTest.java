@@ -21,10 +21,10 @@ package org.drools.ecj;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 import org.kie.memorycompiler.CompilationResult;
 import org.kie.memorycompiler.resources.MemoryResourceReader;
 import org.kie.memorycompiler.resources.MemoryResourceStore;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

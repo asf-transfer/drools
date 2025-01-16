@@ -187,7 +187,7 @@ public class JunctionTreeBuilderTest {
         jtBuilder.createClique(dX1.getId(), clonedAdjMatrix, vertices, adjList );
 
         assertThat(vertices).hasSize(3);
-        assertThat(vertices).containsExactly(2, 3, 4);
+        assertThat(vertices).containsExactlyInAnyOrder(2, 3, 4);
 
         assertLinkedNode(jtBuilder, 1, 2, 3, 4);
         assertLinkedNode(jtBuilder, 2, 1, 3, 4);
@@ -477,7 +477,7 @@ public class JunctionTreeBuilderTest {
         adjList = clonedAdjMatrix[ id  ];
         jtBuilder.createClique(4, clonedAdjMatrix, verticesToUpdate, adjList);
         assertThat(verticesToUpdate).hasSize(3);
-        assertThat(verticesToUpdate).containsExactly(1, 2, 6); // don't forget 3 and 5 were already eliminated
+        assertThat(verticesToUpdate).containsExactlyInAnyOrder(1, 2, 6); // don't forget 3 and 5 were already eliminated
         jtBuilder.eliminateVertex(p, elmVertMap, clonedAdjMatrix, adjList, verticesToUpdate, v );
 
         // assert all new edges

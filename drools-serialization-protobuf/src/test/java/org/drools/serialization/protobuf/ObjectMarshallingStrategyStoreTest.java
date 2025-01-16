@@ -32,7 +32,7 @@ import org.drools.core.impl.RuleBaseFactory;
 import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
 import org.drools.serialization.protobuf.marshalling.IdentityPlaceholderResolverStrategy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.KieServices;
 import org.kie.api.conf.EventProcessingOption;

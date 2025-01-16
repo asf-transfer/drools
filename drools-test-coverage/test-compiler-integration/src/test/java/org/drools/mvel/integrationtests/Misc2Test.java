@@ -131,9 +131,9 @@ import org.slf4j.LoggerFactory;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.drools.mvel.compiler.TestUtil.assertDrlHasCompilationError;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * Run all the tests with the ReteOO engine implementation
@@ -7910,7 +7910,7 @@ public class Misc2Test {
     }
 
     private void checkJava8InRhs(KieBaseTestConfiguration kieBaseTestConfiguration, String expr) {
-        assumeTrue(System.getProperty("java.version").startsWith( "1.8" ));
+        assumeThat(System.getProperty("java.version").startsWith( "1.8" ));
 
         // BZ-1199965
         String drl =

@@ -23,16 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.impl.EnvironmentFactory;
 import org.drools.core.marshalling.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.serialization.protobuf.marshalling.JavaSerializableResolverStrategy;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.drools.core.marshalling.SerializablePlaceholderResolverStrategy;
 import org.drools.mvel.compiler.Person;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.kie.api.KieBase;
 import org.kie.api.conf.EqualityBehaviorOption;
 import org.kie.api.io.ResourceType;
@@ -44,24 +44,23 @@ import org.kie.internal.utils.KieHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parameterized.class)
 public class MarshallerTest {
 
-    private Environment env;
+    private Environment env = EnvironmentFactory.newEnvironment();
 
-    @Parameterized.Parameters(name = "{0}")
-    public static Object[] params() {
-        return new Object[] { new JavaSerializableResolverStrategy( ClassObjectMarshallingStrategyAcceptor.DEFAULT ),
-                              new SerializablePlaceholderResolverStrategy( ClassObjectMarshallingStrategyAcceptor.DEFAULT ) };
+    public static Stream<ObjectMarshallingStrategy> parameters() {
+        return Stream.of(new JavaSerializableResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT),
+                              new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT));
     }
 
-    public MarshallerTest(ObjectMarshallingStrategy strategy) {
-        this.env = EnvironmentFactory.newEnvironment();
+    private void setupEnvironment(ObjectMarshallingStrategy strategy) {
         this.env.set( EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, new ObjectMarshallingStrategy[]{ strategy } );
     }
 
-    @Test
-    public void testAgendaDoNotSerializeObject() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testAgendaDoNotSerializeObject(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
         KieSession ksession = null;
         try {
             String str =
@@ -96,8 +95,10 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testFromWithFireBeforeSerialization() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testFromWithFireBeforeSerialization(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
         String str =
                 "import java.util.Collection\n" +
                         "rule R1 when\n" +
@@ -121,8 +122,10 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testFromWithFireAfterSerialization() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testFromWithFireAfterSerialization(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
         String str =
                 "import java.util.Collection\n" +
                         "rule R1 when\n" +
@@ -145,8 +148,10 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testFromWithPartialFiring() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testFromWithPartialFiring(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);    	
         String str =
                 "import java.util.Collection\n" +
                 "rule R1 when\n" +
@@ -170,8 +175,10 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void test2FromsWithPartialFiring() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void test2FromsWithPartialFiring(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
         String str =
                 "import java.util.Collection\n" +
                 "rule R1 when\n" +
@@ -196,8 +203,10 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testFromAndJoinWithPartialFiring() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testFromAndJoinWithPartialFiring(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
         String str =
                 "import java.util.Collection\n" +
                 "rule R1 when\n" +
@@ -223,9 +232,10 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testAgendaReconciliationAccumulate() throws Exception {
-
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testAgendaReconciliationAccumulate(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
         String str =
                 "import " + Person.class.getCanonicalName() + ";" +
                         "rule X when\n" +
@@ -257,10 +267,11 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testAgendaReconciliationAccumulate2() throws Exception {
-
-        String str =
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testAgendaReconciliationAccumulate2(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
+    	String str =
                 "import " + Person.class.getCanonicalName() + ";" +
                         "rule X when\n" +
                         "  accumulate ( $p: Person ( getName().startsWith(\"M\")); \n" +
@@ -289,10 +300,12 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testMultiAccumulate() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testMultiAccumulate(ObjectMarshallingStrategy strategy) throws Exception {
         // DROOLS-5579
-        String str =
+    	setupEnvironment(strategy);
+    	String str =
                 "import " + Person.class.getCanonicalName() + ";" +
                         "rule X when\n" +
                         "  accumulate ( Person ( getName().startsWith(\"M\"), $age : age ); \n" +
@@ -323,9 +336,11 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testSubnetwork() throws Exception {
-        final String str =
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testSubnetwork(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
+    	final String str =
                 "rule R1 when\n" +
                         "    String()\n" +
                         "    Long()\n" +
@@ -361,9 +376,11 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testSubnetwork2() throws Exception {
-        final String str =
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testSubnetwork2(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
+    	final String str =
                 "rule R1 when\n" +
                         "    String()\n" +
                         "    Long()\n" +
@@ -394,8 +411,10 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testFromJoinWithPartialFiring() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testFromJoinWithPartialFiring(ObjectMarshallingStrategy strategy) throws Exception {
+    	setupEnvironment(strategy);
         String str =
                 "import java.util.Collection\n" +
                         "rule R1 when\n" +
@@ -489,9 +508,11 @@ public class MarshallerTest {
         }
     }
 
-    @Test
-    public void testFromWithInsertLogical() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("parameters")
+    public void testFromWithInsertLogical(ObjectMarshallingStrategy strategy) throws Exception {
         // DROOLS-5713
+    	setupEnvironment(strategy);
         String str =
                 "import " + LongFact.class.getCanonicalName() + "\n" +
                 "import " + LongFacts.class.getCanonicalName() + "\n" +

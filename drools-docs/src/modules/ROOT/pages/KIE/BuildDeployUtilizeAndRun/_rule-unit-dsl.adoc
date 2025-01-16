@@ -105,4 +105,4 @@ As you define rules using `defineRules` method, you can execute the rules, of co
     }
 ----
 
-You can find various test cases under https://github.com/kiegroup/drools/tree/main/drools-ruleunits/drools-ruleunits-dsl
+You can find various test cases under https://github.com/apache/incubator-kie-drools/tree/main/drools-ruleunits/drools-ruleunits-dsl

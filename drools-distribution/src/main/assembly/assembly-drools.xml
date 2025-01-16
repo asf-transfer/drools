@@ -30,13 +30,19 @@
 
   <includeBaseDirectory>true</includeBaseDirectory>
 
+  <files>
+    <file>
+      <source>license-for-distribution</source>
+      <outputDirectory>/</outputDirectory>
+      <destName>LICENSE</destName>
+    </file>
+    <file>
+      <source>notice-for-distribution</source>
+      <outputDirectory>/</outputDirectory>
+      <destName>NOTICE</destName>
+    </file>
+  </files>
   <fileSets>
-    <fileSet><!-- Note: going outside the module dir is bad, but it is not fetching generated files -->
-      <includes>
-        <include>../LICENSE-Apache-2.0.txt</include>
-      </includes>
-      <outputDirectory/>
-    </fileSet>
     <fileSet>
       <directory>src/main/assembly/scripts</directory>
       <lineEnding>unix</lineEnding>
@@ -132,20 +138,6 @@
       <outputDirectory>javadoc/internal</outputDirectory>
       <unpack>true</unpack>
       <useStrictFiltering>true</useStrictFiltering>
-    </dependencySet>
-    <dependencySet>
-      <includes>
-        <include>org.kie:*:jar:sources</include>
-        <include>org.drools:*:jar:sources</include>
-      </includes>
-      <excludes>
-        <exclude>org.drools:drools-examples:jar:sources</exclude>
-      </excludes>
-      <outputDirectory>sources</outputDirectory>
-      <unpack>false</unpack>
-      <useStrictFiltering>true</useStrictFiltering>
-      <useTransitiveFiltering>true</useTransitiveFiltering>
-      <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
   </dependencySets>
 

@@ -19,10 +19,9 @@
 package org.drools.persistence.session;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.drools.commands.impl.CommandBasedStatefulKnowledgeSessionImpl;
 import org.drools.core.common.InternalAgenda;
@@ -30,12 +29,10 @@ import org.drools.kiesession.rulebase.InternalKnowledgeBase;
 import org.drools.io.ClassPathResource;
 import org.drools.kiesession.rulebase.KnowledgeBaseFactory;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kie.api.command.ExecutableCommand;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.Context;
@@ -56,41 +53,31 @@ import static org.drools.persistence.util.DroolsPersistenceUtil.OPTIMISTIC_LOCKI
 import static org.drools.persistence.util.DroolsPersistenceUtil.PESSIMISTIC_LOCKING;
 import static org.drools.persistence.util.DroolsPersistenceUtil.createEnvironment;
 
-@RunWith(Parameterized.class)
 public class RuleFlowGroupRollbackTest {
 
     private static Logger logger = LoggerFactory.getLogger(RuleFlowGroupRollbackTest.class);
     
     private Map<String, Object> context;
-    private boolean locking;
 
-    @Parameters(name="{0}")
-    public static Collection<Object[]> persistence() {
-        Object[][] locking = new Object[][] { 
-                { OPTIMISTIC_LOCKING }, 
-                { PESSIMISTIC_LOCKING } 
-                };
-        return Arrays.asList(locking);
+    public static Stream<String> parameters() {
+    	return Stream.of(OPTIMISTIC_LOCKING, PESSIMISTIC_LOCKING);
     };
     
-    public RuleFlowGroupRollbackTest(String locking) { 
-        this.locking = PESSIMISTIC_LOCKING.equals(locking);
-    }
-    
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         context = DroolsPersistenceUtil.setupWithPoolingDataSource(DROOLS_PERSISTENCE_UNIT_NAME);
     }
 	
-	@After
+	@AfterEach
 	public void tearDown() {
 		DroolsPersistenceUtil.cleanUp(context);
 	}
 
-    @Test	
-	public void testRuleFlowGroupRollback() throws Exception {
+    @ParameterizedTest(name="{0}")
+    @MethodSource("parameters")
+	public void testRuleFlowGroupRollback(String locking) throws Exception {
 		
-		CommandBasedStatefulKnowledgeSessionImpl ksession = createSession();
+		CommandBasedStatefulKnowledgeSessionImpl ksession = createSession(locking);
 		
 		List<String> list = new ArrayList<String>();
 		list.add("Test");
@@ -112,7 +99,7 @@ public class RuleFlowGroupRollbackTest {
 		
 	}
 	
-	private CommandBasedStatefulKnowledgeSessionImpl createSession() {
+	private CommandBasedStatefulKnowledgeSessionImpl createSession(String locking) {
 		
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( new ClassPathResource("ruleflowgroup_rollback.drl"), ResourceType.DRL );
@@ -125,7 +112,7 @@ public class RuleFlowGroupRollbackTest {
         kbase.addPackages( kbuilder.getKnowledgePackages() );
 
         Environment env = createEnvironment(context);
-        if( locking ) { 
+        if(PESSIMISTIC_LOCKING.equals(locking)) { 
             env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
         }
         return (CommandBasedStatefulKnowledgeSessionImpl) JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );

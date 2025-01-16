@@ -19,19 +19,19 @@
 package org.drools.serialization.protobuf;
 
 import java.io.EOFException;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import org.drools.base.common.DroolsObjectInputStream;
 import org.drools.base.common.DroolsObjectOutputStream;
 import org.drools.mvel.CommonTestMethodBase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.kie.api.KieBase;
 import org.kie.api.marshalling.Marshaller;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
@@ -44,14 +44,14 @@ import static org.assertj.core.api.Assertions.fail;
 
 public class EventAccessorRestoreTest extends CommonTestMethodBase {
 
-    @Rule
-    public TemporaryFolder temp = new TemporaryFolder();
+    @TempDir
+	public Path temp;
 
-    private File kbaseFile = null;
+    private Path kbaseFile = null;
 
     private KieBase kbase;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         String str =
                 "package org.drools.test;\n" +
@@ -80,8 +80,8 @@ public class EventAccessorRestoreTest extends CommonTestMethodBase {
         KieSession ksession = kbase.newKieSession();
 
         try {
-            kbaseFile = temp.newFile( "test.bin" );
-            FileOutputStream fos = new FileOutputStream( kbaseFile ) ;
+            kbaseFile = Files.createFile(temp.resolve("test.bin" ));
+            FileOutputStream fos = new FileOutputStream( kbaseFile.toFile() ) ;
             saveSession( fos, ksession );
             fos.close();
         } catch ( Exception e ) {
@@ -123,7 +123,7 @@ public class EventAccessorRestoreTest extends CommonTestMethodBase {
     @Test
     public void testDeserialization() {
         try {
-            FileInputStream fis = new FileInputStream( kbaseFile );
+            FileInputStream fis = new FileInputStream( kbaseFile.toFile() );
             KieSession knowledgeSession = loadSession( fis );
 
             ArrayList list = new ArrayList();

@@ -21,9 +21,9 @@ package org.drools.persistence.monitoring;
 import org.drools.compiler.kie.builder.impl.KieServicesImpl;
 import org.drools.core.management.DroolsManagementAgent;
 import org.drools.persistence.util.DroolsPersistenceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.model.KieSessionModel.KieSessionType;
@@ -59,7 +59,7 @@ public class MonitoringWithJPAKnowledgeServiceTest {
     
     private String mbeansprop;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         ((KieServicesImpl) KieServices.Factory.get()).nullKieClasspathContainer();
         ((KieServicesImpl) KieServices.Factory.get()).nullAllContainerIds();
@@ -70,7 +70,7 @@ public class MonitoringWithJPAKnowledgeServiceTest {
         env = createEnvironment(context);
     }
         
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         ((KieServicesImpl) KieServices.Factory.get()).nullKieClasspathContainer();
         ((KieServicesImpl) KieServices.Factory.get()).nullAllContainerIds();

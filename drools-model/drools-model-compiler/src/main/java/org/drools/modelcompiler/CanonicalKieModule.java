@@ -371,7 +371,7 @@ public class CanonicalKieModule implements InternalKieModule {
             List<Resource> processResources = kieModule.getFileNames().stream()
                     .filter(fileName -> {
                         ResourceType resourceType = determineResourceType(fileName);
-                        return resourceType == ResourceType.DRF || resourceType == ResourceType.BPMN2;
+                        return resourceType == ResourceType.BPMN2;
                     })
                     .map(fileName -> {
                         final Resource processResource = kieModule.getResource(fileName);

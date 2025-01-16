@@ -30,7 +30,6 @@ import org.drools.testcoverage.common.util.KieUtil;
 import org.drools.testcoverage.common.util.TestParametersUtil2;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.runners.Parameterized;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieModule;
@@ -47,7 +46,6 @@ import static org.mockito.Mockito.verify;
 
 public class EnabledTest {
 
-    @Parameterized.Parameters(name = "KieBase type={0}")
     public static Stream<KieBaseTestConfiguration> parameters() {
         return TestParametersUtil2.getKieBaseCloudConfigurations(false).stream();
     }

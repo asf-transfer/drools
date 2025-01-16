@@ -39,7 +39,7 @@ import org.kie.internal.builder.DecisionTableInputType;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests loading of different types of resources (DRL, DSL, DRF, BPMN2, DTABLE).
+ * Tests loading of different types of resources (DRL, DSL, BPMN2, DTABLE).
  * Packages are loaded and built using KnowledgeBuilder.
  */
 public class ResourcesTest {

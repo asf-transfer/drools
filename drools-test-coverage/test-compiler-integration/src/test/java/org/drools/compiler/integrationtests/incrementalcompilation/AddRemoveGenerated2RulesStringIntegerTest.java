@@ -18,23 +18,17 @@
  */
 package org.drools.compiler.integrationtests.incrementalcompilation;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import java.util.stream.Stream;
 
-import java.util.Collection;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
-@RunWith(Parameterized.class)
+@EnabledIfSystemProperty(named = "runTurtleTests", matches = "true")
 public class AddRemoveGenerated2RulesStringIntegerTest extends AbstractAddRemoveGenerated2RulesTest {
 
-    public AddRemoveGenerated2RulesStringIntegerTest(final ConstraintsPair constraintsPair) {
-        super(constraintsPair);
-    }
-
-    @Parameterized.Parameters
-    public static Collection<ConstraintsPair[]> getRulesConstraints() {
+    public static Stream<ConstraintsPair> parameters() {
         return generateRulesConstraintsCombinations(
                 " String() \n",
                 " exists(Integer() and Integer()) \n",
-                " exists(Integer() and exists(Integer() and Integer())) \n");
+                " exists(Integer() and exists(Integer() and Integer())) \n").stream();
     }
 }

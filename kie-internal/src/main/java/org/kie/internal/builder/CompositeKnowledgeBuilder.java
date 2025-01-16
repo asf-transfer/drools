@@ -56,7 +56,7 @@ public interface CompositeKnowledgeBuilder {
     /**
      * Add a resource of the given ResourceType, using the provided ResourceConfiguration.
      * Resources can be created by calling any of the "newX" factory methods of
-     * ResourceFactory. The kind of resource (DRL,  XDRL, DSL,... CHANGE_SET) must be
+     * ResourceFactory. The kind of resource (DRL,  XDRL, DSL,... ) must be
      * indicated by the second argument.
      *
      * @param resource the Resource to add
