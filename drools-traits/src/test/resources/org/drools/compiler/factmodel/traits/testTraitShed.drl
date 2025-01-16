@@ -53,7 +53,7 @@ end
 rule "Trait1"
 no-loop
 when
-    $core: Imp( this not isA Thing )
+    $core: Imp( this not ##isA Thing )
 then
     Student s = don( $core, Student.class );
     list.add( "Student" );
@@ -63,7 +63,7 @@ end
 
 rule "Trait2"
 when
-    $s : Student( this not isA Worker )
+    $s : Student( this not ##isA Worker )
     String( this == "hire" )
 then
     don( $s, Worker.class );
@@ -73,7 +73,7 @@ end
 
 rule "Conflict of interest"
 when
-    $w : Worker( this isA Student )
+    $w : Worker( this ##isA Student )
     String( this == "check" )
 then
     shed( $w, Student.class );
@@ -82,7 +82,7 @@ end
 
 rule "Conflict resolved"
 when
-    $w : Worker( this not isA Student )
+    $w : Worker( this not ##isA Student )
 then
     list.add( "Conflict" );
     shed( $w, Worker.class );
@@ -91,7 +91,7 @@ end
 
 rule "Nothing Left"
 when
-    $t : Thing( this not isA Student, this not isA Worker )
+    $t : Thing( this not ##isA Student, this not ##isA Worker )
 then
     list.add( "Nothing" );
 end

@@ -97,9 +97,9 @@ end
 
 rule "Procedures v4"
 when
-    $o : PolishingProcedure( approachBodySite isA LeftNail, targetBodySite isA RightNail,
+    $o : PolishingProcedure( approachBodySite ##isA LeftNail, targetBodySite ##isA RightNail,
                              $app : approachBodySite, $tgt : targetBodySite,
-                             $eff : effectRegion isA Region,
+                             $eff : effectRegion ##isA Region,
                              $loc : locus, $foc : focus,
                              price > 100.0 )
 then

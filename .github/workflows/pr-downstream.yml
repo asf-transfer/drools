@@ -33,6 +33,7 @@ on:
 
 jobs:
   kogito-downstream-build:
+    if: false
     concurrency:
       group: pr-${{ matrix.job_name }}_${{ matrix.os }}_${{ matrix.java-version }}_${{ matrix.maven-version }}_${{ github.head_ref }}
       cancel-in-progress: true

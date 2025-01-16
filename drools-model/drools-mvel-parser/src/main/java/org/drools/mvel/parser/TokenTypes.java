@@ -213,6 +213,7 @@ public class TokenTypes {
             case COMMA:
             case DOT:
             case AT:
+            case CUSTOM_OPERATOR_PREFIX:
                 return JavaToken.Category.SEPARATOR;
             case MVEL_STARTS_WITH:
             case MVEL_ENDS_WITH:

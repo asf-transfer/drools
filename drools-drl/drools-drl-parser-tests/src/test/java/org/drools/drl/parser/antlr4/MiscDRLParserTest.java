@@ -74,8 +74,8 @@ import org.drools.drl.parser.DroolsError;
 import org.drools.drl.parser.DroolsParserException;
 import org.drools.drl.parser.impl.Operator;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -93,6 +93,14 @@ class MiscDRLParserTest {
     @BeforeEach
     void setUp() {
         parser = ParserTestUtils.getParser();
+    }
+
+    private static boolean isNewParser() {
+        return DrlParser.ANTLR4_PARSER_ENABLED;
+    }
+
+    private static boolean isOldParser() {
+        return !DrlParser.ANTLR4_PARSER_ENABLED;
     }
 
     private String readResource(final String filename) {
@@ -4411,8 +4419,9 @@ class MiscDRLParserTest {
                 .containsExactlyInAnyOrder("com.sample.ParentTrait", "UncleTrait", "org.test.GrandParentTrait");
     }
 
+    @EnabledIf("isOldParser")
     @Test
-    void pluggableEvaluator() {
+    void pluggableEvaluatorOldParser() {
         final String source = "package org.drools\n" +
                 "rule R\n" +
                 "when\n" +
@@ -4429,6 +4438,27 @@ class MiscDRLParserTest {
         assertThat(pattern.getConstraint().getDescrs())
                 .extracting(Object::toString)
                 .containsExactly("$c : core", "this not isA t.x.E.class", "this isA t.x.D.class");
+    }
+
+    @EnabledIf("isNewParser")
+    @Test
+    void pluggableEvaluatorNewParser() {
+        final String source = "package org.drools\n" +
+                "rule R\n" +
+                "when\n" +
+                "   $t : Thing( $c : core, this not ##isA t.x.E.class, this ##isA t.x.D.class )\n" +
+                "then\n" +
+                "   list.add( \"E\" ); \n" +
+                "   don( $t, E.class ); \n" +
+                "end\n";
+
+        Operator.addOperatorToRegistry("isA", false);
+        Operator.addOperatorToRegistry("isA", true);
+
+        PatternDescr pattern = (PatternDescr) parseAndGetFirstRuleDescr(source).getLhs().getDescrs().get(0);
+        assertThat(pattern.getConstraint().getDescrs())
+                .extracting(Object::toString)
+                .containsExactly("$c : core", "this not ##isA t.x.E.class", "this ##isA t.x.D.class");
     }
 
     @Test

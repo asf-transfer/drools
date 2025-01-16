@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.drools.drl.parser.DrlParser;
 import org.drools.traits.compiler.CommonTraitTest;
 import org.drools.traits.compiler.ReviseTraitTestWithPRAlwaysCategory;
 import org.drools.traits.core.factmodel.TraitFactoryImpl;
@@ -182,7 +183,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
 
                      "rule \"test parent and child traits\" \n" +
                      "when\n" +
-                     "    $p : ParentTrait( $c : child isA ChildTrait.class )\n" +
+                     "    $p : ParentTrait( $c : child ##isA ChildTrait.class )\n" +
                      "then\n" +
                      "   //shed ( $p , ParentTrait.class );\n"+
                      "   list.add(\"correct\");\n"+
@@ -270,7 +271,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "when\n" +
                      "   $c : Child( gender == \"male\" )\n" +
                      "   $p : Parent( name == \"parent\" )\n" +
-                     "   ParentTrait( child not isA ChildTrait.class )\n" +
+                     "   ParentTrait( child not ##isA ChildTrait.class )\n" +
                      "   ChildTrait()\n"+
                      "then\n" +
                      "   " +
@@ -282,7 +283,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
 
                      "rule \"test parent and child traits\" \n" +
                      "when\n" +
-                     "    $p : ParentTrait( child isA ChildTrait.class )\n" +
+                     "    $p : ParentTrait( child ##isA ChildTrait.class )\n" +
                      "then\n" +
                      "   //shed ( $p , ParentTrait.class );\n"+
                      "   list.add(\"correct\");\n"+
@@ -369,7 +370,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "when\n" +
                      "   Child( gender == \"male\" )\n" +
                      "   $p : Parent( name == \"parent\" )\n" +
-                     "   ParentTrait( child not isA ChildTrait.class )\n" +
+                     "   ParentTrait( child not ##isA ChildTrait.class )\n" +
                      "   $c : ChildTrait()\n"+             //<<<<<
                      "then\n" +
                      "   $p.setChild((Child)$c.getCore());\n"+     //<<<<<
@@ -379,7 +380,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
 
                      "rule \"test parent and child traits\" \n" +
                      "when\n" +
-                     "    $p : ParentTrait( child isA ChildTrait.class )\n" +
+                     "    $p : ParentTrait( child ##isA ChildTrait.class )\n" +
                      "then\n" +
                      "   //shed ( $p , ParentTrait.class );\n"+
                      "   list.add(\"correct\");\n"+
@@ -448,7 +449,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
 
                      "rule \"trait child\" \n" +
                      "when\n" +
-                     "   $p : Parent( $c := child not isA ChildTrait )\n"+
+                     "   $p : Parent( $c := child not ##isA ChildTrait )\n"+
                      "   $c := Child( gender == \"male\" )\n" +
                      "then\n" +
                      "   ChildTrait c = don ( $c , ChildTrait.class );\n" +
@@ -460,7 +461,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
 
                      "rule \"test parent and a child trait\" \n" +
                      "when\n" +
-                     "    $p : Parent( child isA ChildTrait.class ) \n" +    //<<<<<
+                     "    $p : Parent( child ##isA ChildTrait.class ) \n" +    //<<<<<
                      "then\n" +
                      "   list.add(\"correct\");\n"+
                      "end\n"+
@@ -545,7 +546,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "rule \"test parent and child traits\" \n" +
                      "\n" +
                      "when\n" +
-                     "    $p : ParentTrait( $c : child isA ChildTrait.class ) \n" +     //<<<<<
+                     "    $p : ParentTrait( $c : child ##isA ChildTrait.class ) \n" +     //<<<<<
                      "then\n" +
                      "   list.add(\"correct\");\n"+
                      "end\n"+
@@ -627,14 +628,14 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "" +
                      "rule \"Side effect\" \n" +
                      "when \n" +
-                     "  $p : Parent( child isA ChildTrait ) \n" +
+                     "  $p : Parent( child ##isA ChildTrait ) \n" +
                      "then \n" +
                      "   list.add(\"correct2\");\n"+
                      "end \n"+
                      "rule \"test parent and child traits\" \n" +
                      "\n" +
                      "when\n" +
-                     "    $p : ParentTrait( child isA ChildTrait.class )\n" +
+                     "    $p : ParentTrait( child ##isA ChildTrait.class )\n" +
                      "then\n" +
                      "   //shed ( $p , ParentTrait.class );\n"+
                      "   list.add(\"correct\");\n"+
@@ -720,7 +721,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "\n" +
                      "when\n" +
 //                     "   $c : Child( $gender := gender )\n"+
-                     "   $p : ParentTrait( child isA ChildTrait )\n" +    //<<<<<
+                     "   $p : ParentTrait( child ##isA ChildTrait )\n" +    //<<<<<
                      "then\n" +
                      "   list.add(\"correct\");\n"+
                      "end\n"+
@@ -805,7 +806,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "rule \"test parent and child traits\" \n" +
                      "\n" +
                      "when\n" +
-                     "    $p : ParentTrait( child isA ChildTrait.class )\n" +
+                     "    $p : ParentTrait( child ##isA ChildTrait.class )\n" +
                      "then\n" +
                      "   //shed ( $p , ParentTrait.class );\n"+
                      "   list.add(\"correct\");\n"+
@@ -885,8 +886,8 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "rule \"trait and assign the child\" \n" +
                      "\n" +
                      "when\n" +
-                     "   $c : Child( gender == \"male\", this not isA ChildTrait )\n" +
-                     "   $p : Parent( this isA ParentTrait )\n" +
+                     "   $c : Child( gender == \"male\", this not ##isA ChildTrait )\n" +
+                     "   $p : Parent( this ##isA ParentTrait )\n" +
                      "then\n" +
                      "   ChildTrait c =  don ( $c , ChildTrait.class );\n"+   //<<<<<<
                      "   modify($p){\n"+
@@ -897,7 +898,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "rule \"test parent and child traits\" \n" +
                      "\n" +
                      "when\n" +
-                     "    $p : ParentTrait( child isA ChildTrait.class, child.gender == \"male\" )\n" +    //<<<<<
+                     "    $p : ParentTrait( child ##isA ChildTrait.class, child.gender == \"male\" )\n" +    //<<<<<
                      "then\n" +
                      "   //shed ( $p , ParentTrait.class );\n"+
                      "   list.add(\"correct\");\n"+
@@ -978,8 +979,8 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "rule \"trait and assign the child\" \n" +
                      "\n" +
                      "when\n" +
-                     "   $c : Child( gender == \"male\", this not isA ChildTrait )\n" +
-                     "   $p : Parent( this isA ParentTrait )\n" +
+                     "   $c : Child( gender == \"male\", this not ##isA ChildTrait )\n" +
+                     "   $p : Parent( this ##isA ParentTrait )\n" +
                      "then\n" +
                      "   ChildTrait c =  don ( $c , ChildTrait.class );\n"+   //<<<<<<
                      "   modify($p){\n"+
@@ -1103,7 +1104,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTraitTest {
                      "rule \"test three traits\" \n" +
                      "\n" +
                      "when\n" +
-                     "   $p : FatherTrait( this isA ParentTrait, this isA GrandParentTrait )\n" +    //<<<<<
+                     "   $p : FatherTrait( this ##isA ParentTrait, this ##isA GrandParentTrait )\n" +    //<<<<<
                      "then\n" +
                      "   list.add(\"correct\");\n"+
                      "end\n"+

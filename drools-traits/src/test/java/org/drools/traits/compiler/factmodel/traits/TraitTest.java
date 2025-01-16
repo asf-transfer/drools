@@ -869,7 +869,7 @@ public class TraitTest extends CommonTraitTest {
                         "rule \"Worker Students v6\"\n" +
                         "when\n" +
                         "    $x2 := Person(name == \"john\")\n" +
-                        "    $x1 := Worker(core != $x2.core, this not isA $x2)\n" +
+                        "    $x1 := Worker(core != $x2.core, this not ##isA $x2)\n" +
                         "then\n" +
                         "    list.add(\"ok\");\n" +
                         "end\n" +
@@ -1272,7 +1272,7 @@ public class TraitTest extends CommonTraitTest {
                      "\n" +
                      "rule \"print student\"\n" +
                      "  when\n" +
-                     "    student : Person(this isA Student)\n" +
+                     "    student : Person(this ##isA Student)\n" +
                      "  then" +
                      "    list.add(1);\n" +
                      "end\n" +
@@ -1734,7 +1734,7 @@ public class TraitTest extends CommonTraitTest {
                      "rule \"Check\" \n" +
                      "no-loop \n" +
                      "when \n" +
-                     "  $p : IPerson(this isA IStudent) \n" +
+                     "  $p : IPerson(this ##isA IStudent) \n" +
                      "then \n" +
                      "   modify ($p) { setAge(37); } \n" +
                      "   shed($p, IStudent.class);\n" +
@@ -2167,7 +2167,7 @@ public class TraitTest extends CommonTraitTest {
                     "" +
                     "rule \"Log W\" \n" +
                     "when \n" +
-                    "  $t : Worker(this isA StudentWorker) @watch(name) \n" +
+                    "  $t : Worker(this ##isA StudentWorker) @watch(name) \n" +
                     "then \n" +
                     "  list.add(true); \n" +
                     "end \n" +
@@ -2515,7 +2515,7 @@ public class TraitTest extends CommonTraitTest {
                         "" +
                         "rule \"Rule 0 >> http://t/x#D\"\n" +
                         "when\n" +
-                        "   $t : org.drools.base.factmodel.traits.Thing($c : core, this not isA t.x.E.class, this isA t.x.D.class) " +
+                        "   $t : org.drools.base.factmodel.traits.Thing($c : core, this not ##isA t.x.E.class, this ##isA t.x.D.class) " +
                         "then\n" +
                         "   list.add(\"E\"); \n" +
                         "   don($t, E.class); \n" +
@@ -2575,7 +2575,7 @@ public class TraitTest extends CommonTraitTest {
                         "" +
                         "rule \"Rule 0 >> http://t/x#D\"\n" +
                         "when\n" +
-                        "   $t : org.drools.base.factmodel.traits.Thing($c : core, _isTop(), this not isA t.x.E.class, this isA t.x.D.class) " +
+                        "   $t : org.drools.base.factmodel.traits.Thing($c : core, _isTop(), this not ##isA t.x.E.class, this ##isA t.x.D.class) " +
                         "then\n" +
                         "   list.add(\"E\"); \n" +
                         "   don($t, E.class); \n" +
@@ -2724,11 +2724,11 @@ public class TraitTest extends CommonTraitTest {
                         "end\n" +
                         "" +
                         "rule Check when\n" +
-                        "   $x : Bar(this not isA Foo) \n" +
+                        "   $x : Bar(this not ##isA Foo) \n" +
                         "then \n" +
                         "end\n" +
                         "rule Check2 when\n" +
-                        "   $x : Bar2(this not isA Foo) \n" +
+                        "   $x : Bar2(this not ##isA Foo) \n" +
                         "then \n" +
                         "end\n" +
                         "";
@@ -2774,19 +2774,19 @@ public class TraitTest extends CommonTraitTest {
                         "end\n" +
                         "" +
                         "rule Check_1 when\n" +
-                        "   $x : Kore(this isA [ B, D ]) \n" +
+                        "   $x : Kore(this ##isA [ B, D ]) \n" +
                         "then \n" +
                         "   list.add(\" B+D \"); \n" +
                         "end\n" +
                         "" +
                         "rule Check_2 when\n" +
-                        "   $x : Kore(this isA [ A ]) \n" +
+                        "   $x : Kore(this ##isA [ A ]) \n" +
                         "then \n" +
                         "   list.add(\" A \"); \n" +
                         "end\n" +
 
                         "rule Check_3 when\n" +
-                        "   $x : Kore(this not isA [ F ]) \n" +
+                        "   $x : Kore(this not ##isA [ F ]) \n" +
                         "then \n" +
                         "   list.add(\" F \"); \n" +
                         "end\n" +
@@ -3143,7 +3143,7 @@ public class TraitTest extends CommonTraitTest {
                         "" +
                         " \n" +
                         "query queryA\n" +
-                        "   $x := Kore(this isA A) \n" +
+                        "   $x := Kore(this ##isA A) \n" +
                         "end\n" +
                         "";
 
@@ -3205,7 +3205,7 @@ public class TraitTest extends CommonTraitTest {
                         "rule React \n" +
                         "salience 1" +
                         "when\n" +
-                        "   $x : Kore(this isA A.class) \n" +
+                        "   $x : Kore(this ##isA A.class) \n" +
                         "then \n" +
                         "   list.add($x); \n" +
                         "end\n" +
@@ -3713,7 +3713,7 @@ public class TraitTest extends CommonTraitTest {
                         "rule \"Init\"\n" +
                         "salience 10 \n" +
                         "when\n" +
-                        "  $p : Person(this not isA Student)\n" +
+                        "  $p : Person(this not ##isA Student)\n" +
                         "then\n" +
                         "  don($p, Student.class);\n" +
                         "end\n" +
@@ -3981,7 +3981,7 @@ public class TraitTest extends CommonTraitTest {
             drl += "rule \"Log " + x + "\" when " + x + "() then list.add(\"" + x + "\"); end \n";
 
             drl += "rule \"Log II" + x + "\" salience -1 when " + x + "(";
-            drl += "this isA H";
+            drl += "this ##isA H";
             drl += ") then list.add(\"H" + x + "\"); end \n";
         }
 
@@ -4355,19 +4355,19 @@ public class TraitTest extends CommonTraitTest {
                      "" +
                      "rule C \n" +
                      "when\n" +
-                     "  B(this isA C) \n" +
+                     "  B(this ##isA C) \n" +
                      "then \n" +
                      "  list.add(1); \n" +
                      "end \n" +
                      "rule D \n" +
                      "when\n" +
-                     "  D(this isA A, this isA C) \n" +
+                     "  D(this ##isA A, this ##isA C) \n" +
                      "then \n" +
                      "  list.add(2); \n" +
                      "end \n"+
                      "rule E \n" +
                      "when\n" +
-                     "  D(this isA A, this isA E) \n" +
+                     "  D(this ##isA A, this ##isA E) \n" +
                      "then \n" +
                      "  list.add(3); \n" +
                      "end \n";
@@ -4455,7 +4455,7 @@ public class TraitTest extends CommonTraitTest {
                      "" +
                      "rule \"Test Don A,B\" " +
                      "when \n" +
-                     "  A(this isA B) \n" +
+                     "  A(this ##isA B) \n" +
                      "then \n" +
                      "  list.add(0); \n" +
                      "end \n";
@@ -4806,7 +4806,7 @@ public class TraitTest extends CommonTraitTest {
                           "rule Check " +
                           " when " +
                           "  $s : StudentImpl() " +
-                          "  $e : Entity(this isA $s) " +
+                          "  $e : Entity(this ##isA $s) " +
                           " then " +
                           "  list.add(1); " +
                           " end ";
@@ -4848,21 +4848,21 @@ public class TraitTest extends CommonTraitTest {
 
                      "rule One " +
                      "when " +
-                     "  $f : Foo(this not isA A) " +
+                     "  $f : Foo(this not ##isA A) " +
                      "then " +
                      "  don($f, A.class); " +
                      "end " +
 
                      "rule Two " +
                      "when " +
-                     "  $f : Foo(this not isA B) " +
+                     "  $f : Foo(this not ##isA B) " +
                      "then " +
                      "  don($f, B.class); " +
                      "end " +
 
                      "rule Check " +
                      "when " +
-                     "    $f : Foo(this isA B || this isA A) " +
+                     "    $f : Foo(this ##isA B || this ##isA A) " +
                      "then " +
                      "  list.add(1); " +
                      "end " +
@@ -4917,7 +4917,7 @@ public class TraitTest extends CommonTraitTest {
                      "rule Match1 " +
                      "when " +
                      "  $f : Foo($x : object) " +
-                     "  $p : StudentImpl(this isA $f) from $x " +
+                     "  $p : StudentImpl(this ##isA $f) from $x " +
                      "then " +
                      "  list.add(1); " +
                      "end " +
@@ -4925,7 +4925,7 @@ public class TraitTest extends CommonTraitTest {
                      "rule Match2 " +
                      "when " +
                      "  $f : Foo($x : object) " +
-                     "  $p : StudentImpl($f isA this) from $x " +
+                     "  $p : StudentImpl($f ##isA this) from $x " +
                      "then " +
                      "  list.add(2); " +
                      "end " +
@@ -5171,12 +5171,12 @@ public class TraitTest extends CommonTraitTest {
                 "end\n" +
 
                 "rule One when" +
-                "    $core: Entity(this isA Person) " +
+                "    $core: Entity(this ##isA Person) " +
                 "then " +
                 "end " +
 
                 "rule Two when" +
-                "    $core: Entity(this isA Person) " +
+                "    $core: Entity(this ##isA Person) " +
                 "then " +
                 "end " +
 
@@ -5446,12 +5446,12 @@ public class TraitTest extends CommonTraitTest {
 
                      "rule Test1 " +
                      "when " +
-                     "  StudentImpl(this isA IStudent.class) " +
+                     "  StudentImpl(this ##isA IStudent.class) " +
                      "then list.add(1); end " +
 
                      "rule Test2 " +
                      "when " +
-                     "  IStudent(this isA StudentImpl.class) " +
+                     "  IStudent(this ##isA StudentImpl.class) " +
                      "then list.add(2); end " +
 
                      "";
@@ -5478,7 +5478,7 @@ public class TraitTest extends CommonTraitTest {
 
                      "rule Test1 " +
                      "when " +
-                     "  Object(this isA String.class) " +
+                     "  Object(this ##isA String.class) " +
                      "then list.add(1); end " +
 
                      "";
@@ -5543,12 +5543,12 @@ public class TraitTest extends CommonTraitTest {
 
                      "rule Test1 " +
                      "when " +
-                     "  StudentImpl(this isA IStudent.class) " +
+                     "  StudentImpl(this ##isA IStudent.class) " +
                      "then list.add(1); end " +
 
                      "rule Test2 " +
                      "when " +
-                     "  IStudent(this isA StudentImpl.class) " +
+                     "  IStudent(this ##isA StudentImpl.class) " +
                      "then list.add(2); end " +
 
                      "";
@@ -5803,8 +5803,8 @@ public class TraitTest extends CommonTraitTest {
                 "end " +
                 "" +
                 "rule Rec no-loop when\n" +
-                " MyThing($x_0 := core, this isA D.class, $p : this#RootThing.objProp) " +
-                " exists MyThing($x_1 := core , core memberOf $p, this isA F.class) " +
+                " MyThing($x_0 := core, this ##isA D.class, $p : this#RootThing.objProp) " +
+                " exists MyThing($x_1 := core , core memberOf $p, this ##isA F.class) " +
                 "then " +
                 " don($x_0, E.class, true); " +
                 "end " +

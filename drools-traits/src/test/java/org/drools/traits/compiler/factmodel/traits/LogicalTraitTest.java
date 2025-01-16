@@ -127,7 +127,7 @@ public class LogicalTraitTest extends CommonTraitTest {
                      "" +
                      "rule Check \n" +
                      "when \n" +
-                     "  X( fld isA T ) \n" +
+                     "  X( fld ##isA T ) \n" +
                      "then \n" +
                      "  list.add( \"ok\" );" +
                      "end \n";
@@ -194,14 +194,14 @@ public class LogicalTraitTest extends CommonTraitTest {
                      "rule Check \n" +
                      "salience 1 \n" +
                      "when \n" +
-                     "  $x : Y( fld isA T ) \n" +
+                     "  $x : Y( fld ##isA T ) \n" +
                      "then \n" +
                      "  list.add( \"ok1\" );" +
                      "end \n" +
                      "" +
                      "rule Check2 \n" +
                      "when \n" +
-                     "  $x : X( fld isA T ) \n" +
+                     "  $x : X( fld ##isA T ) \n" +
                      "then \n" +
                      "  list.add( \"ok2\" );" +
                      "end \n" +
@@ -271,7 +271,7 @@ public class LogicalTraitTest extends CommonTraitTest {
                      "rule Check \n" +
                      "salience 1 \n" +
                      "when \n" +
-                     "  $x : Y( fld isA B, fld isA A ) \n" +
+                     "  $x : Y( fld ##isA B, fld ##isA A ) \n" +
                      "then \n" +
                      "  list.add( \"ok\" ); \n" +
                      "end \n" +
@@ -729,7 +729,7 @@ public class LogicalTraitTest extends CommonTraitTest {
                      "rule Check \n" +
                      "salience 1 \n" +
                      "when \n" +
-                     "  $x : Pers( friend isA VIP ) \n" +
+                     "  $x : Pers( friend ##isA VIP ) \n" +
                      "then \n" +
                      "  list.add( \"ok1\" );" +
                      "end \n" +
@@ -809,7 +809,7 @@ public class LogicalTraitTest extends CommonTraitTest {
                      "rule Check \n" +
                      "salience 1 \n" +
                      "when \n" +
-                     "  $x : K( fld isA S, fld not isA R ) \n" +
+                     "  $x : K( fld ##isA S, fld not ##isA R ) \n" +
                      "then \n" +
                      "  list.add( \"ok1\" );" +
                      "end \n" +
@@ -818,7 +818,7 @@ public class LogicalTraitTest extends CommonTraitTest {
                      "salience 1 \n" +
                      "when \n" +
                      "  String() \n" +
-                     "  $x : K( fld isA S ) \n" +
+                     "  $x : K( fld ##isA S ) \n" +
                      "then \n" +
                      "  don( $x, U.class ); \n" +
                      "end \n" +
@@ -907,7 +907,7 @@ public class LogicalTraitTest extends CommonTraitTest {
                      "" +
                      "rule Check \n" +
                      "when \n" +
-                     "  $x : X( this isA V, fld isA T ) \n" +
+                     "  $x : X( this ##isA V, fld ##isA T ) \n" +
                      "then \n" +
                      "  shed( $x, V.class ); \n" +
                      "  list.add( \"ok\" );" +
@@ -927,7 +927,7 @@ public class LogicalTraitTest extends CommonTraitTest {
                      "salience 5 \n" +
                      "when \n" +
                      "  String( this == \"go2\" ) \n" +
-                     "  K( this isA Q ) \n" +
+                     "  K( this ##isA Q ) \n" +
                      "  not X() not V() " +
                      "then \n" +
                      "  list.add( \"ok3\" );" +

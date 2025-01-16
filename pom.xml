@@ -271,6 +271,7 @@
     <profile>
       <id>enableNewParser</id>
       <activation>
+        <activeByDefault>true</activeByDefault>
         <property>
           <name>enableNewParser</name>
         </property>

@@ -27,7 +27,7 @@ end
 
 rule "create student" 
     when
-        $student : Person( age < 26, this not isA Student )
+        $student : Person( age < 26, this not ##isA Student )
     then
         Student s = don( $student, Student.class );
         s.setSchool("Masaryk University");
@@ -37,7 +37,7 @@ end
 rule "print student"
     salience 10
     when
-        student : Person( this isA Student )
+        student : Person( this ##isA Student )
     then
 end
 

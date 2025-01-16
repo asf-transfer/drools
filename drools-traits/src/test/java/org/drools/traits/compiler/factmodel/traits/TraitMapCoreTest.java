@@ -234,7 +234,7 @@ public class TraitMapCoreTest extends CommonTraitTest {
                         "rule Last  \n" +
                         "salience -99 \n" +
                         "when  \n" +
-                        "  $m : Map( this not isA StudentMap.class )\n" +
+                        "  $m : Map( this not ##isA StudentMap.class )\n" +
                         "then  \n" +
                         "   $m.put( \"final\", true );" +
                         "\n" +
@@ -451,7 +451,7 @@ public class TraitMapCoreTest extends CommonTraitTest {
                 "salience 1\n" +
                 "no-loop\n" +
                 "when\n" +
-                "    $map : Map($stu : this[\"worker\"] isA Student.class)\n" +
+                "    $map : Map($stu : this[\"worker\"] ##isA Student.class)\n" +
                 "then\n" +
                 "    Object obj = don( $map , Worker.class );\n" +
                 "    list.add(\"worker is donned\");\n" +
@@ -536,7 +536,7 @@ public class TraitMapCoreTest extends CommonTraitTest {
                 "salience 1\n" +
                 "no-loop\n" +
                 "when\n" +
-                "    $map : Map($stu : this[\"worker\"], $stu isA Student.class)\n" +
+                "    $map : Map($stu : this[\"worker\"], $stu ##isA Student.class)\n" +
                 "then\n" +
                 "    Object obj = don( $map , Worker.class );\n" +
                 "    list.add(\"worker is donned\");\n" +
@@ -629,7 +629,7 @@ public class TraitMapCoreTest extends CommonTraitTest {
                 "no-loop\n" +
                 "when\n" +
                 "    $map : Map($stu : this[\"worker\"])\n" +
-                "    Map($stu isA Student.class, this == $map)\n" +
+                "    Map($stu ##isA Student.class, this == $map)\n" +
                 "then\n" +
                 "    Object obj = don( $map , Worker.class );\n" +
                 "    list.add(\"worker is donned\");\n" +

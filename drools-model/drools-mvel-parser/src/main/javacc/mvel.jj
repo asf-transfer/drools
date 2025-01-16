@@ -425,6 +425,7 @@ TOKEN :
 | < MVEL_ENDS_WITH: "str[endsWith]" >
 | < MVEL_LENGTH: "str[length]" >
 | < DOT_DOT_SLASH: "../" >
+| < CUSTOM_OPERATOR_PREFIX: "##" >
 | < HASHMARK: "#" >
 | < EXCL_DOT: "!." >
 | < PASSIVE_OOPATH: "?/" >
@@ -6419,6 +6420,7 @@ Expression PointFreeExpr():
                           { negated = true; }
             )*
             (
+                [ <CUSTOM_OPERATOR_PREFIX> ]
                 operator = SimpleName()
                 temporalLiteralArguments = TemporalLiteralArguments()
                 (

@@ -61,7 +61,7 @@ jobs:
       - name: Build Chain
         uses: apache/incubator-kie-kogito-pipelines/.ci/actions/build-chain@main
         env:
-          BUILD_MVN_OPTS_CURRENT: '-Dfull -Dreproducible'
+          BUILD_MVN_OPTS_CURRENT: '-Dfull -Dreproducible -DenableNewParser'
           MAVEN_OPTS: "-Dfile.encoding=UTF-8"
         with:
           definition-file: https://raw.githubusercontent.com/${GROUP:apache}/incubator-kie-kogito-pipelines/${BRANCH:main}/.ci/pull-request-config.yaml

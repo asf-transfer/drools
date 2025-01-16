@@ -241,7 +241,7 @@ public class LegacyTraitTest extends CommonTraitTest {
 
                         "rule 'Bar Don'" +
                         "when " +
-                        "   $b : BarImpl(this isA Foo.class, this not isA Foo2.class)\n" +
+                        "   $b : BarImpl(this ##isA Foo.class, this not ##isA Foo2.class)\n" +
                         "   String()\n" +
                         "then " +
                         "   list.add(3); " +

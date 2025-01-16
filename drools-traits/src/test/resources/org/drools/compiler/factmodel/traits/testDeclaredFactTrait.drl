@@ -56,14 +56,14 @@ end
 
 rule "True Traits"
 	when
-		DeclaredFact( $id : id, this isA TrueTrait )
+		DeclaredFact( $id : id, this ##isA TrueTrait )
 	then
 		trueTraits.add($id);
 end
 
 rule "Untrue Traits"
 	when
-		DeclaredFact( $id : id, this not isA TrueTrait )
+		DeclaredFact( $id : id, this not ##isA TrueTrait )
 	then
 		untrueTraits.add($id);
 end

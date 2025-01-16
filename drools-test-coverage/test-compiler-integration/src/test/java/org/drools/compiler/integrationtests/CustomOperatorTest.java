@@ -58,7 +58,16 @@ public class CustomOperatorTest {
     public void testCustomOperatorUsingCollections(KieBaseTestConfiguration kieBaseTestConfiguration) {
         String constraints =
                 "    $alice : Person(name == \"Alice\")\n" +
-                "    $bob : Person(name == \"Bob\", addresses supersetOf $alice.addresses)\n";
+                "    $bob : Person(name == \"Bob\", addresses ##supersetOf $alice.addresses)\n";
+        customOperatorUsingCollections(kieBaseTestConfiguration, constraints);
+    }
+
+    @ParameterizedTest(name = "KieBase type={0}")
+    @MethodSource("parameters")
+    public void testCustomOperatorUsingCollectionsWithNot(KieBaseTestConfiguration kieBaseTestConfiguration) {
+        String constraints =
+                "    $alice : Person(name == \"Alice\")\n" +
+                        "    $bob : Person(name == \"Bob\", $alice.addresses not ##supersetOf this.addresses)\n";
         customOperatorUsingCollections(kieBaseTestConfiguration, constraints);
     }
 
@@ -67,8 +76,8 @@ public class CustomOperatorTest {
     public void testNoOperatorInstancesCreatedAtRuntime(KieBaseTestConfiguration kieBaseTestConfiguration) {
         String constraints =
                 "    $alice : Person(name == \"Alice\")\n" +
-                "    $bob : Person(name == \"Bob\", addresses supersetOf $alice.addresses)\n" +
-                "    Person(name == \"Bob\", addresses supersetOf $alice.addresses)\n";
+                "    $bob : Person(name == \"Bob\", addresses ##supersetOf $alice.addresses)\n" +
+                "    Person(name == \"Bob\", addresses ##supersetOf $alice.addresses)\n";
 
         customOperatorUsingCollections(kieBaseTestConfiguration, constraints);
 
@@ -81,7 +90,7 @@ public class CustomOperatorTest {
         // DROOLS-6983
         String constraints =
                 "    $bob : Person(name == \"Bob\")\n" +
-                "    $alice : Person(name == \"Alice\", $bob.addresses supersetOf this.addresses)\n";
+                "    $alice : Person(name == \"Alice\", $bob.addresses ##supersetOf this.addresses)\n";
         customOperatorUsingCollections(kieBaseTestConfiguration, constraints);
     }
 
@@ -201,7 +210,7 @@ public class CustomOperatorTest {
         }
 
         public boolean evaluateAll(final Collection leftCollection, final Collection rightCollection) {
-            return rightCollection.containsAll(leftCollection);
+            return getOperator().isNegated() ^ rightCollection.containsAll(leftCollection);
         }
     }
 
@@ -212,7 +221,7 @@ public class CustomOperatorTest {
                 "import " + Person.class.getCanonicalName() + ";\n" +
                 "rule R when\n" +
                 "    $alice : Person(name == \"Alice\")\n" +
-                "    $bob : Person(name == \"Bob\", addresses supersetOf $alice.addresses)\n" +
+                "    $bob : Person(name == \"Bob\", addresses ##supersetOf $alice.addresses)\n" +
                 "then\n" +
                 "end\n";
 

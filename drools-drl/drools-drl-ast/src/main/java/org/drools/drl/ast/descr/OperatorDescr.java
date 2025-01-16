@@ -26,6 +26,9 @@ import java.util.List;
 public class OperatorDescr extends BaseDescr {
     private static final long serialVersionUID = 520l;
 
+    // prefix for custom operators which are not built-in
+    public static final String CUSTOM_OPERATOR_PREFIX = "##";
+
     private String            operator;
     private boolean           negated;
     private List<String>      parameters;
@@ -55,7 +58,15 @@ public class OperatorDescr extends BaseDescr {
     }
 
     public void setOperator( String operator ) {
-        this.operator = operator != null ? operator.trim() : null;
+        this.operator = operator != null ? trimOperator(operator) : null;
+    }
+
+    private String trimOperator(String operator) {
+        operator = operator.trim();
+        if (operator.startsWith(CUSTOM_OPERATOR_PREFIX)) {
+            operator = operator.substring(CUSTOM_OPERATOR_PREFIX.length());
+        }
+        return operator;
     }
 
     public boolean isNegated() {

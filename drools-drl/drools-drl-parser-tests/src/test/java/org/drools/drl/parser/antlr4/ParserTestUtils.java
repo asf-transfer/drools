@@ -55,6 +55,13 @@ public class ParserTestUtils {
         DrlParser.ANTLR4_PARSER_ENABLED = false;
     }
 
+    /**
+     * Enables the new parser. Just for quick testing purposes.
+     */
+    public static void enableNewParser() {
+        DrlParser.ANTLR4_PARSER_ENABLED = true;
+    }
+
     public static List<String> javaKeywords() {
         return javaKeywords;
     }

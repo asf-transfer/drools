@@ -458,7 +458,7 @@ class DRLExprParserTest {
             assertThat(exception.getColumn()).isEqualTo(2);
             assertThat(exception.getOffset()).isEqualTo(2);
             assertThat(exception.getMessage())
-                    .isEqualToIgnoringCase("[ERR 101] Line 1:2 no viable alternative at input 'a'");
+                    .isEqualToIgnoringCase("[ERR 101] Line 1:2 no viable alternative at input '~a'");
         } else {
             assertThat(parser.hasErrors()).isFalse();
         }

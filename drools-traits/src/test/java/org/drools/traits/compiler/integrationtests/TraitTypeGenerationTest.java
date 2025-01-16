@@ -171,7 +171,7 @@ public class TraitTypeGenerationTest extends CommonTraitTest {
                         "\n" +
                         "rule \"create student\" \n" +
                         "    when\n" +
-                        "        $student : Person( age < 26, this not isA Student )\n" +
+                        "        $student : Person( age < 26, this not ##isA Student )\n" +
                         "    then\n" +
                         "        Student s = don( $student, Student.class );\n" +
                         "        s.setSchool(\"Masaryk University\");\n" +
@@ -181,7 +181,7 @@ public class TraitTypeGenerationTest extends CommonTraitTest {
                         "rule \"found student\"\n" +
                         "    salience 10\n" +
                         "    when\n" +
-                        "        student : Person( this isA Student )\n" +
+                        "        student : Person( this ##isA Student )\n" +
                         "    then\n" +
                         "        students.add(student);\n" +
                         "end";

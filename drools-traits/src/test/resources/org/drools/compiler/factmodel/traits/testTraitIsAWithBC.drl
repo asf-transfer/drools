@@ -54,7 +54,7 @@ declare IsIn
 end
 
 query is_in( Place $p, Class $type, Location $q )
-    ( IsIn( $p, $x ; ) and $q := Location( core == $x, this isA $type ) )
+    ( IsIn( $p, $x ; ) and $q := Location( core == $x, this ##isA $type ) )
     or
     ( IsIn( $p, $x ; ) and is_in( $x, $type, $q ; ) )
 end

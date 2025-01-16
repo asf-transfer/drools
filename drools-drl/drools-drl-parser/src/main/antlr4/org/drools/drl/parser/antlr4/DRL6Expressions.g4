@@ -1000,12 +1000,11 @@ in_key
     ;
 
 operator_key
-  // IDENTIFIER is required to accept custom operators. We need to keep this semantic predicate for custom operators
-  :      {(helper.isPluggableEvaluator(false))}? id=IDENTIFIER { helper.emit($id, DroolsEditorType.KEYWORD); }
+  :      DRL_CUSTOM_OPERATOR_PREFIX {(helper.isPluggableEvaluator(false))}? id=IDENTIFIER { helper.emit($id, DroolsEditorType.KEYWORD); }
   |      op=builtInOperator { helper.emit($op.token, DroolsEditorType.KEYWORD); }
   ;
 
 neg_operator_key
-  :      {(helper.isPluggableEvaluator(true))}? id=IDENTIFIER { helper.emit($id, DroolsEditorType.KEYWORD); }
+  :      DRL_CUSTOM_OPERATOR_PREFIX {(helper.isPluggableEvaluator(true))}? id=IDENTIFIER { helper.emit($id, DroolsEditorType.KEYWORD); }
   |      op=builtInOperator { helper.emit($op.token, DroolsEditorType.KEYWORD); }
   ;

@@ -125,6 +125,8 @@ DRL_CALENDARS : 'calendars';
 DRL_TIMER : 'timer';
 DRL_DURATION : 'duration';
 
+DRL_CUSTOM_OPERATOR_PREFIX : '##' ;
+
 /////////////////
 // LEXER
 /////////////////

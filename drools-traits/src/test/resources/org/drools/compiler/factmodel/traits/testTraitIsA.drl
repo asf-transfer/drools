@@ -116,14 +116,14 @@ end
 
 rule "Worker Students v2"
 when
-    $x1 := Worker( this isA Student )
+    $x1 := Worker( this ##isA Student )
 then
     list.add( "5" );
 end
 
 rule "Worker Students v3"
 when
-    $x1 := Worker( this isA "org.test.Student" )
+    $x1 := Worker( this ##isA "org.test.Student" )
 then
     list.add( "6" );
 end
@@ -131,14 +131,14 @@ end
 
 rule "Worker Students v4"
 when
-    $x1 := Worker( core isA "org.test.Student" )
+    $x1 := Worker( core ##isA "org.test.Student" )
 then
     list.add( "7" );
 end
 
 rule "Worker Students v5"
 when
-    $x1 := Imp( this isA "org.test.Student" )
+    $x1 := Imp( this ##isA "org.test.Student" )
 then
     list.add( "8" );
 end
@@ -146,7 +146,7 @@ end
 rule "Worker Students v6" salience 100
 when
     $x2 := Student(  )
-    $x1 := Worker( core != $x2.core, this isA $x2 )
+    $x1 := Worker( core != $x2.core, this ##isA $x2 )
 then
     list.add( "9" );
 end

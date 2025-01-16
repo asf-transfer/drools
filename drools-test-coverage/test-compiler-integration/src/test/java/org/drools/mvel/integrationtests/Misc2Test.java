@@ -9060,7 +9060,7 @@ public class Misc2Test {
                         "import " + Person.class.getCanonicalName() + ";\n" +
                         "rule R when\n" +
                         "    $alice : Person(name == \"Alice\")\n" +
-                        "    $bob : Person(name == \"Bob\", addresses supersetOf $alice.addresses)\n" +
+                        "    $bob : Person(name == \"Bob\", addresses ##supersetOf $alice.addresses)\n" +
                         "then\n" +
                         "end\n";
 
