@@ -25,8 +25,13 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 import io.smallrye.reactive.messaging.memory.InMemorySink;
 import io.smallrye.reactive.messaging.memory.InMemorySource;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.spi.Connector;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.awaitility.Awaitility.await;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,6 +51,7 @@ public class RuntimeTest {
         incomingEvents.send(new Event("temperature", 20));
         incomingEvents.send(new Event("temperature", 40));
 
+        await().<List<? extends Message<Alert>>>until(outgoingAlerts::received, t -> t.size() == 1);
         assertThat(outgoingAlerts.received().size()).isEqualTo(1);
         assertThat(outgoingAlerts.received().get(0).getPayload().getSeverity()).isEqualTo("warning");
 

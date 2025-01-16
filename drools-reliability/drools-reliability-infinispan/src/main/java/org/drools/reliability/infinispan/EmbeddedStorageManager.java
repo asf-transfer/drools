@@ -18,9 +18,6 @@
  */
 package org.drools.reliability.infinispan;
 
-import java.nio.file.Paths;
-import java.util.Set;
-
 import org.drools.core.common.ReteEvaluator;
 import org.drools.core.common.Storage;
 import org.drools.util.FileUtils;
@@ -36,11 +33,11 @@ import org.infinispan.manager.DefaultCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
+import java.util.Set;
+
 import static org.drools.reliability.core.StorageManager.createStorageId;
-import static org.drools.reliability.infinispan.InfinispanStorageManagerFactory.DELIMITER;
-import static org.drools.reliability.infinispan.InfinispanStorageManagerFactory.INFINISPAN_STORAGE_DIRECTORY;
-import static org.drools.reliability.infinispan.InfinispanStorageManagerFactory.SESSION_STORAGE_PREFIX;
-import static org.drools.reliability.infinispan.InfinispanStorageManagerFactory.SHARED_STORAGE_PREFIX;
+import static org.drools.reliability.infinispan.InfinispanStorageManagerFactory.*;
 import static org.drools.util.Config.getConfig;
 
 public class EmbeddedStorageManager implements InfinispanStorageManager {
@@ -76,7 +73,6 @@ public class EmbeddedStorageManager implements InfinispanStorageManager {
 
         // Initialize the default Cache Manager.
         embeddedCacheManager = new DefaultCacheManager(global.build());
-
         // Create a distributed cache with synchronous replication.
         ConfigurationBuilder builder = new ConfigurationBuilder();
         builder.persistence().passivation(false)
@@ -113,7 +109,7 @@ public class EmbeddedStorageManager implements InfinispanStorageManager {
     @Override
     public void removeStorage(String storageName) {
         if (embeddedCacheManager.cacheExists(storageName)) {
-            embeddedCacheManager.removeCache(storageName);
+            embeddedCacheManager.administration().removeCache(storageName);
         }
     }
 
@@ -176,6 +172,7 @@ public class EmbeddedStorageManager implements InfinispanStorageManager {
             this.embeddedCacheManager.stop();
         }
         this.embeddedCacheManager = embeddedCacheManager;
+
     }
 
     // test purpose to remove GlobalState and FileStore
