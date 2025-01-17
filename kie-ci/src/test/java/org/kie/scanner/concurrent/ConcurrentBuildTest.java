@@ -29,6 +29,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.kie.scanner.KieMavenRepository.getKieMavenRepository;
 
+@EnabledIfEnvironmentVariable(named = "RUN_TURTLE_TESTS", matches = "true")
 @EnabledIfSystemProperty(named = "runTurtleTests", matches = "true")
 public class ConcurrentBuildTest extends AbstractKieCiTest {
     private static final Logger LOG = LoggerFactory.getLogger(ConcurrentBuildTest.class);

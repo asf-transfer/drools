@@ -98,6 +98,7 @@ void setupProjectNightlyJob() {
     KogitoJobTemplate.createPipelineJob(this, jobParams)?.with {
         parameters {
             booleanParam('SKIP_TESTS', false, 'Skip all tests')
+            stringParam('RUN_TURTLE_TESTS', true, 'Execute the turtle tests')
         }
     }
 }
