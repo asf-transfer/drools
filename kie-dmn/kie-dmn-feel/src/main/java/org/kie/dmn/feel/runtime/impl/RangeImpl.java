@@ -20,6 +20,7 @@ package org.kie.dmn.feel.runtime.impl;
 
 import java.util.function.BiPredicate;
 
+import org.kie.dmn.feel.lang.FEELDialect;
 import org.kie.dmn.feel.runtime.Range;
 import org.kie.dmn.feel.util.BooleanEvalHelper;
 
@@ -69,7 +70,7 @@ public class RangeImpl
     }
 
     @Override
-    public Boolean includes(Object param) {
+    public Boolean includes(FEELDialect feelDialect, Object param) {
         if (param == null) {
             return null;
         }
@@ -77,15 +78,15 @@ public class RangeImpl
             if (highEndPoint == null || highEndPoint instanceof UndefinedValueComparable) {
                 return null;
             } else if (lowEndPoint != null) { // it means it is UndefinedValueComparable
-                return negInfRangeIncludes(param);
+                return negInfRangeIncludes(feelDialect, param);
             } else {
                 return false;
             }
         } else {
             if (highEndPoint instanceof UndefinedValueComparable) {
-                return posInfRangeIncludes(param);
+                return posInfRangeIncludes(feelDialect, param);
             } else if (highEndPoint != null) {
-                return finiteRangeIncludes(param);
+                return finiteRangeIncludes(feelDialect, param);
             } else {
                 return false;
             }
@@ -97,32 +98,33 @@ public class RangeImpl
         return withUndefined;
     }
 
-    private Boolean finiteRangeIncludes(Object param) {
+    private Boolean finiteRangeIncludes(FEELDialect feelDialect, Object param) {
+        // Defaulting FEELDialect to FEEL
         if (lowBoundary == RangeBoundary.OPEN && highBoundary == RangeBoundary.OPEN) {
-            return bothOrThrow(compare(lowEndPoint, param, (l, r) -> l.compareTo(r) < 0) , compare(highEndPoint, param,  (l, r) -> l.compareTo(r) > 0), param);
+            return bothOrThrow(compare(feelDialect, lowEndPoint, param, (l, r) -> l.compareTo(r) < 0) , compare(feelDialect, highEndPoint, param,  (l, r) -> l.compareTo(r) > 0), param);
         } else if (lowBoundary == RangeBoundary.OPEN && highBoundary == RangeBoundary.CLOSED) {
-            return bothOrThrow(compare(lowEndPoint, param, (l, r) -> l.compareTo(r) < 0) , compare(highEndPoint, param,  (l, r) -> l.compareTo(r) >= 0), param);
+            return bothOrThrow(compare(feelDialect, lowEndPoint, param, (l, r) -> l.compareTo(r) < 0) , compare(feelDialect, highEndPoint, param,  (l, r) -> l.compareTo(r) >= 0), param);
         } else if (lowBoundary == RangeBoundary.CLOSED && highBoundary == RangeBoundary.OPEN) {
-            return bothOrThrow(compare(lowEndPoint, param, (l, r) -> l.compareTo(r) <= 0) , compare(highEndPoint, param,  (l, r) -> l.compareTo(r) > 0), param);
+            return bothOrThrow(compare(feelDialect, lowEndPoint, param, (l, r) -> l.compareTo(r) <= 0) , compare(feelDialect, highEndPoint, param,  (l, r) -> l.compareTo(r) > 0), param);
         } else if (lowBoundary == RangeBoundary.CLOSED && highBoundary == RangeBoundary.CLOSED) {
-            return bothOrThrow(compare(lowEndPoint, param, (l, r) -> l.compareTo(r) <= 0) , compare(highEndPoint, param,  (l, r) -> l.compareTo(r) >= 0), param);
+            return bothOrThrow(compare(feelDialect, lowEndPoint, param, (l, r) -> l.compareTo(r) <= 0) , compare(feelDialect, highEndPoint, param,  (l, r) -> l.compareTo(r) >= 0), param);
         }
         throw new RuntimeException("unknown boundary combination");
     }
 
-    private Boolean posInfRangeIncludes(Object param) {
+    private Boolean posInfRangeIncludes(FEELDialect feelDialect, Object param) {
         if (lowBoundary == RangeBoundary.OPEN) {
-            return compare(lowEndPoint, param, (l, r) -> l.compareTo(r) < 0);
+            return compare(feelDialect, lowEndPoint, param, (l, r) -> l.compareTo(r) < 0);
         } else {
-            return compare(lowEndPoint, param, (l, r) -> l.compareTo(r) <= 0);
+            return compare(feelDialect, lowEndPoint, param, (l, r) -> l.compareTo(r) <= 0);
         }
     }
 
-    private Boolean negInfRangeIncludes(Object param) {
+    private Boolean negInfRangeIncludes(FEELDialect feelDialect, Object param) {
         if (highBoundary == RangeBoundary.OPEN) {
-            return compare(highEndPoint, param,  (l, r) -> l.compareTo(r) > 0);
+            return compare(feelDialect, highEndPoint, param,  (l, r) -> l.compareTo(r) > 0);
         } else {
-            return compare(highEndPoint, param,  (l, r) -> l.compareTo(r) >= 0);
+            return compare(feelDialect, highEndPoint, param,  (l, r) -> l.compareTo(r) >= 0);
         }
     }
     
@@ -137,11 +139,11 @@ public class RangeImpl
         return p != null ? p.getClass().toString() : "null";
     }
     
-    private static Boolean compare(Comparable left, Object right, BiPredicate<Comparable, Comparable> op) {
+    private static Boolean compare(FEELDialect feelDialect, Comparable left, Object right, BiPredicate<Comparable, Comparable> op) {
         if (left.getClass().isAssignableFrom(right.getClass())) { // short path
                 return op.test(left, (Comparable) right);
         }
-        return BooleanEvalHelper.compare(left, right, op); // defer to full DMN/FEEL semantic
+        return BooleanEvalHelper.compare(left, right, feelDialect, op); // defer to full DMN/FEEL semantic
     }
 
     @Override

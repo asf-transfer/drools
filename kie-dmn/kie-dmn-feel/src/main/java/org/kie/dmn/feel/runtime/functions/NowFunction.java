@@ -21,8 +21,10 @@ package org.kie.dmn.feel.runtime.functions;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAccessor;
 
+import org.kie.dmn.feel.runtime.FEELDateTimeFunction;
+
 public class NowFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELDateTimeFunction {
 
     public static final NowFunction INSTANCE = new NowFunction();
 

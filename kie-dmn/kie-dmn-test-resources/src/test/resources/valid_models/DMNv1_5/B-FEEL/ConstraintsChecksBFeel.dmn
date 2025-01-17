@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+  -->
+
+<dmn:definitions xmlns="http://www.trisotech.com/definitions/_238bd96d-47cd-4746-831b-504f3e77b442"
+                      xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+                      xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+                      xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/"
+                      xmlns:feel="https://www.omg.org/spec/DMN/20240513/B-FEEL/"
+                      xmlns:dmn="https://www.omg.org/spec/DMN/20230324/MODEL/"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      exporter="DMN Modeler"
+                      exporterVersion="5.1.10.201705011622"
+                      id="_238bd96d-47cd-4746-831b-504f3e77b442"
+                      name="ConstraintsChecksBFEEL"
+                      expressionLanguage="https://www.omg.org/spec/DMN/20240513/B-FEEL/"
+                      namespace="http://www.trisotech.com/definitions/_238bd96d-47cd-4746-831b-504f3e77b442">
+  <dmn:itemDefinition id="_EAEC2502-48C1-464D-8FAC-7A1BA334EE47" name="numberAllowedValues">
+    <dmn:typeRef>number</dmn:typeRef>
+    <dmn:allowedValues id="_10A54DC5-2C9D-44C1-A270-4FAE6098C050">
+      <dmn:text>0, 1, 2</dmn:text>
+    </dmn:allowedValues>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_EAEC2502-48C1-464D-8FAC-7A1BA334EE48" name="stringAllowedValues">
+    <dmn:typeRef>string</dmn:typeRef>
+    <dmn:allowedValues id="_10A54DC5-2C9D-44C1-A270-4FAE6098C051">
+      <dmn:text>"a", "b", "c"</dmn:text>
+    </dmn:allowedValues>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_EAEC2502-48C1-464D-8FAC-7A1BA334EE49" name="stringNullableAllowedValues">
+    <dmn:typeRef>string</dmn:typeRef>
+    <dmn:allowedValues id="_10A54DC5-2C9D-44C1-A270-4FAE6098C052">
+      <dmn:text>"a", "b", "c", null</dmn:text>
+    </dmn:allowedValues>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_EAEC2502-48C1-464D-8FAC-7A1BA334EE50" name="numberTypeConstraint">
+    <dmn:typeRef>number</dmn:typeRef>
+    <dmn:typeConstraint id="_10A54DC5-2C9D-44C1-A270-4FAE6098C053">
+      <dmn:text>0, 1, 2</dmn:text>
+    </dmn:typeConstraint>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_EAEC2502-48C1-464D-8FAC-7A1BA334EE51" name="stringTypeConstraint">
+    <dmn:typeRef>string</dmn:typeRef>
+    <dmn:typeConstraint id="_10A54DC5-2C9D-44C1-A270-4FAE6098C054">
+      <dmn:text>"a", "b", "c"</dmn:text>
+    </dmn:typeConstraint>
+  </dmn:itemDefinition>
+  <dmn:itemDefinition id="_EAEC2502-48C1-464D-8FAC-7A1BA334EE52" name="stringNullableTypeConstraint">
+    <dmn:typeRef>string</dmn:typeRef>
+    <dmn:typeConstraint id="_10A54DC5-2C9D-44C1-A270-4FAE6098C055">
+      <dmn:text>"a", "b", "c", null</dmn:text>
+    </dmn:typeConstraint>
+  </dmn:itemDefinition>
+  <dmn:inputData id="_4D4E82CC-C73E-4FF1-83EB-E2CC3E5B2701" name="numberAllowedValuesInput">
+    <dmn:extensionElements/>
+    <dmn:variable id="_1AD4A266-E3EB-46CB-BB24-6A3A3946CD4B" name="numberAllowedValuesInput" typeRef="numberAllowedValues"/>
+  </dmn:inputData>
+  <dmn:inputData id="_4D4E82CC-C73E-4FF1-83EB-E2CC3E5B2702" name="stringAllowedValuesInput">
+    <dmn:extensionElements/>
+    <dmn:variable id="_1AD4A266-E3EB-46CB-BB24-6A3A3946CD4C" name="stringAllowedValuesInput" typeRef="stringAllowedValues"/>
+  </dmn:inputData>
+  <dmn:inputData id="_4D4E82CC-C73E-4FF1-83EB-E2CC3E5B2703" name="stringNullableAllowedValuesInput">
+    <dmn:extensionElements/>
+    <dmn:variable id="_1AD4A266-E3EB-46CB-BB24-6A3A3946CD4D" name="stringNullableAllowedValuesInput" typeRef="stringNullableAllowedValues"/>
+  </dmn:inputData>
+  <dmn:inputData id="_4D4E82CC-C73E-4FF1-83EB-E2CC3E5B2704" name="numberTypeConstraintInput">
+    <dmn:extensionElements/>
+    <dmn:variable id="_1AD4A266-E3EB-46CB-BB24-6A3A3946CD4E" name="numberTypeConstraintInput" typeRef="numberTypeConstraint"/>
+  </dmn:inputData>
+  <dmn:inputData id="_4D4E82CC-C73E-4FF1-83EB-E2CC3E5B2705" name="stringTypeConstraintInput">
+    <dmn:extensionElements/>
+    <dmn:variable id="_1AD4A266-E3EB-46CB-BB24-6A3A3946CD50" name="stringTypeConstraintInput" typeRef="stringTypeConstraint"/>
+  </dmn:inputData>
+  <dmn:inputData id="_4D4E82CC-C73E-4FF1-83EB-E2CC3E5B2706" name="stringNullableTypeConstraintInput">
+    <dmn:extensionElements/>
+    <dmn:variable id="_1AD4A266-E3EB-46CB-BB24-6A3A3946CD51" name="stringNullableTypeConstraintInput" typeRef="stringNullableTypeConstraint"/>
+  </dmn:inputData>
+</dmn:definitions>

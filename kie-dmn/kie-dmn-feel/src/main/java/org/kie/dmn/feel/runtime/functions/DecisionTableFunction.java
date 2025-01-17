@@ -177,7 +177,7 @@ public class DecisionTableFunction
         } else if ( o instanceof Range ) {
             return (c, x) -> {
                 try {
-                    return ((Range) o).includes( x );
+                    return ((Range) o).includes(ctx.getFEELDialect(), x );
                 } catch ( Exception e ) {
                     ctx.notifyEvt( () -> new FEELEventBase( FEELEvent.Severity.ERROR,
                                                             Msg.createMessage( Msg.EXPRESSION_IS_RANGE_BUT_VALUE_IS_NOT_COMPARABLE, o.toString(), x.toString() ),

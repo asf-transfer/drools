@@ -18,6 +18,7 @@
  */
 package org.kie.dmn.feel.runtime.functions;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,6 +58,7 @@ public class RangeFunction extends BaseFEELFunction {
     public static final RangeFunction INSTANCE = new RangeFunction();
 
     private static EvaluationContext STUBBED;
+    private static final Range DEFAULT_VALUE = new RangeImpl(Range.RangeBoundary.OPEN, BigDecimal.ZERO, BigDecimal.ZERO, Range.RangeBoundary.OPEN);
 
 
     private static final List<Predicate<BaseNode>> ALLOWED_NODES = Arrays.asList(baseNode -> baseNode instanceof NullNode,
@@ -134,8 +136,13 @@ public class RangeFunction extends BaseFEELFunction {
             return FEELFnResult.ofError(new InvalidParametersEvent(FEELEvent.Severity.ERROR, "from", "endpoints must be of equivalent types"));
         }
 
-        // Boundary values need to be always defined in range string. They can be undefined only in unary test, that represents range, e.g. (<10). 
+        // Boundary values need to be always defined in range string. They can be undefined only in unary test, that represents range, e.g. (<10).
         return FEELFnResult.ofResult(new RangeImpl(startBoundary, (Comparable) left, (Comparable) right, endBoundary));
+    }
+
+    @Override
+    public Object defaultValue() {
+        return DEFAULT_VALUE;
     }
 
     protected boolean nodeIsAllowed(BaseNode node) {

@@ -21,10 +21,11 @@ package org.kie.dmn.feel.runtime.functions;
 import java.math.BigDecimal;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent;
+import org.kie.dmn.feel.runtime.FEELBooleanFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 public class EvenFunction 
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELBooleanFunction {
     public static final EvenFunction INSTANCE = new EvenFunction();
 
     private static final BigDecimal TWO = BigDecimal.valueOf(2);

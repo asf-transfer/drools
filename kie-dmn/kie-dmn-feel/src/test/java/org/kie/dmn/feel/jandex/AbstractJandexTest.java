@@ -25,6 +25,7 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,14 +83,13 @@ public abstract class AbstractJandexTest {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> fromJson = jsonb.fromJson(new FileReader("src/main/resources/META-INF/native-image/org.kie/" + moduleName + "/reflect-config.json"),
                                                             List.class);
-        List<DotName> dotNamesInJSON = fromJson.stream().map(m -> DotName.createSimple((String) m.get("name"))).collect(Collectors.toList());
+        List<DotName> dotNamesInJSON = fromJson.stream().map(m -> DotName.createSimple((String) m.get("name"))).toList();
 
         Set<DotName> foundsViaJandex = founds.stream().map(ClassInfo::name).collect(Collectors.toSet());
-        Set<DotName> foundsViaJSON = dotNamesInJSON.stream().collect(Collectors.toSet());
+        Set<DotName> foundsViaJSON = new HashSet<>(dotNamesInJSON);
         assertThat(foundsViaJandex)
-                  .as("List of classes found via Jandex during test and listed in JSON file must be same.")
-                  .isEqualTo(foundsViaJSON)
-        ;
+                .as("Classes found via Jandex during test and listed in JSON file must be same.")
+                .hasSameElementsAs(foundsViaJSON);
     }
 
     private Map<String, Object> toReflectConfigMap(ClassInfo found) {

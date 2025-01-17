@@ -21,10 +21,11 @@ package org.kie.dmn.feel.runtime.functions;
 import java.util.stream.IntStream;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELStringFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 public class SubstringFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELStringFunction {
 
     public static final SubstringFunction INSTANCE = new SubstringFunction();
 

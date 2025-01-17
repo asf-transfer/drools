@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 import org.kie.dmn.api.feel.runtime.events.FEELEvent;
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
 import org.kie.dmn.feel.lang.EvaluationContext;
+import org.kie.dmn.feel.lang.FEELDialect;
 import org.kie.dmn.feel.lang.Symbol;
 import org.kie.dmn.feel.lang.impl.NamedParameter;
 import org.kie.dmn.feel.lang.types.FunctionSymbol;
@@ -80,6 +81,14 @@ public abstract class BaseFEELFunction
                 CandidateMethod cm = getCandidateMethod(ctx, params, isNamedParams);
 
                 if (cm != null) {
+                    if (cm.actualParams != null) {
+                        for (int i = 0; i < cm.actualParams.length; i++) {
+                            if (cm.actualParams[i] instanceof List list) {
+                                cm.actualParams[i] =  getFEELDialectAdaptedList(ctx, list);
+                            }
+                        }
+                    }
+
                     Object result = cm.actualMethod.invoke(this, cm.actualParams);
 
                     if (result instanceof Either) {
@@ -130,7 +139,7 @@ public abstract class BaseFEELFunction
             ctx.notifyEvt(() -> new FEELEventBase(Severity.ERROR, "Error trying to call function " + getName() + ".",
                                                   e));
         }
-        return null;
+        return getFEELDialectAdaptedObject(ctx, null);
     }
 
     @Override
@@ -217,6 +226,7 @@ public abstract class BaseFEELFunction
     private Object getEitherResult(EvaluationContext ctx, Either<FEELEvent, Object> source,
                                    Supplier<List<String>> parameterNamesSupplier,
                                    Supplier<List<Object>> parameterValuesSupplier) {
+        source = getFEELDialectAdaptedEither(ctx, source);
         return source.cata((left) -> {
             ctx.notifyEvt(() -> {
                               if (left instanceof InvalidParametersEvent invalidParametersEvent) {
@@ -229,6 +239,57 @@ public abstract class BaseFEELFunction
             );
             return null;
         }, Function.identity());
+    }
+
+    /**
+     * Adapt the given <code>Either&lt;FEELEvent, Object&gt;</code> to contain FEEL-Dialect-specific value, if needed
+     *
+     * @see FEELFunction#defaultValue()
+     * @param ctx
+     * @param source
+     * @return
+     */
+    private Either<FEELEvent, Object> getFEELDialectAdaptedEither(EvaluationContext ctx, Either<FEELEvent, Object> source) {
+        if (ctx.getFEELDialect().equals(FEELDialect.BFEEL)
+                && source.getOrElse(null) == null) {
+            return Either.ofRight(defaultValue());
+        } else {
+            return source;
+        }
+    }
+
+    /**
+     * Adapt the given <code>Object</code> to FEEL-Dialect-specific value, if needed
+     *
+     * @see FEELFunction#defaultValue()
+     * @param ctx
+     * @param source
+     * @return
+     */
+    private Object getFEELDialectAdaptedObject(EvaluationContext ctx, Object source) {
+        if (ctx.getFEELDialect().equals(FEELDialect.BFEEL)
+                && source == null) {
+            return defaultValue();
+        } else {
+            return source;
+        }
+    }
+
+    /**
+     * Adapt the given <code>List</code> to FEEL-Dialect-specific values, if needed
+     *
+     * @see FEELFunction#feelDialectAdaptedInputList(List)
+     * @param ctx
+     * @param source
+     * @return
+     */
+    private List getFEELDialectAdaptedList(EvaluationContext ctx, List source) {
+        if (ctx.getFEELDialect().equals(FEELDialect.BFEEL)
+                && source != null) {
+            return feelDialectAdaptedInputList(source);
+        } else {
+            return source;
+        }
     }
 
     protected boolean isCustomFunction() {

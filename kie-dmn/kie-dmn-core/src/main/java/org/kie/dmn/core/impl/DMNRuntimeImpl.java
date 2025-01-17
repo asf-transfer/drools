@@ -58,6 +58,7 @@ import org.kie.dmn.core.compiler.DMNProfile;
 import org.kie.dmn.core.compiler.RuntimeTypeCheckOption;
 import org.kie.dmn.core.util.Msg;
 import org.kie.dmn.core.util.MsgUtil;
+import org.kie.dmn.feel.lang.FEELDialect;
 import org.kie.dmn.feel.runtime.FEELFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -670,7 +671,8 @@ public class DMNRuntimeImpl
             }
             try {
                 EvaluatorResult er = decision.getEvaluator().evaluate( this, result);
-                if( er.getResultType() == EvaluatorResult.ResultType.SUCCESS ) {
+                if( er.getResultType() == EvaluatorResult.ResultType.SUCCESS ||
+                        (((DMNModelImpl)result.getModel()).getFeelDialect().equals(FEELDialect.BFEEL) && er.getResult() != null)) {
                     Object value = coerceValue(decision.getResultType(), er.getResult());
                     try {
                         if (typeCheck && !d.getResultType().isAssignableValue(value)) {

@@ -25,10 +25,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELCollectionFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 public class UnionFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELCollectionFunction {
 
     public static final UnionFunction INSTANCE = new UnionFunction();
 

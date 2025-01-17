@@ -19,10 +19,11 @@
 package org.kie.dmn.feel.runtime.functions;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELBooleanFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 public class StartsWithFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELBooleanFunction {
 
     public static final StartsWithFunction INSTANCE = new StartsWithFunction();
 

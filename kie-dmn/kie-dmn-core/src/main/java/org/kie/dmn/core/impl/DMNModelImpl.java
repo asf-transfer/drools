@@ -68,12 +68,12 @@ import org.kie.dmn.core.compiler.DMNTypeRegistryV14;
 import org.kie.dmn.core.compiler.DMNTypeRegistryV15;
 import org.kie.dmn.core.pmml.DMNImportPMMLInfo;
 import org.kie.dmn.core.util.DefaultDMNMessagesManager;
+import org.kie.dmn.feel.lang.FEELDialect;
 import org.kie.dmn.model.api.DMNModelInstrumentedBase;
 import org.kie.dmn.model.api.Definitions;
 
 import static org.kie.dmn.core.compiler.UnnamedImportUtils.isInUnnamedImport;
 import static org.kie.dmn.core.impl.TupleIdentifier.createTupleIdentifier;
-import static org.kie.dmn.core.impl.TupleIdentifier.createTupleIdentifierById;
 import static org.kie.dmn.core.impl.TupleIdentifier.createTupleIdentifierByName;
 
 public class DMNModelImpl
@@ -107,6 +107,8 @@ public class DMNModelImpl
 
     private ImportChain importChain;
 
+    private FEELDialect feelDialect;
+
     public DMNModelImpl() {
         // needed because Externalizable.
     }
@@ -116,12 +118,22 @@ public class DMNModelImpl
         wireTypeRegistry(definitions);
         importChain = new ImportChain(this);
         messages = new DefaultDMNMessagesManager(null);
+        String expressionLanguage = definitions.getExpressionLanguage() != null ? definitions.getExpressionLanguage() : "";
+        try {
+            feelDialect = FEELDialect.fromNamespace(expressionLanguage);
+        } catch (IllegalArgumentException e) {
+            feelDialect = FEELDialect.FEEL;
+        }
     }
 
     public DMNModelImpl(Definitions dmndefs, Resource resource) {
         this(dmndefs);
         this.setResource(resource);
         messages = new DefaultDMNMessagesManager(resource);
+    }
+
+    public FEELDialect getFeelDialect() {
+        return feelDialect;
     }
 
     private void wireTypeRegistry(Definitions definitions) {

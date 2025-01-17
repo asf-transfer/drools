@@ -59,5 +59,5 @@ public interface EvaluationContext {
 
     Object getRootObject();
 
-    FEELDialect getDialect();
+    FEELDialect getFEELDialect();
 }

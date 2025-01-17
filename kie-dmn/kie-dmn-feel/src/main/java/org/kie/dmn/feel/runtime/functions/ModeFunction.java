@@ -28,11 +28,12 @@ import java.util.stream.Collectors;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent;
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELCollectionFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 import org.kie.dmn.feel.util.NumberEvalHelper;
 
 public class ModeFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELCollectionFunction {
     public static final ModeFunction INSTANCE = new ModeFunction();
 
     private ModeFunction() {
@@ -66,5 +67,10 @@ public class ModeFunction
         }
 
         return invoke( Arrays.asList( list ) );
+    }
+
+    @Override
+    public List feelDialectAdaptedInputList(List toAdapt) {
+        return  toAdapt.stream().filter(element -> (element instanceof Number)).toList();
     }
 }

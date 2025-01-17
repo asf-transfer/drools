@@ -119,7 +119,7 @@ public class SilentWrappingEvaluationContextImpl implements EvaluationContext {
     }
 
     @Override
-    public FEELDialect getDialect() {
-        return wrapped.getDialect();
+    public FEELDialect getFEELDialect() {
+        return wrapped.getFEELDialect();
     }
 }

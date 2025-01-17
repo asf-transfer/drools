@@ -28,6 +28,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.regex.Pattern;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELDateFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
@@ -35,7 +36,7 @@ import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.time.temporal.ChronoField.YEAR;
 
 public class DateFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELDateFunction {
 
     public static final DateFunction INSTANCE = new DateFunction();
 
@@ -50,6 +51,7 @@ public class DateFunction
                                                   .toFormatter()
                                                   .withResolverStyle(ResolverStyle.STRICT);
     }
+
 
     protected DateFunction() {
         super(FEELConversionFunctionNames.DATE);

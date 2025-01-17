@@ -37,8 +37,8 @@ public class LteExecutor implements InfixExecutor {
 
     @Override
     public Object evaluate(Object left, Object right, EvaluationContext ctx) {
-        return or(BooleanEvalHelper.compare(left, right, (l, r) -> l.compareTo(r) < 0),
-                  BooleanEvalHelper.isEqual(left, right),
+        return or(BooleanEvalHelper.compare(left, right, ctx.getFEELDialect(), (l, r) -> l.compareTo(r) < 0),
+                  BooleanEvalHelper.isEqual(left, right, ctx.getFEELDialect()),
                   ctx); // do not use Java || to avoid potential NPE due to FEEL 3vl.
     }
 

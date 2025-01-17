@@ -35,7 +35,7 @@ public class NeExecutor implements InfixExecutor {
 
     @Override
     public Object evaluate(Object left, Object right, EvaluationContext ctx) {
-        Boolean result = BooleanEvalHelper.isEqual(left, right);
+        Boolean result = BooleanEvalHelper.isEqual(left, right, ctx.getFEELDialect());
         return result != null ? !result : null;
     }
 

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+  -->
+
+<dmn:definitions xmlns="http://www.trisotech.com/definitions/_238bd96d-47cd-4746-831b-504f3e77b442"
+                      xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+                      xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+                      xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/"
+                      xmlns:feel="https://www.omg.org/spec/DMN/20240513/B-FEEL/"
+                      xmlns:dmn="https://www.omg.org/spec/DMN/20230324/MODEL/"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      exporter="DMN Modeler"
+                      exporterVersion="5.1.10.201705011622"
+                      id="_238bd96d-47cd-4746-831b-504f3e77b442"
+                      name="BFEELChecks"
+                      expressionLanguage="https://www.omg.org/spec/DMN/20240513/B-FEEL/"
+                      namespace="http://www.trisotech.com/definitions/_238bd96d-47cd-4746-831b-504f3e77b442">
+   <dmn:itemDefinition id="_7EC734D9-5C1C-4135-AD0C-859B5D6ABE07" name="user" isCollection="false">
+      <dmn:typeRef>string</dmn:typeRef>
+   </dmn:itemDefinition>
+   <dmn:itemDefinition id="_7EC734D9-5C1C-4135-AD0C-859B5D6ABE08" name="splitteduser" isCollection="true">
+      <dmn:typeRef>string</dmn:typeRef>
+   </dmn:itemDefinition>
+   <dmn:inputData id="_DBC698E3-45FC-4D92-A1EC-B8C34629C259" name="user">
+      <dmn:extensionElements/>
+      <dmn:variable id="_31DB70CD-2342-4AA9-81D1-D14A37118AB3" name="user" typeRef="user"/>
+   </dmn:inputData>
+   <dmn:decision id="_F8CA8F98-EE6D-4D56-BCA0-1C716FAC2056" name="Decision1">
+      <dmn:extensionElements/>
+      <dmn:variable id="_C932A158-30E0-438B-8930-5704002CEA96" name="Decision1" typeRef="boolean"/>
+      <dmn:informationRequirement id="_B3961DA9-EB27-41E0-AAF2-386084E9E5FF">
+         <dmn:requiredInput href="#_DBC698E3-45FC-4D92-A1EC-B8C34629C259"/>
+      </dmn:informationRequirement>
+      <dmn:literalExpression id="_4B499A2E-513E-4938-8C74-C06E7DF47C72">
+         <dmn:text>user = 1</dmn:text>
+      </dmn:literalExpression>
+   </dmn:decision>
+   <dmn:decision id="_F8CA8F98-EE6D-4D56-BCA0-1C716FAC2058" name="Decision2">
+      <dmn:extensionElements/>
+      <dmn:variable id="_C932A158-30E0-438B-8930-5704002CEA98" name="Decision2" typeRef="splitteduser"/>
+      <dmn:informationRequirement id="_B3961DA9-EB27-41E0-AAF2-386084E9E601">
+         <dmn:requiredInput href="#_DBC698E3-45FC-4D92-A1EC-B8C34629C259"/>
+      </dmn:informationRequirement>
+      <dmn:literalExpression id="_4B499A2E-513E-4938-8C74-C06E7DF47C74">
+         <dmn:text>split(user, 22)</dmn:text>
+      </dmn:literalExpression>
+   </dmn:decision>
+</dmn:definitions>

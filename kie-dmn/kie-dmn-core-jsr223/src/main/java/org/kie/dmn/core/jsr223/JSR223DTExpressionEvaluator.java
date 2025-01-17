@@ -171,7 +171,7 @@ public class JSR223DTExpressionEvaluator implements DMNExpressionEvaluator {
         private final List<FEELEvent> events;
         // Defaulting FEELDialect to FEEL
         private final FEELDialect dialect = FEELDialect.FEEL;
-        
+
         public JSR223WrappingEC(Map<String, Object> values, List<FEELEvent> events) {
             this.values = Collections.unmodifiableMap(values);
             this.events = events;
@@ -253,7 +253,7 @@ public class JSR223DTExpressionEvaluator implements DMNExpressionEvaluator {
         }
 
         @Override
-        public FEELDialect getDialect() {
+        public FEELDialect getFEELDialect() {
             return dialect;
         }
     }

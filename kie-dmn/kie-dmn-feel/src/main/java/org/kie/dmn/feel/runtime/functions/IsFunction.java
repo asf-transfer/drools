@@ -21,10 +21,12 @@ package org.kie.dmn.feel.runtime.functions;
 import java.time.chrono.ChronoPeriod;
 import java.time.temporal.TemporalAccessor;
 
+import org.kie.dmn.feel.lang.FEELDialect;
 import org.kie.dmn.feel.lang.types.BuiltInType;
+import org.kie.dmn.feel.runtime.FEELBooleanFunction;
 import org.kie.dmn.feel.util.BooleanEvalHelper;
 
-public class IsFunction extends BaseFEELFunction {
+public class IsFunction extends BaseFEELFunction implements FEELBooleanFunction {
     public static final IsFunction INSTANCE = new IsFunction();
 
     private IsFunction() {
@@ -45,7 +47,7 @@ public class IsFunction extends BaseFEELFunction {
                 return FEELFnResult.ofResult(BooleanEvalHelper.isEqualDateTimeInSemanticD(left, right));
             } // fallback; continue:
         }
-        Boolean fallback = BooleanEvalHelper.isEqual(value1, value2); // if null implying they are not the same semantic domain value.
+        Boolean fallback = BooleanEvalHelper.isEqual(value1, value2, FEELDialect.FEEL); // if null implying they are not the same semantic domain value.
         return FEELFnResult.ofResult(fallback != null ? fallback : Boolean.FALSE);
     }
 

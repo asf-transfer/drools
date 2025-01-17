@@ -28,10 +28,11 @@ import java.time.temporal.TemporalAmount;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
 import org.kie.dmn.feel.lang.types.impl.ComparablePeriod;
+import org.kie.dmn.feel.runtime.FEELDurationFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 public class YearsAndMonthsFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELDurationFunction {
 
     public static final YearsAndMonthsFunction INSTANCE = new YearsAndMonthsFunction();
 

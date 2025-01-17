@@ -47,8 +47,8 @@ public class InfixExecutorUtils {
      */
     @Deprecated
     public static Object or(Object left, Object right, EvaluationContext ctx) {
-        Boolean l = BooleanEvalHelper.getBooleanOrNull(left);
-        Boolean r = BooleanEvalHelper.getBooleanOrNull(right);
+        Boolean l = BooleanEvalHelper.getBooleanOrDialectDefault(left, ctx.getFEELDialect());
+        Boolean r = BooleanEvalHelper.getBooleanOrDialectDefault(right, ctx.getFEELDialect());
         // have to check for all nulls first to avoid NPE
         if ((l == null && r == null) || (l == null && r == false) || (r == null && l == false)) {
             return null;
@@ -65,8 +65,8 @@ public class InfixExecutorUtils {
      */
     @Deprecated
     public static Object and(Object left, Object right, EvaluationContext ctx) {
-        Boolean l = BooleanEvalHelper.getBooleanOrNull(left);
-        Boolean r = BooleanEvalHelper.getBooleanOrNull(right);
+        Boolean l = BooleanEvalHelper.getBooleanOrDialectDefault(left, ctx.getFEELDialect());
+        Boolean r = BooleanEvalHelper.getBooleanOrDialectDefault(right, ctx.getFEELDialect());
         // have to check for all nulls first to avoid NPE
         if ((l == null && r == null) || (l == null && r == true) || (r == null && l == true)) {
             return null;

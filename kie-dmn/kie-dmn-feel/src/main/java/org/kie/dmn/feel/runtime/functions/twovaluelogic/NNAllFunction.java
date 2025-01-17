@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELBooleanFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 import org.kie.dmn.feel.runtime.functions.BaseFEELFunction;
 import org.kie.dmn.feel.runtime.functions.FEELFnResult;
@@ -31,7 +32,7 @@ import org.kie.dmn.feel.runtime.functions.ParameterName;
  * An implementation of the all() function that ignores nulls
  */
 public class NNAllFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELBooleanFunction {
 
     public static final NNAllFunction INSTANCE = new NNAllFunction();
 

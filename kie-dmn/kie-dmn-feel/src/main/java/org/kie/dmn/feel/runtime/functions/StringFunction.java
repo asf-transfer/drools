@@ -19,11 +19,13 @@
 package org.kie.dmn.feel.runtime.functions;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELFunction;
+import org.kie.dmn.feel.runtime.FEELStringFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 import org.kie.dmn.feel.util.TypeUtil;
 
 public class StringFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELStringFunction {
 
     public static final StringFunction INSTANCE = new StringFunction();
 
@@ -46,4 +48,5 @@ public class StringFunction
             return FEELFnResult.ofResult( String.format( mask, params ) );
         }
     }
+
 }

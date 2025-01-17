@@ -25,6 +25,7 @@ import java.util.function.BiPredicate;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
 import org.kie.dmn.feel.lang.EvaluationContext;
+import org.kie.dmn.feel.lang.FEELDialect;
 import org.kie.dmn.feel.runtime.Range;
 import org.kie.dmn.feel.runtime.UnaryTest;
 import org.kie.dmn.feel.runtime.UnaryTestImpl;
@@ -142,7 +143,8 @@ public class UnaryTestNode
     private UnaryTest createCompareUnaryTest( BiPredicate<Comparable, Comparable> op ) {
         return (context, left) -> {
             Object right = value.evaluate( context );
-            return BooleanEvalHelper.compare(left, right, op );
+            // Defaulting FEELDialect to FEEL
+            return BooleanEvalHelper.compare(left, right, FEELDialect.FEEL, op );
         };
     }
 
@@ -156,7 +158,7 @@ public class UnaryTestNode
             return ((Collection) right).contains(left);
         } else {
             // evaluate single entity
-            return BooleanEvalHelper.isEqual(left, right);
+            return BooleanEvalHelper.isEqual(left, right, FEELDialect.FEEL);
         }
     }
 
@@ -183,7 +185,7 @@ public class UnaryTestNode
             Object val = value.evaluate( c );
             if (val instanceof Range) {
                 try {
-                    return ((Range) val).includes(o);
+                    return ((Range) val).includes(c.getFEELDialect(), o);
                 } catch (Exception e) {
                     c.notifyEvt(astEvent(Severity.ERROR, Msg.createMessage(Msg.EXPRESSION_IS_RANGE_BUT_VALUE_IS_NOT_COMPARABLE, o, val)));
                     throw e;
@@ -218,7 +220,7 @@ public class UnaryTestNode
                     }
                 } else if( test instanceof Range ) {
                     try {
-                        if( ((Range)test).includes( o ) ) {
+                        if( ((Range)test).includes(c.getFEELDialect(), o ) ) {
                             return false;
                         }
                     } catch ( Exception e ) {

@@ -36,11 +36,12 @@ import java.util.regex.Pattern;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent;
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELTimeFunction;
 import org.kie.dmn.feel.runtime.custom.ZoneTime;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 public class TimeFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELTimeFunction {
 
     public static final TimeFunction INSTANCE = new TimeFunction();
 

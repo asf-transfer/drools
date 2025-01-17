@@ -23,10 +23,11 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELNumberFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 import org.kie.dmn.feel.util.NumberEvalHelper;
 
-public class DayOfYearFunction extends BaseFEELFunction {
+public class DayOfYearFunction extends BaseFEELFunction implements FEELNumberFunction {
     public static final DayOfYearFunction INSTANCE = new DayOfYearFunction();
 
     private DayOfYearFunction() {

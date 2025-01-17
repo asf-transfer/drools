@@ -35,7 +35,7 @@ public class EqExecutor implements InfixExecutor {
 
     @Override
     public Object evaluate(Object left, Object right, EvaluationContext ctx) {
-        return BooleanEvalHelper.isEqual(left, right);
+        return BooleanEvalHelper.isEqual(left, right, ctx.getFEELDialect());
     }
 
     @Override

@@ -73,22 +73,24 @@ public class DMNFEELHelper {
     private final FEEL                   feel;
     private final FEELEventsListenerImpl listener;
     private final List<FEELProfile> feelProfiles = new ArrayList<>();
+    private final FEELDialect feelDialect;
 
-    public DMNFEELHelper(List<FEELProfile> feelProfiles) {
-        this(ClassLoaderUtil.findDefaultClassLoader(), feelProfiles);
+    public DMNFEELHelper(List<FEELProfile> feelProfiles, FEELDialect feelDialect) {
+        this(ClassLoaderUtil.findDefaultClassLoader(), feelProfiles, feelDialect);
     }
 
-    public DMNFEELHelper(ClassLoader classLoader, List<FEELProfile> feelProfiles) {
+    public DMNFEELHelper(ClassLoader classLoader, List<FEELProfile> feelProfiles, FEELDialect feelDialect) {
         this.classLoader = classLoader;
         this.feelProfiles.addAll(feelProfiles);
         this.listener = new FEELEventsListenerImpl();
+        this.feelDialect = feelDialect;
         this.feel = createFEELInstance();
     }
 
     private FEEL createFEELInstance() {
-        FEEL feel = FEELBuilder.builder().withClassloader(classLoader).withProfiles(feelProfiles).build();
-        feel.addListener( listener );
-        return feel;
+        FEEL toReturn = newFEELInstance();
+        toReturn.addListener( listener );
+        return toReturn;
     }
 
     /**
@@ -96,7 +98,23 @@ public class DMNFEELHelper {
      * This FEEL instance is potentially not the same shared by the compiler during the compilation phase.
      */
     public FEEL newFEELInstance() {
-        return FEELBuilder.builder().withClassloader(classLoader).withProfiles(feelProfiles).build();
+        return FEELBuilder.builder().withClassloader(classLoader)
+                .withProfiles(feelProfiles)
+                .withFEELDialect(feelDialect)
+                .build();
+    }
+
+    /**
+     * Return a FEEL instance to be used in invokers/impls, which is however configured correctly accordingly to profiles
+     * but overrides the used FEELDialect
+     * This FEEL instance is potentially not the same shared by the compiler during the compilation phase.
+     *
+     */
+    public FEEL newFEELInstance(FEELDialect overridingFeelDialect) {
+        return FEELBuilder.builder().withClassloader(classLoader)
+                .withProfiles(feelProfiles)
+                .withFEELDialect(overridingFeelDialect)
+                .build();
     }
 
     public static boolean valueMatchesInUnaryTests(List<UnaryTest> unaryTests, Object value, DMNContext dmnContext) {

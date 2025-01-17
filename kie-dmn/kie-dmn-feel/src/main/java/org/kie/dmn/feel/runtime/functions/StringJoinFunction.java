@@ -22,9 +22,10 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELStringFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
-public class StringJoinFunction extends BaseFEELFunction {
+public class StringJoinFunction extends BaseFEELFunction implements FEELStringFunction {
 
     public static final StringJoinFunction INSTANCE = new StringJoinFunction();
 

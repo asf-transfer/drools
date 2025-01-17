@@ -163,7 +163,7 @@ class DMNContextFEELCtxWrapperTest extends BaseDMNContextTest {
         }
 
         @Override
-        public FEELDialect getDialect() {
+        public FEELDialect getFEELDialect() {
             // Defaulting FEELDialect to FEEL
             return FEELDialect.FEEL;
         }

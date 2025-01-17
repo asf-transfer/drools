@@ -22,10 +22,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELNumberFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 public class ModuloFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELNumberFunction {
     public static final ModuloFunction INSTANCE = new ModuloFunction();
 
     private ModuloFunction() {

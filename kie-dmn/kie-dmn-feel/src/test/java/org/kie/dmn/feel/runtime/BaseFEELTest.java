@@ -111,6 +111,18 @@ public abstract class BaseFEELTest {
         return toReturn;
     }
 
+    protected static List<Object[]> addAdditionalParametersForBothProfiles(final Object[][] cases, FEELDialect feelDialect) {
+        final List<Object[]> toReturn = new ArrayList<>();
+        final boolean[] useExtendedProfiles = { false, true };
+        for (final Object[] c : cases) {
+            for (boolean useExtendedProfile : useExtendedProfiles) {
+                toReturn.add(new Object[]{c[0], c[1], c[2], FEEL_TARGET.AST_INTERPRETED, useExtendedProfile, feelDialect});
+                toReturn.add(new Object[]{c[0], c[1], c[2], FEEL_TARGET.JAVA_TRANSLATED, useExtendedProfile, feelDialect});
+            }
+        }
+        return toReturn;
+    }
+
     private List<FEELProfile> getFEELProfilesForTests() {
         final List<FEELProfile> profiles = new ArrayList<>();
         if (testFEELTarget == FEEL_TARGET.JAVA_TRANSLATED) {

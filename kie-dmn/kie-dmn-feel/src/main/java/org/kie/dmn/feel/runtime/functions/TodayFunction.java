@@ -21,8 +21,10 @@ package org.kie.dmn.feel.runtime.functions;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAccessor;
 
+import org.kie.dmn.feel.runtime.FEELDateFunction;
+
 public class TodayFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELDateFunction {
 
     public static final TodayFunction INSTANCE = new TodayFunction();
 

@@ -21,7 +21,6 @@ package org.kie.dmn.feel.lang.ast.infixexecutors;
 import org.kie.dmn.feel.lang.EvaluationContext;
 import org.kie.dmn.feel.lang.ast.InfixOpNode;
 import org.kie.dmn.feel.util.BooleanEvalHelper;
-import org.kie.dmn.feel.util.EvalHelper;
 
 import static org.kie.dmn.feel.lang.ast.infixexecutors.InfixExecutorUtils.or;
 
@@ -43,16 +42,15 @@ public class OrExecutor implements InfixExecutor {
 
     @Override
     public Object evaluate(InfixOpNode infixNode, EvaluationContext ctx) {
-        Boolean leftOR = BooleanEvalHelper.getBooleanOrNull(infixNode.getLeft().evaluate(ctx));
+        Boolean leftOR = BooleanEvalHelper.getBooleanOrDialectDefault(infixNode.getLeft().evaluate(ctx), ctx.getFEELDialect());
         if (leftOR != null) {
             if (!leftOR.booleanValue()) {
-                return BooleanEvalHelper.getBooleanOrNull(infixNode.getRight().evaluate(ctx));
+                return BooleanEvalHelper.getBooleanOrDialectDefault(infixNode.getRight().evaluate(ctx), ctx.getFEELDialect());
             } else {
                 return Boolean.TRUE; //left hand operand is true, we do not need to evaluate right side
             }
         } else {
-            Boolean rightOR = BooleanEvalHelper.getBooleanOrNull(infixNode.getRight().evaluate(ctx));
-            return Boolean.TRUE.equals(rightOR) ? Boolean.TRUE : null;
+            return BooleanEvalHelper.getTrueOrDialectDefault(infixNode.getRight().evaluate(ctx), ctx.getFEELDialect());
         }
     }
 

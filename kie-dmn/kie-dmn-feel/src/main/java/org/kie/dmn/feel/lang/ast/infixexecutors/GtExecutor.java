@@ -35,7 +35,7 @@ public class GtExecutor implements InfixExecutor {
 
     @Override
     public Object evaluate(Object left, Object right, EvaluationContext ctx) {
-        return BooleanEvalHelper.compare(left, right, (l, r) -> l.compareTo(r) > 0);
+        return BooleanEvalHelper.compare(left, right, ctx.getFEELDialect(), (l, r) -> l.compareTo(r) > 0);
     }
 
     @Override

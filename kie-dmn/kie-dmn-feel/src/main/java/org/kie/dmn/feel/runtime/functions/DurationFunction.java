@@ -25,11 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELDurationFunction;
 import org.kie.dmn.feel.lang.types.impl.ComparablePeriod;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 public class DurationFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELDurationFunction {
 
     public static final DurationFunction INSTANCE = new DurationFunction();
 

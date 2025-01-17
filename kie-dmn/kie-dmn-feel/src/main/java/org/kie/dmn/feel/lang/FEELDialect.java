@@ -19,6 +19,10 @@
 package org.kie.dmn.feel.lang;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 
 public enum FEELDialect {
 
@@ -33,15 +37,41 @@ public enum FEELDialect {
 
     public String getNamespace() {return namespace;}
 
+    public final static Set<String> STANDARD_FEEL_URIS = getStandardFEELDialectURIS();
+
     /**
-     * In current implementation, it returns <code>BFEEL</code> if provided namespace matches, otherwise returns <code>FEEL</code>
+     * It returns <code>BFEEL</code> if provided namespace matches,
+     * or <code>FEEL</code> if it matches any of the <code>STANDARD_FEEL_URIS</code>,
+     * or throws an <code>IllegalArgumentException</code> if no match is found
+     *
      * @param namespace
      * @return
      */
     public static FEELDialect fromNamespace(String namespace) {
-        return Arrays.stream(FEELDialect.values())
+        Optional<FEELDialect> byNamespace = Arrays.stream(FEELDialect.values())
                 .filter(dialect -> dialect.getNamespace().equals(namespace))
-                .findFirst()
-                .orElse(FEELDialect.FEEL);
+                .findFirst();
+        if (byNamespace.isPresent()) {
+            return byNamespace.get();
+        }
+        Optional<FEELDialect> fromStandardFeelUris = getStandardFeelDialect(namespace);
+        if (fromStandardFeelUris.isPresent()) {
+            return fromStandardFeelUris.get();
+        }
+        throw new IllegalArgumentException("Unknown FEEL dialect '" + namespace + "'");
+    }
+
+    static Optional<FEELDialect> getStandardFeelDialect(String namespace) {
+        return STANDARD_FEEL_URIS.contains(namespace) ? Optional.of(FEEL) : Optional.empty();
+    }
+
+    private static Set<String> getStandardFEELDialectURIS() {
+        Set<String> toReturn = new HashSet<>();
+        toReturn.add(org.kie.dmn.model.v1_1.KieDMNModelInstrumentedBase.URI_FEEL);
+        toReturn.add(org.kie.dmn.model.v1_2.KieDMNModelInstrumentedBase.URI_FEEL);
+        toReturn.add(org.kie.dmn.model.v1_3.KieDMNModelInstrumentedBase.URI_FEEL);
+        toReturn.add(org.kie.dmn.model.v1_4.KieDMNModelInstrumentedBase.URI_FEEL);
+        toReturn.add(org.kie.dmn.model.v1_5.KieDMNModelInstrumentedBase.URI_FEEL);
+        return toReturn;
     }
 }

@@ -42,16 +42,17 @@ public class AndExecutor implements InfixExecutor {
 
     @Override
     public Object evaluate(InfixOpNode infixNode, EvaluationContext ctx) {
-        Boolean leftAND = BooleanEvalHelper.getBooleanOrNull(infixNode.getLeft().evaluate(ctx));
+        Boolean leftAND = BooleanEvalHelper.getBooleanOrDialectDefault(infixNode.getLeft().evaluate(ctx),
+                                                                       ctx.getFEELDialect());
         if (leftAND != null) {
             if (leftAND.booleanValue()) {
-                return BooleanEvalHelper.getBooleanOrNull(infixNode.getRight().evaluate(ctx));
+                return BooleanEvalHelper.getBooleanOrDialectDefault(infixNode.getRight().evaluate(ctx),
+                                                                    ctx.getFEELDialect());
             } else {
                 return Boolean.FALSE; //left hand operand is false, we do not need to evaluate right side
             }
         } else {
-            Boolean rightAND = BooleanEvalHelper.getBooleanOrNull(infixNode.getRight().evaluate(ctx));
-            return Boolean.FALSE.equals(rightAND) ? Boolean.FALSE : null;
+            return BooleanEvalHelper.getFalseOrDialectDefault(infixNode.getRight().evaluate(ctx), ctx.getFEELDialect());
         }
     }
 

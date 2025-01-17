@@ -19,6 +19,7 @@
 package org.kie.dmn.feel.runtime.functions;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELBooleanFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 /**
@@ -27,7 +28,7 @@ import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
  * test.
  */
 public class NotFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELBooleanFunction {
 
     public static final NotFunction INSTANCE = new NotFunction();
 
@@ -40,6 +41,11 @@ public class NotFunction
             return FEELFnResult.ofError( new InvalidParametersEvent( Severity.ERROR, "negand", "must be a boolean value" ) );
         }
         return FEELFnResult.ofResult( negand == null ? null : !((Boolean) negand) );
+    }
+
+    @Override
+    public Object defaultValue() {
+        return false;
     }
 
 }

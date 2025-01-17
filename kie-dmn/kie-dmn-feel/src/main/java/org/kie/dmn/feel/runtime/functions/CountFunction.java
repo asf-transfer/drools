@@ -23,10 +23,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELNumberFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
 public class CountFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELNumberFunction {
 
     public static final CountFunction INSTANCE = new CountFunction();
 
@@ -49,4 +50,10 @@ public class CountFunction
         
         return invoke( Arrays.asList( list ) );
     }
+
+    @Override
+    public List feelDialectAdaptedInputList(List toAdapt) {
+        return toAdapt;
+    }
+
 }

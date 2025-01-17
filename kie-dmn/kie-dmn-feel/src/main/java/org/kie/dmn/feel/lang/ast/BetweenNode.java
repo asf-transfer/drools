@@ -21,6 +21,7 @@ package org.kie.dmn.feel.lang.ast;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
 import org.kie.dmn.feel.lang.EvaluationContext;
+import org.kie.dmn.feel.lang.FEELDialect;
 import org.kie.dmn.feel.lang.Type;
 import org.kie.dmn.feel.lang.ast.infixexecutors.InfixExecutorUtils;
 import org.kie.dmn.feel.lang.types.BuiltInType;
@@ -104,17 +105,17 @@ public class BetweenNode
             ctx.notifyEvt(astEvent(Severity.ERROR, Msg.createMessage(Msg.IS_NULL, "end")));
             problem = true;
         }
-        if (problem) return null;
+        if (problem && ctx.getFEELDialect() != FEELDialect.BFEEL) return null;
 
-        Object gte = InfixExecutorUtils.or(BooleanEvalHelper.compare(o_val, o_s, (l, r) -> l.compareTo(r) > 0),
-                                           BooleanEvalHelper.isEqual(o_val, o_s),
+        Object gte = InfixExecutorUtils.or(BooleanEvalHelper.compare(o_val, o_s, ctx.getFEELDialect(), (l, r) -> l.compareTo(r) > 0),
+                                           BooleanEvalHelper.isEqual(o_val, o_s, ctx.getFEELDialect()),
                                            ctx); // do not use Java || to avoid potential NPE due to FEEL 3vl.
         if (gte == null) {
             ctx.notifyEvt(astEvent(Severity.ERROR, Msg.createMessage(Msg.X_TYPE_INCOMPATIBLE_WITH_Y_TYPE, "value", "start")));
         }
 
-        Object lte = InfixExecutorUtils.or(BooleanEvalHelper.compare(o_val, o_e, (l, r) -> l.compareTo(r) < 0),
-                BooleanEvalHelper.isEqual(o_val, o_e),
+        Object lte = InfixExecutorUtils.or(BooleanEvalHelper.compare(o_val, o_e, ctx.getFEELDialect(), (l, r) -> l.compareTo(r) < 0),
+                BooleanEvalHelper.isEqual(o_val, o_e, ctx.getFEELDialect()),
                 ctx); // do not use Java || to avoid potential NPE due to FEEL 3vl.
         if (lte == null) {
             ctx.notifyEvt(astEvent(Severity.ERROR, Msg.createMessage(Msg.X_TYPE_INCOMPATIBLE_WITH_Y_TYPE, "value", "end")));

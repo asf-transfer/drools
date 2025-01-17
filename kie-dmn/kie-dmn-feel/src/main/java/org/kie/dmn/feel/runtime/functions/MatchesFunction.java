@@ -19,13 +19,14 @@
 package org.kie.dmn.feel.runtime.functions;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELBooleanFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 import org.kie.dmn.feel.util.XQueryImplUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MatchesFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELBooleanFunction {
     private static final Logger log = LoggerFactory.getLogger(MatchesFunction.class);
     public static final MatchesFunction INSTANCE = new MatchesFunction();
 
@@ -56,5 +57,10 @@ public class MatchesFunction
             }
             return FEELFnResult.ofError(new InvalidParametersEvent(Severity.ERROR, errorMessage, e));
         }
+    }
+
+    @Override
+    public Object defaultValue() {
+        return false;
     }
 }

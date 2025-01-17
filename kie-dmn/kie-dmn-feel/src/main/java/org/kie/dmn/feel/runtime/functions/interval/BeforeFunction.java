@@ -19,6 +19,7 @@
 package org.kie.dmn.feel.runtime.functions.interval;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELBooleanFunction;
 import org.kie.dmn.feel.runtime.Range;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 import org.kie.dmn.feel.runtime.functions.BaseFEELFunction;
@@ -26,7 +27,7 @@ import org.kie.dmn.feel.runtime.functions.FEELFnResult;
 import org.kie.dmn.feel.runtime.functions.ParameterName;
 
 public class BeforeFunction
-        extends BaseFEELFunction {
+        extends BaseFEELFunction implements FEELBooleanFunction {
 
     public static final BeforeFunction INSTANCE = new BeforeFunction();
 
@@ -100,6 +101,11 @@ public class BeforeFunction
             // points are not comparable
             return FEELFnResult.ofError(new InvalidParametersEvent(Severity.ERROR, "range1", "cannot be compared to range2"));
         }
+    }
+
+    @Override
+    public Object defaultValue() {
+        return false;
     }
 
 }

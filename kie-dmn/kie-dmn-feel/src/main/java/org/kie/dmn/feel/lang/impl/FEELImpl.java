@@ -152,7 +152,7 @@ public class FEELImpl
     @Override
     public Object evaluate(CompiledExpression expr, Map<String, Object> inputVariables) {
         CompiledFEELExpression e = (CompiledFEELExpression) expr;
-        EvaluationContextImpl evaluationContext = newEvaluationContext(Collections.EMPTY_SET, inputVariables); // split to simplify debug
+        EvaluationContextImpl evaluationContext = newEvaluationContext(Collections.emptySet(), inputVariables); // split to simplify debug
         return e.apply(evaluationContext);
     }
     
@@ -225,4 +225,7 @@ public class FEELImpl
         return listenerMgr;
     }
 
+    public FEELDialect getFeelDialect() {
+        return feelDialect;
+    }
 }

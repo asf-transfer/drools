@@ -24,9 +24,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.kie.dmn.api.feel.runtime.events.FEELEvent.Severity;
+import org.kie.dmn.feel.runtime.FEELCollectionFunction;
 import org.kie.dmn.feel.runtime.events.InvalidParametersEvent;
 
-public class GetEntriesFunction extends BaseFEELFunction {
+public class GetEntriesFunction extends BaseFEELFunction implements FEELCollectionFunction {
 
     public static final GetEntriesFunction INSTANCE = new GetEntriesFunction();
 

@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 
+import org.kie.dmn.feel.lang.FEELDialect;
 import org.kie.dmn.feel.lang.types.BuiltInType;
 import org.kie.dmn.feel.lang.types.impl.ComparablePeriod;
 import org.kie.dmn.feel.runtime.Range;
@@ -58,9 +59,9 @@ public class BooleanEvalHelper {
      * @param op
      * @return
      */
-    public static Boolean compare(Object left, Object right, BiPredicate<Comparable, Comparable> op) {
+    public static Boolean compare(Object left, Object right, FEELDialect feelDialect, BiPredicate<Comparable, Comparable> op) {
         if ( left == null || right == null ) {
-            return null;
+            return getBooleanOrDialectDefault(null, feelDialect);
         }
         if (left instanceof ChronoPeriod && right instanceof ChronoPeriod) {
             // periods have special compare semantics in FEEL as it ignores "days". Only months and years are compared
@@ -92,7 +93,7 @@ public class BooleanEvalHelper {
             Comparable<?> r = (Comparable<?>) right;
             return op.test(l, r);
         }
-        return null;
+        return getBooleanOrDialectDefault(null, feelDialect);
     }
 
     /**
@@ -102,7 +103,7 @@ public class BooleanEvalHelper {
      * @param right
      * @return
      */
-    public static Boolean isEqual(Object left, Object right) {
+    public static Boolean isEqual(Object left, Object right, FEELDialect feelDialect) {
         if ( left == null || right == null ) {
             return left == right;
         }
@@ -125,18 +126,18 @@ public class BooleanEvalHelper {
             // periods have special compare semantics in FEEL as it ignores "days". Only months and years are compared
             Long l = ComparablePeriod.toTotalMonths((ChronoPeriod) left);
             Long r = ComparablePeriod.toTotalMonths((ChronoPeriod) right);
-            return isEqual(l, r);
+            return isEqual(l, r, feelDialect);
         } else if (left instanceof TemporalAccessor && right instanceof TemporalAccessor) {
             // Handle specific cases when both time / datetime
             TemporalAccessor l = (TemporalAccessor) left;
             TemporalAccessor r = (TemporalAccessor) right;
             if (BuiltInType.determineTypeFromInstance(left) == BuiltInType.TIME && BuiltInType.determineTypeFromInstance(right) == BuiltInType.TIME) {
-                return isEqual(valuet(l), valuet(r));
+                return isEqual(DateTimeEvalHelper.valuet(l), DateTimeEvalHelper.valuet(r), feelDialect);
             } else if (BuiltInType.determineTypeFromInstance(left) == BuiltInType.DATE_TIME && BuiltInType.determineTypeFromInstance(right) == BuiltInType.DATE_TIME) {
-                return isEqual(valuedt(l, r.query(TemporalQueries.zone())), valuedt(r, l.query(TemporalQueries.zone())));
+                return isEqual(DateTimeEvalHelper.valuedt(l, r.query(TemporalQueries.zone())), DateTimeEvalHelper.valuedt(r, l.query(TemporalQueries.zone())), feelDialect);
             } // fallback; continue:
         }
-        return compare( left, right, (l, r) -> l.compareTo( r ) == 0  );
+        return compare( left, right, feelDialect, (l, r) -> l.compareTo( r ) == 0  );
     }
 
     /**
@@ -177,6 +178,70 @@ public class BooleanEvalHelper {
         Optional<ZoneId> rTZ = Optional.ofNullable(right.query(TemporalQueries.zone()));
         result &= lTZ.equals(rTZ);
         return result;
+    }
+
+    /**
+     * This method consider if the <code>value</code> object is a <code>String</code>
+     * In that case, return the {@link String#equals(Object)} result
+     * Otherwise, default to the {@link #isEqual(Object, Object, FEELDialect)}
+     * @param value
+     * @param itemFromList
+     * @return
+     */
+    public static boolean isEqualsStringCompare(Object value, Object itemFromList) {
+        if (value instanceof String) {
+            return value.equals(itemFromList);
+        } else {
+            // Defaulting FEELDialect to FEEL
+            Boolean dmnEqual = isEqual(value, itemFromList, FEELDialect.FEEL);
+            return dmnEqual != null && dmnEqual;
+        }
+    }
+
+    /**
+     * Return the original object or, depending on the FEELDialect, a default value
+     * @param rawReturn
+     * @param feelDialect
+     * @return
+     */
+    public static Boolean getBooleanOrDialectDefault(Object rawReturn, FEELDialect feelDialect) {
+        if (feelDialect.equals(FEELDialect.BFEEL)) {
+            if (rawReturn instanceof Boolean bool) {
+                return bool;
+            } else {
+                return false;
+            }
+        } else {
+            return (Boolean) rawReturn;
+        }
+    }
+
+    /**
+     * Return <code>TRUE</code> if it is the original object or, depending on the FEELDialect, a default value
+     * @param rawReturn
+     * @param feelDialect
+     * @return
+     */
+    public static Boolean getTrueOrDialectDefault(Object rawReturn, FEELDialect feelDialect) {
+        if (rawReturn instanceof Boolean bool && bool) {
+            return bool;
+        } else {
+            return getBooleanOrDialectDefault(null, feelDialect);
+        }
+    }
+
+    /**
+     * Return <code>TRUE</code> if it is the original object or, depending on the FEELDialect, a default value
+     * @param rawReturn
+     * @param feelDialect
+     * @return
+     */
+    public static Boolean getFalseOrDialectDefault(Object rawReturn, FEELDialect feelDialect) {
+        if (rawReturn instanceof Boolean bool && (!bool)) {
+            return bool;
+        } else {
+            return getBooleanOrDialectDefault(null, feelDialect);
+        }
     }
 
     static Boolean isEqual(Range left, Range right) {
